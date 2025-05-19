@@ -1,0 +1,15 @@
+[package]
+name = "polars-wasm"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+chrono = "0.4.41"
+polars-core = {version = "0.46.0", features = ["fmt_no_tty", "dtype-datetime"]}
+polars-io = "0.46.0"
+polars-lazy = "0.46.0"
+polars-sql = "0.46.0"
+wasm-bindgen = "0.2.100"
