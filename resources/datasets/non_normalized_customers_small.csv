@@ -1,0 +1,6 @@
+CustomerID,CustomerName,Address,Order1ID,Order1Date,Order1Item,Order1Qty,Order2ID,Order2Date,Order2Item,Order2Qty
+1,Wendy Johnson,"951 Smith Keys, Millerborough, WV 58660",2001,2024-05-31,Advanced Widget C,3,2002,2024-05-04,Advanced Widget B,4
+2,Kevin Ayala,"Unit 8193 Box 8897, DPO AA 16461",2003,2024-05-31,Basic Widget D,6,2004,2024-05-07,Premium Widget B,5
+3,Barbara Tran,"USCGC Graham, FPO AA 78684",2005,2024-05-25,Basic Widget C,10,2006,2024-05-27,Premium Widget D,8
+4,Gary Ross,"570 Peterson Park, Port Joseph, MD 04795",2007,2024-05-18,Advanced Widget C,8,2008,2024-05-22,Advanced Widget D,1
+5,Bryan Wallace,"40717 Camacho Inlet Apt. 639, South Jeremyville, KY 08155",2009,2024-05-01 00:00:10,Advanced Widget D,4,,,,

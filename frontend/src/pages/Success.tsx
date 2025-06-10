@@ -1,7 +1,7 @@
 import { Container, Card, CardContent, Typography, Box } from "@mui/material";
 import { motion } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../stores/Store";
+import { useSelector } from "react-redux";
+import { RootState } from "../stores/Store";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 

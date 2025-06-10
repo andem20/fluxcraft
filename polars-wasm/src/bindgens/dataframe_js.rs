@@ -1,10 +1,10 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::{DataFrameWrapper, create_df_wrapper};
+use crate::{bindgens::log, wrapper};
 
 #[wasm_bindgen]
 pub struct DataFrameJS {
-    wrapper: DataFrameWrapper,
+    wrapper: wrapper::DataFrameWrapper,
 }
 
 impl DataFrameJS {
@@ -22,6 +22,7 @@ pub struct ColumnJS {
 pub struct ColumnHeaderJS {
     name: String,
     dtype: polars_core::prelude::DataType,
+    is_primary_key: bool,
 }
 
 #[wasm_bindgen]
@@ -34,9 +35,14 @@ impl ColumnHeaderJS {
         return match self.dtype {
             polars_core::prelude::DataType::String => "string",
             polars_core::prelude::DataType::Datetime(_, _) => "datetime",
+            polars_core::prelude::DataType::Date => "datetime",
             _ => "number",
         }
         .to_string();
+    }
+
+    pub fn is_primary_key(&self) -> bool {
+        self.is_primary_key
     }
 }
 
@@ -54,14 +60,16 @@ impl DataFrameJS {
     }
 
     pub fn get_headers(&self) -> Vec<ColumnHeaderJS> {
+        let primary_keys = self.wrapper.get_primary_keys();
         return self
             .get_df()
             .get_column_names()
             .iter()
             .zip(self.get_df().dtypes())
             .map(|(name, dtype)| ColumnHeaderJS {
-                name: name.as_str().to_string(),
+                name: name.to_string(),
                 dtype,
+                is_primary_key: primary_keys.contains(&name.to_string()),
             })
             .collect();
     }
@@ -114,17 +122,27 @@ impl DataFrameJS {
     }
 
     pub fn query(&self, query: String) -> DataFrameJS {
-        let filtered = DataFrameWrapper {
-            wrapper: self.wrapper.query(query),
+        let filtered_df = self.wrapper.query(query);
+
+        let wrapper = match filtered_df {
+            Ok(df) => df.collect().unwrap(),
+            Err(e) => {
+                log(&e.to_string());
+                polars_core::prelude::DataFrame::empty()
+            }
         };
 
-        return DataFrameJS { wrapper: filtered };
+        let filtered_wrapper = wrapper::DataFrameWrapper { wrapper };
+
+        return DataFrameJS {
+            wrapper: filtered_wrapper,
+        };
     }
 }
 
 #[wasm_bindgen]
-pub fn create_df(buffer: &[u8], has_headers: bool) -> DataFrameJS {
+pub fn read_file(buffer: &[u8], has_headers: bool, filename: String) -> DataFrameJS {
     return DataFrameJS {
-        wrapper: create_df_wrapper(buffer, has_headers),
+        wrapper: wrapper::read_file(buffer, has_headers, filename),
     };
 }

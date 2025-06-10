@@ -8,8 +8,8 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 chrono = "0.4.41"
-polars-core = {version = "0.46.0", features = ["fmt_no_tty", "dtype-datetime"]}
-polars-io = "0.46.0"
-polars-lazy = "0.46.0"
-polars-sql = "0.46.0"
+polars-core = {version = "0.48.0", features = ["fmt_no_tty", "dtype-datetime", "dtype-date"]}
+polars-io = {version = "0.48.0", features = ["dtype-datetime", "dtype-date", "json"]}
+polars-lazy = "0.48.0"
+polars-sql = "0.48.0"
 wasm-bindgen = "0.2.100"
