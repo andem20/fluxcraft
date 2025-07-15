@@ -1,6 +1,63 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::{bindgens::log, wrapper};
+use crate::{
+    bindgens::log,
+    fluxcraft::FluxCraft,
+    wrapper::{self},
+};
+
+#[wasm_bindgen]
+pub struct FluxCraftJS {
+    fluxcraft: FluxCraft,
+}
+
+#[wasm_bindgen]
+impl FluxCraftJS {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> FluxCraftJS {
+        return FluxCraftJS {
+            fluxcraft: FluxCraft::new(),
+        };
+    }
+
+    pub fn get(&self, name: &str) -> DataFrameJS {
+        if let Some(df) = self.fluxcraft.get(name) {
+            return DataFrameJS {
+                wrapper: df.clone(),
+            };
+        } else {
+            log("Could not find dataframe");
+
+            panic!("Could not find dataframe");
+        }
+    }
+
+    pub fn add(&mut self, buffer: &[u8], has_headers: bool, filename: String) -> DataFrameJS {
+        let df = FluxCraft::read_file(buffer, has_headers, &filename);
+
+        return DataFrameJS {
+            wrapper: self.fluxcraft.add(filename, df),
+        };
+    }
+
+    pub fn query(&mut self, query: String) -> DataFrameJS {
+        let filtered_df = self.fluxcraft.query(query);
+
+        let wrapper = match filtered_df {
+            Ok(df) => df.collect().unwrap(),
+            Err(e) => {
+                log(&e.to_string());
+                polars_core::prelude::DataFrame::empty()
+            }
+        };
+
+        let filtered_wrapper = wrapper::DataFrameWrapper { wrapper };
+
+        return DataFrameJS {
+            wrapper: filtered_wrapper,
+        };
+    }
+}
 
 #[wasm_bindgen]
 pub struct DataFrameJS {
@@ -8,7 +65,7 @@ pub struct DataFrameJS {
 }
 
 impl DataFrameJS {
-    pub fn get_df(&self) -> &polars_core::prelude::DataFrame {
+    fn get_df(&self) -> &polars_core::prelude::DataFrame {
         return &self.wrapper.get_df();
     }
 }
@@ -119,24 +176,6 @@ impl DataFrameJS {
             .collect::<Vec<ColumnJS>>();
 
         return slice;
-    }
-
-    pub fn query(&self, query: String) -> DataFrameJS {
-        let filtered_df = self.wrapper.query(query);
-
-        let wrapper = match filtered_df {
-            Ok(df) => df.collect().unwrap(),
-            Err(e) => {
-                log(&e.to_string());
-                polars_core::prelude::DataFrame::empty()
-            }
-        };
-
-        let filtered_wrapper = wrapper::DataFrameWrapper { wrapper };
-
-        return DataFrameJS {
-            wrapper: filtered_wrapper,
-        };
     }
 }
 

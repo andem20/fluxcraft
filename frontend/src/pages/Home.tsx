@@ -19,6 +19,9 @@ import { VpnKey } from "@mui/icons-material";
 
 export function Home() {
   const dfSelector = useSelector((state: RootState) => state.file.df);
+  const fluxcraftSelector = useSelector(
+    (state: RootState) => state.file.fluxcraft
+  );
 
   const [rows, setRows] = useState<any[]>([]);
   const [columns, setColumns] = useState<GridColDef[]>([]);
@@ -28,7 +31,7 @@ export function Home() {
     page: 0,
   });
 
-  const handleDataframe = (df: wasm.DataFrameJS) => {
+  const renderDataframe = (df: wasm.DataFrameJS) => {
     console.time("wasm_load");
     const columnObjects = df.get_columns();
     console.timeEnd("wasm_load");
@@ -82,21 +85,19 @@ export function Home() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
-    if (dfSelector) {
-      handleDataframe(dfSelector.query(query));
+    if (fluxcraftSelector) {
+      renderDataframe(fluxcraftSelector.query(query));
     }
   }
 
   function handleNext(): void {
     if (dfSelector) {
-      handleDataframe(dfSelector);
+      renderDataframe(dfSelector);
     }
   }
 
   useEffect(() => {
-    if (dfSelector) {
-      handleDataframe(dfSelector);
-    }
+    handleNext();
   }, []);
 
   return (

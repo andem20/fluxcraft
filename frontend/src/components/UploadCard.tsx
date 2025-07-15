@@ -12,7 +12,6 @@ import { ChangeEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
 import { fileSlice } from "../stores/slices/FileSlice";
-import * as wasm from "polars-wasm";
 
 const Input = styled("input")({
   display: "none",
@@ -24,6 +23,9 @@ interface UploadCardProps {
 
 export function UploadCard(props: UploadCardProps) {
   const fileSelector = useSelector((state: RootState) => state.file.file);
+  const fluxcraftSelector = useSelector(
+    (state: RootState) => state.file.fluxcraft
+  );
   const dispatch = useDispatch<AppDispatch>();
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -31,11 +33,15 @@ export function UploadCard(props: UploadCardProps) {
 
     if (files != null) {
       dispatch(fileSlice.actions.setFile(files[0]));
-      const df = wasm.read_file(
+
+      const df = fluxcraftSelector.add(
         new Uint8Array(await files[0].arrayBuffer()),
         true,
         files[0].name
       );
+
+      console.log(df.print());
+
       dispatch(fileSlice.actions.setDataFrame(df));
     }
   };

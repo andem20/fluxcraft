@@ -11,14 +11,18 @@ Visualize the data.
 ## Next
 
 - [x] detect primary columns
-- [ ] Melt dataframe
 - [ ] Transform to another frame
+- [ ] Handle multiple files
 
 ## Data I/O
 
 - [x] Upload data (csv, excel ...)
   - [x] Store in memory
+    - [x] CSV
+    - [ ] Excel
+    - [x] JSON
   - [ ] Persist as File
+  - [ ] Handle multiple dataframes
 - [ ] Connect datasource
   - [ ] Postgres
   - [ ] HTTP/JSON
