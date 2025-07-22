@@ -12,7 +12,8 @@ Visualize the data.
 
 - [x] detect primary columns
 - [ ] Transform to another frame
-- [ ] Handle multiple files
+- [x] Handle multiple files
+- [ ] Create functions for getting df names
 
 ## Data I/O
 

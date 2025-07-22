@@ -7,7 +7,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/Store";
 import * as wasm from "polars-wasm";
@@ -25,7 +25,7 @@ export function Home() {
 
   const [rows, setRows] = useState<any[]>([]);
   const [columns, setColumns] = useState<GridColDef[]>([]);
-  const [query, setQuery] = useState<string>("");
+  const query = useRef<string>("");
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 100,
     page: 0,
@@ -86,7 +86,7 @@ export function Home() {
   function handleSubmit(event: FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     if (fluxcraftSelector) {
-      renderDataframe(fluxcraftSelector.query(query));
+      renderDataframe(fluxcraftSelector.query(query.current));
     }
   }
 
@@ -120,8 +120,7 @@ export function Home() {
                   <Editor
                     height="15rem"
                     defaultLanguage="sql"
-                    value={query}
-                    onChange={(value) => setQuery(value ?? "")}
+                    onChange={(value) => (query.current = value ?? "")}
                     options={{
                       minimap: { enabled: false },
                       lineNumbers: "on",

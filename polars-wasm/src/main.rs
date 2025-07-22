@@ -1,15 +1,33 @@
+use std::time::Instant;
+
+use polars_io::SerReader;
 use polars_wasm::fluxcraft::FluxCraft;
 
 fn main() {
+    let start = Instant::now();
     let file = std::fs::read(
-        "/home/anders/Documents/projects/fluxcraft/resources/datasets/non_normalized_customers_small.csv",
+        "/home/anders/Documents/projects/fluxcraft/resources/datasets/kaggle/train.csv",
     )
     .unwrap();
 
-    let mut fluxcraft = FluxCraft::new();
+    let mut fc = FluxCraft::new();
 
-    let df = FluxCraft::read_file(&file, true, "test.csv");
-    let added_df = fluxcraft.add("test".to_string(), df);
+    let handle = std::io::Cursor::new(&file);
 
-    println!("{:?}", added_df.get_df());
+    let df = polars_io::prelude::CsvReadOptions::default()
+        .with_has_header(true)
+        // .map_parse_options(|parse_options| {
+        //     parse_options
+        //         .with_try_parse_dates(true)
+        //         .with_missing_is_null(true)
+        // })
+        .into_reader_with_file_handle(handle)
+        .finish()
+        .unwrap();
+
+    let df2 = fc.add("test".to_string(), df);
+    let primary_keys = df2.get_primary_keys();
+    println!("{:?}", primary_keys);
+
+    println!("{}", start.elapsed().as_millis())
 }

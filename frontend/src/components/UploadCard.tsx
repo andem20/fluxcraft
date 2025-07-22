@@ -5,10 +5,11 @@ import {
   Stack,
   Button,
   styled,
-  Box,
+  Grid,
+  Paper,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
 import { fileSlice } from "../stores/slices/FileSlice";
@@ -22,26 +23,26 @@ interface UploadCardProps {
 }
 
 export function UploadCard(props: UploadCardProps) {
-  const fileSelector = useSelector((state: RootState) => state.file.file);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
   const dispatch = useDispatch<AppDispatch>();
 
+  const [files, setFiles] = useState<String[]>([]);
+
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
 
-    if (files != null) {
-      dispatch(fileSlice.actions.setFile(files[0]));
+    const fileArray = Array.from(selectedFiles);
+    setFiles((prev) => [...prev, ...fileArray.map((f) => f.name)]);
 
+    for (const file of fileArray) {
       const df = fluxcraftSelector.add(
-        new Uint8Array(await files[0].arrayBuffer()),
+        new Uint8Array(await file.arrayBuffer()),
         true,
-        files[0].name
+        file.name
       );
-
-      console.log(df.print());
-
       dispatch(fileSlice.actions.setDataFrame(df));
     }
   };
@@ -50,7 +51,7 @@ export function UploadCard(props: UploadCardProps) {
     <Card elevation={3} sx={{ p: 2, m: 2 }}>
       <CardContent>
         <Typography variant="h4" gutterBottom>
-          Upload a file
+          Upload files
         </Typography>
         <Stack spacing={3}>
           <label htmlFor="file-upload">
@@ -58,6 +59,7 @@ export function UploadCard(props: UploadCardProps) {
               accept=".csv"
               id="file-upload"
               type="file"
+              multiple
               onChange={handleFileChange}
             />
             <Button
@@ -67,18 +69,28 @@ export function UploadCard(props: UploadCardProps) {
               fullWidth
               sx={{ padding: "2rem" }}
             >
-              Upload File
+              Upload Files
             </Button>
           </label>
-          {fileSelector && (
-            <Box textAlign="center" color="text.secondary">
-              Selected file: {fileSelector.name}
-            </Box>
+
+          {files.length > 0 && (
+            <Grid container spacing={2}>
+              {files.map((file, idx) => (
+                <Paper
+                  elevation={1}
+                  sx={{ p: 1, textAlign: "center" }}
+                  key={idx}
+                >
+                  <Typography variant="body2">{file}</Typography>
+                </Paper>
+              ))}
+            </Grid>
           )}
+
           <Button
             variant="contained"
             size="large"
-            disabled={fileSelector == null}
+            disabled={files.length === 0}
             onClick={props.handleNext}
           >
             Next

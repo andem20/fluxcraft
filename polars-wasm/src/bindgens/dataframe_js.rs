@@ -1,9 +1,10 @@
+use polars_core::frame::DataFrame;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     bindgens::log,
     fluxcraft::FluxCraft,
-    wrapper::{self},
+    wrapper::{self, DataFrameWrapper},
 };
 
 #[wasm_bindgen]
@@ -33,10 +34,16 @@ impl FluxCraftJS {
     }
 
     pub fn add(&mut self, buffer: &[u8], has_headers: bool, filename: String) -> DataFrameJS {
-        let df = FluxCraft::read_file(buffer, has_headers, &filename);
+        let wrapper = match FluxCraft::read_file(buffer, has_headers, &filename) {
+            Ok(df) => self.fluxcraft.add(filename, df),
+            Err(err) => {
+                log(&format!("{:?}", err));
+                &DataFrameWrapper::new(DataFrame::empty())
+            }
+        };
 
         return DataFrameJS {
-            wrapper: self.fluxcraft.add(filename, df),
+            wrapper: wrapper.clone(),
         };
     }
 
@@ -65,6 +72,12 @@ pub struct DataFrameJS {
 }
 
 impl DataFrameJS {
+    pub fn empty() -> Self {
+        DataFrameJS {
+            wrapper: DataFrameWrapper::new(DataFrame::empty()),
+        }
+    }
+
     fn get_df(&self) -> &polars_core::prelude::DataFrame {
         return &self.wrapper.get_df();
     }

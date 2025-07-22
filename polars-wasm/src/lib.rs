@@ -1,7 +1,8 @@
 pub mod bindgens;
 
 pub mod fluxcraft {
-    use polars_core::frame::DataFrame;
+
+    use polars_core::{error::PolarsError, frame::DataFrame};
     use polars_io::SerReader;
     use polars_lazy::frame::IntoLazy;
 
@@ -20,7 +21,7 @@ pub mod fluxcraft {
             }
         }
 
-        pub fn add(&mut self, mut name: String, df: DataFrame) -> DataFrameWrapper {
+        pub fn add(&mut self, mut name: String, df: DataFrame) -> &DataFrameWrapper {
             let mut i = 0;
             name = name.replace(".", "_");
             while let Some(_df) = self.wrappers.get(&name) {
@@ -28,12 +29,12 @@ pub mod fluxcraft {
                 name.push_str(&i.to_string());
             }
 
-            let wrapper = DataFrameWrapper::new(df.clone());
-
-            self.wrappers.insert(name.clone(), wrapper.clone());
             self.sql_ctx.register(&name, df.clone().lazy());
+            let wrapper = DataFrameWrapper::new(df);
 
-            return wrapper;
+            self.wrappers.insert(name.clone(), wrapper);
+
+            return self.wrappers.get(&name).unwrap();
         }
 
         pub fn remove(&mut self, name: String) {
@@ -46,23 +47,20 @@ pub mod fluxcraft {
             return self.wrappers.get(name);
         }
 
-        fn read_csv(buffer: &[u8], has_headers: bool) -> DataFrame {
+        fn read_csv(buffer: &[u8], has_headers: bool) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
-            let df = polars_io::prelude::CsvReadOptions::default()
+            return polars_io::prelude::CsvReadOptions::default()
                 .with_has_header(has_headers)
-                .map_parse_options(|parse_options| {
-                    parse_options
-                        .with_try_parse_dates(true)
-                        .with_missing_is_null(true)
-                })
+                // .map_parse_options(|parse_options| {
+                //     parse_options
+                //         .with_try_parse_dates(true)
+                //         .with_missing_is_null(true)
+                // })
                 .into_reader_with_file_handle(handle)
-                .finish()
-                .unwrap();
-
-            return df;
+                .finish();
         }
 
-        fn read_json(buffer: &[u8]) -> DataFrame {
+        fn read_json(buffer: &[u8]) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
             let mut df = polars_io::prelude::JsonReader::new(handle)
                 .finish()
@@ -108,16 +106,20 @@ pub mod fluxcraft {
                 return new_s;
             }
 
-            return df;
+            return Ok(df);
         }
 
-        pub fn read_file(buffer: &[u8], has_headers: bool, filename: &str) -> DataFrame {
+        pub fn read_file(
+            buffer: &[u8],
+            has_headers: bool,
+            filename: &str,
+        ) -> Result<DataFrame, PolarsError> {
             return if filename.ends_with(".csv") {
                 Self::read_csv(buffer, has_headers)
             } else if filename.ends_with(".json") {
                 Self::read_json(buffer)
             } else {
-                DataFrame::empty()
+                Ok(DataFrame::empty())
             };
         }
 
@@ -133,9 +135,8 @@ pub mod fluxcraft {
 pub mod wrapper {
     use polars_core::utils::Container;
     use polars_io::SerReader;
-    use polars_lazy::frame::IntoLazy;
 
-    #[derive(Clone)]
+    #[derive(Clone, Debug)]
     pub struct DataFrameWrapper {
         pub wrapper: polars_core::prelude::DataFrame,
     }
@@ -166,11 +167,11 @@ pub mod wrapper {
         let handle = std::io::Cursor::new(&buffer);
         let df = polars_io::prelude::CsvReadOptions::default()
             .with_has_header(has_headers)
-            .map_parse_options(|parse_options| {
-                parse_options
-                    .with_try_parse_dates(true)
-                    .with_missing_is_null(true)
-            })
+            // .map_parse_options(|parse_options| {
+            //     parse_options
+            //         .with_try_parse_dates(true)
+            //         .with_missing_is_null(true)
+            // })
             .into_reader_with_file_handle(handle)
             .finish()
             .unwrap();
@@ -192,8 +193,6 @@ pub mod wrapper {
                 .filter(|c| c.dtype().is_struct())
                 .map(|c| c.name().to_string())
                 .collect::<Vec<String>>();
-
-            println!("{:?}", &col_names);
 
             for name in col_names {
                 let col = df.column(&name).unwrap();
