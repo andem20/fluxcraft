@@ -35,7 +35,6 @@ export function UploadCard(props: UploadCardProps) {
     if (!selectedFiles) return;
 
     const fileArray = Array.from(selectedFiles);
-    setFiles((prev) => [...prev, ...fileArray.map((f) => f.name)]);
 
     for (const file of fileArray) {
       const df = fluxcraftSelector.add(
@@ -43,6 +42,12 @@ export function UploadCard(props: UploadCardProps) {
         true,
         file.name
       );
+
+      setFiles((prev) => {
+        prev.push(df.get_name());
+        return prev;
+      });
+
       dispatch(fileSlice.actions.setDataFrame(df));
     }
   };

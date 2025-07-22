@@ -16,6 +16,7 @@ import Editor from "@monaco-editor/react";
 import { UploadCard } from "../components/UploadCard";
 import { TransformPipeline } from "../components/TransformPipeline";
 import { VpnKey } from "@mui/icons-material";
+import { useMonaco } from "@monaco-editor/react";
 
 export function Home() {
   const dfSelector = useSelector((state: RootState) => state.file.df);
@@ -100,6 +101,102 @@ export function Home() {
     handleNext();
   }, []);
 
+  function handleEditorWillMount(monaco: typeof import("monaco-editor")) {
+    monaco.languages.registerCompletionItemProvider("sql", {
+      provideCompletionItems: () => {
+        const suggestions: monaco.languages.CompletionItem[] = fluxcraftSelector
+          .get_dataframe_names()
+          .map((table) => ({
+            label: table,
+            kind: monaco.languages.CompletionItemKind.Struct,
+            insertText: table,
+            detail: "Table",
+            documentation: `Table: ${table}`,
+          }));
+
+        // 2. Column names from dfSelector
+        if (dfSelector) {
+          const headers = dfSelector.get_headers?.();
+          if (headers) {
+            headers.forEach((header: any) => {
+              suggestions.push({
+                label: header.get_name(),
+                kind: monaco.languages.CompletionItemKind.Field,
+                insertText: header.get_name(),
+                detail: `Column (${header.get_dtype()})`,
+                documentation: `Column in dataframe: ${header.get_name()}`,
+              });
+            });
+          }
+        }
+
+        // 3. Common SQL keywords
+        const keywords = [
+          "SELECT",
+          "FROM",
+          "WHERE",
+          "GROUP BY",
+          "ORDER BY",
+          "LIMIT",
+          "INSERT",
+          "UPDATE",
+          "DELETE",
+          "JOIN",
+          "LEFT JOIN",
+          "RIGHT JOIN",
+          "CREATE TABLE",
+          "DROP TABLE",
+          "ALTER TABLE",
+        ];
+        keywords.forEach((word) => {
+          suggestions.push({
+            label: word,
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            insertText: word,
+            detail: "Keyword",
+          });
+        });
+
+        // 4. SQL functions
+        const functions = [
+          "COUNT",
+          "AVG",
+          "SUM",
+          "MIN",
+          "MAX",
+          "NOW",
+          "LOWER",
+          "UPPER",
+          "COALESCE",
+        ];
+        functions.forEach((func) => {
+          suggestions.push({
+            label: func,
+            kind: monaco.languages.CompletionItemKind.Function,
+            insertText: `${func}()`,
+            insertTextRules:
+              monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            detail: "Function",
+            documentation: `SQL function: ${func}`,
+          });
+        });
+
+        return { suggestions };
+      },
+    });
+  }
+
+  function handleEditorDidMount(
+    editor: import("monaco-editor").editor.IStandaloneCodeEditor,
+    monaco: typeof import("monaco-editor")
+  ) {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      if (fluxcraftSelector) {
+        renderDataframe(fluxcraftSelector.query(query.current));
+      }
+    });
+  }
+
   return (
     <Container maxWidth={false} disableGutters>
       <UploadCard handleNext={handleNext} />
@@ -121,6 +218,8 @@ export function Home() {
                     height="15rem"
                     defaultLanguage="sql"
                     onChange={(value) => (query.current = value ?? "")}
+                    beforeMount={handleEditorWillMount}
+                    onMount={handleEditorDidMount}
                     options={{
                       minimap: { enabled: false },
                       lineNumbers: "on",

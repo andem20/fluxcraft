@@ -38,7 +38,7 @@ impl FluxCraftJS {
             Ok(df) => self.fluxcraft.add(filename, df),
             Err(err) => {
                 log(&format!("{:?}", err));
-                &DataFrameWrapper::new(DataFrame::empty())
+                &DataFrameWrapper::new(DataFrame::empty(), "")
             }
         };
 
@@ -58,11 +58,15 @@ impl FluxCraftJS {
             }
         };
 
-        let filtered_wrapper = wrapper::DataFrameWrapper { wrapper };
+        let filtered_wrapper = wrapper::DataFrameWrapper::new(wrapper, "query_dataframe");
 
         return DataFrameJS {
             wrapper: filtered_wrapper,
         };
+    }
+
+    pub fn get_dataframe_names(&self) -> Vec<String> {
+        self.fluxcraft.get_dataframe_names()
     }
 }
 
@@ -74,7 +78,7 @@ pub struct DataFrameJS {
 impl DataFrameJS {
     pub fn empty() -> Self {
         DataFrameJS {
-            wrapper: DataFrameWrapper::new(DataFrame::empty()),
+            wrapper: DataFrameWrapper::new(DataFrame::empty(), ""),
         }
     }
 
@@ -190,11 +194,8 @@ impl DataFrameJS {
 
         return slice;
     }
-}
 
-#[wasm_bindgen]
-pub fn read_file(buffer: &[u8], has_headers: bool, filename: String) -> DataFrameJS {
-    return DataFrameJS {
-        wrapper: wrapper::read_file(buffer, has_headers, filename),
-    };
+    pub fn get_name(&self) -> String {
+        self.wrapper.name.clone()
+    }
 }
