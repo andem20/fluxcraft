@@ -3,8 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     bindgens::log,
-    fluxcraft::FluxCraft,
-    wrapper::{self, DataFrameWrapper},
+    core::{fluxcraft::FluxCraft, wrapper::DataFrameWrapper},
 };
 
 #[wasm_bindgen]
@@ -58,7 +57,7 @@ impl FluxCraftJS {
             }
         };
 
-        let filtered_wrapper = wrapper::DataFrameWrapper::new(wrapper, "query_dataframe");
+        let filtered_wrapper = DataFrameWrapper::new(wrapper, "query_dataframe");
 
         return DataFrameJS {
             wrapper: filtered_wrapper,
@@ -72,7 +71,7 @@ impl FluxCraftJS {
 
 #[wasm_bindgen]
 pub struct DataFrameJS {
-    wrapper: wrapper::DataFrameWrapper,
+    wrapper: DataFrameWrapper,
 }
 
 impl DataFrameJS {

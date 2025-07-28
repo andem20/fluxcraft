@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 use polars_io::SerReader;
-use polars_wasm::fluxcraft::FluxCraft;
+use polars_wasm::core::fluxcraft::FluxCraft;
 
 fn main() {
     let start = Instant::now();
@@ -16,18 +16,15 @@ fn main() {
 
     let df = polars_io::prelude::CsvReadOptions::default()
         .with_has_header(true)
-        // .map_parse_options(|parse_options| {
-        //     parse_options
-        //         .with_try_parse_dates(true)
-        //         .with_missing_is_null(true)
-        // })
+        .map_parse_options(|parse_options| parse_options.with_try_parse_dates(true))
+        .with_ignore_errors(true)
         .into_reader_with_file_handle(handle)
         .finish()
         .unwrap();
 
-    let df2 = fc.add("test".to_string(), df);
-    let primary_keys = df2.get_primary_keys();
-    println!("{:?}", primary_keys);
+    println!("{:?}", df);
+    // let df2 = fc.add("test".to_string(), df);
+    // let primary_keys = df2.get_primary_keys();
 
-    println!("{}", start.elapsed().as_millis())
+    // println!("{}", start.elapsed().as_millis())
 }

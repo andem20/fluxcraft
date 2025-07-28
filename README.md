@@ -10,10 +10,20 @@ Visualize the data.
 
 ## Next
 
+---
+
+- [ ] Read excel
+- [ ] Change column names
+- [ ] Add headers
+- [ ] Handle timestamps
+
+---
+
 - [x] detect primary columns
-- [ ] Transform to another frame
 - [x] Handle multiple files
-- [ ] Create functions for getting df names
+- [x] Create functions for getting df names
+
+---
 
 ## Data I/O
 
@@ -23,7 +33,7 @@ Visualize the data.
     - [ ] Excel
     - [x] JSON
   - [ ] Persist as File
-  - [ ] Handle multiple dataframes
+  - [x] Handle multiple dataframes
 - [ ] Connect datasource
   - [ ] Postgres
   - [ ] HTTP/JSON

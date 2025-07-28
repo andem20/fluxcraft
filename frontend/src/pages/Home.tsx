@@ -16,7 +16,6 @@ import Editor from "@monaco-editor/react";
 import { UploadCard } from "../components/UploadCard";
 import { TransformPipeline } from "../components/TransformPipeline";
 import { VpnKey } from "@mui/icons-material";
-import { useMonaco } from "@monaco-editor/react";
 
 export function Home() {
   const dfSelector = useSelector((state: RootState) => state.file.df);
@@ -63,7 +62,7 @@ export function Home() {
       return {
         field: index.toString(),
         headerName: header.get_name(),
-        type: dtype,
+        type: "singleSelect",
         valueGetter: (param: any) => {
           return dtype === "datetime"
             ? new Date(param).toLocaleString()
@@ -104,6 +103,7 @@ export function Home() {
   function handleEditorWillMount(monaco: typeof import("monaco-editor")) {
     monaco.languages.registerCompletionItemProvider("sql", {
       provideCompletionItems: () => {
+        // @ts-ignore
         const suggestions: monaco.languages.CompletionItem[] = fluxcraftSelector
           .get_dataframe_names()
           .map((table) => ({
@@ -114,23 +114,24 @@ export function Home() {
             documentation: `Table: ${table}`,
           }));
 
-        // 2. Column names from dfSelector
         if (dfSelector) {
           const headers = dfSelector.get_headers?.();
           if (headers) {
-            headers.forEach((header: any) => {
+            headers.forEach((header: wasm.ColumnHeaderJS) => {
+              const headerName = header.get_name();
               suggestions.push({
-                label: header.get_name(),
+                label: headerName,
                 kind: monaco.languages.CompletionItemKind.Field,
-                insertText: header.get_name(),
+                insertText: headerName.includes(" ")
+                  ? `"${headerName}"`
+                  : headerName,
                 detail: `Column (${header.get_dtype()})`,
-                documentation: `Column in dataframe: ${header.get_name()}`,
+                documentation: `Column in dataframe: ${headerName}`,
               });
             });
           }
         }
 
-        // 3. Common SQL keywords
         const keywords = [
           "SELECT",
           "FROM",
@@ -157,7 +158,6 @@ export function Home() {
           });
         });
 
-        // 4. SQL functions
         const functions = [
           "COUNT",
           "AVG",
