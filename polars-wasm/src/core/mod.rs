@@ -2,9 +2,10 @@ pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use polars_core::{error::PolarsError, frame::DataFrame};
+    use calamine::{Reader, Xlsx};
+    use polars_core::{error::PolarsError, frame::DataFrame, prelude::Column};
     use polars_io::SerReader;
-    use polars_lazy::frame::IntoLazy;
+    use polars_lazy::frame::{IntoLazy, LazyFrame};
 
     use crate::core::wrapper::DataFrameWrapper;
 
@@ -55,11 +56,6 @@ pub mod fluxcraft {
             let handle = std::io::Cursor::new(&buffer);
             return polars_io::prelude::CsvReadOptions::default()
                 .with_has_header(has_headers)
-                // .map_parse_options(|parse_options| {
-                //     parse_options
-                //         .with_try_parse_dates(true)
-                //         .with_missing_is_null(true)
-                // })
                 .into_reader_with_file_handle(handle)
                 .finish();
         }
@@ -78,8 +74,6 @@ pub mod fluxcraft {
                     .filter(|c| c.dtype().is_struct())
                     .map(|c| c.name().to_string())
                     .collect::<Vec<String>>();
-
-                println!("{:?}", &col_names);
 
                 for name in col_names {
                     let col = df.column(&name).unwrap();
@@ -117,25 +111,68 @@ pub mod fluxcraft {
             buffer: &[u8],
             has_headers: bool,
             filename: &str,
-        ) -> Result<DataFrame, PolarsError> {
+        ) -> Result<DataFrame, Box<dyn std::error::Error>> {
             return match filename.to_lowercase() {
                 f if f.ends_with(CSV_SUFFIX) || f.ends_with(TXT_SUFFIX) => {
-                    Self::read_csv(buffer, has_headers)
+                    Ok(Self::read_csv(buffer, has_headers)?)
                 }
-                f if f.ends_with(JSON_SUFFIX) => Self::read_json(buffer),
-                _ => Ok(DataFrame::empty()),
+                f if f.ends_with(JSON_SUFFIX) => Ok(Self::read_json(buffer)?),
+                _ => Self::read_excel(buffer, has_headers),
             };
         }
 
-        pub fn query(
-            &mut self,
-            query: String,
-        ) -> Result<polars_lazy::prelude::LazyFrame, polars_core::error::PolarsError> {
+        pub fn query(&mut self, query: String) -> Result<LazyFrame, PolarsError> {
             return self.sql_ctx.execute(query.as_str());
         }
 
         pub fn get_dataframe_names(&self) -> Vec<String> {
             self.sql_ctx.get_tables()
+        }
+
+        pub fn read_excel(
+            buffer: &[u8],
+            has_headers: bool,
+        ) -> Result<DataFrame, Box<dyn std::error::Error>> {
+            let handle = std::io::Cursor::new(buffer);
+            let reader = std::io::BufReader::new(handle);
+            let mut workbook: Xlsx<_> = calamine::open_workbook_from_rs(reader)?;
+
+            let range = workbook
+                .worksheet_range_at(0)
+                .ok_or("Could not parse excel to dataframe")??;
+
+            let width = range.width() as u32;
+            let height = range.height() as u32;
+            let start_index = has_headers as u32;
+            let headers = range.headers();
+
+            let columns = (0..width)
+                .map(|i| {
+                    let cells = range.range((start_index, i), (height, i)).clone();
+
+                    let col = Vec::from_iter(
+                        cells
+                            .rows()
+                            .into_iter()
+                            .map(|d| d.get(0).unwrap().clone().to_string()),
+                    );
+
+                    let mut header_name = &i.to_string();
+
+                    if has_headers {
+                        header_name = headers
+                            .as_ref()
+                            .and_then(|h| h.get(i as usize))
+                            .unwrap_or(header_name)
+                    }
+
+                    // TODO infer column types
+
+                    return Column::new(header_name.into(), col);
+                })
+                .collect::<Vec<Column>>();
+
+            return Ok(DataFrame::new(columns)?);
         }
     }
 }
