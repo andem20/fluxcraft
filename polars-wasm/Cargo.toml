@@ -7,10 +7,11 @@ edition = "2024"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-calamine = "0.29.0"
+calamine = {version = "0.29.0", features = ["dates"]}
 chrono = "0.4.41"
 polars-core = {version = "0.48.0", features = ["fmt_no_tty", "dtype-datetime", "dtype-date"]}
 polars-io = {version = "0.48.0", features = ["dtype-datetime", "dtype-date", "json"]}
 polars-lazy = "0.48.0"
 polars-sql = "0.48.0"
 wasm-bindgen = "0.2.100"
+getrandom = { version = "0.3", features = ["wasm_js"] }

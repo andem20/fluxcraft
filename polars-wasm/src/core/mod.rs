@@ -2,8 +2,12 @@ pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use calamine::{Reader, Xlsx};
-    use polars_core::{error::PolarsError, frame::DataFrame, prelude::Column};
+    use calamine::{Data, Reader, Xlsx};
+    use polars_core::{
+        error::PolarsError,
+        frame::DataFrame,
+        prelude::{AnyValue, Column, TimeUnit},
+    };
     use polars_io::SerReader;
     use polars_lazy::frame::{IntoLazy, LazyFrame};
 
@@ -142,20 +146,32 @@ pub mod fluxcraft {
                 .ok_or("Could not parse excel to dataframe")??;
 
             let width = range.width() as u32;
-            let height = range.height() as u32;
             let start_index = has_headers as u32;
+            let height = (range.height() as u32 - start_index) as u32;
             let headers = range.headers();
 
             let columns = (0..width)
                 .map(|i| {
                     let cells = range.range((start_index, i), (height, i)).clone();
 
-                    let col = Vec::from_iter(
-                        cells
-                            .rows()
-                            .into_iter()
-                            .map(|d| d.get(0).unwrap().clone().to_string()),
-                    );
+                    let col: Vec<AnyValue> = Vec::from_iter(cells.rows().into_iter().map(|d| {
+                        let cell_data = d.get(0).unwrap();
+                        return match cell_data {
+                            Data::Empty => AnyValue::Null,
+                            Data::Int(i) => AnyValue::Int64(*i),
+                            Data::Bool(b) => AnyValue::Boolean(*b),
+                            Data::Error(e) => AnyValue::Null,
+                            Data::Float(f) => AnyValue::Float64(*f),
+                            Data::DateTime(d) => AnyValue::Datetime(
+                                d.as_datetime().unwrap().and_utc().timestamp_millis(),
+                                TimeUnit::Milliseconds,
+                                None,
+                            ),
+                            Data::String(s) | Data::DateTimeIso(s) | Data::DurationIso(s) => {
+                                AnyValue::String(s)
+                            }
+                        };
+                    }));
 
                     let mut header_name = &i.to_string();
 
@@ -165,8 +181,6 @@ pub mod fluxcraft {
                             .and_then(|h| h.get(i as usize))
                             .unwrap_or(header_name)
                     }
-
-                    // TODO infer column types
 
                     return Column::new(header_name.into(), col);
                 })

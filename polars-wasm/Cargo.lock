@@ -263,6 +263,7 @@ checksum = "c779dabf85f0e5764a88dc28df403aa09e43fb869344f24cf1813a86854fa3ef"
 dependencies = [
  "atoi_simd",
  "byteorder",
+ "chrono",
  "codepage",
  "encoding_rs",
  "fast-float2",
@@ -1924,6 +1925,7 @@ version = "0.1.0"
 dependencies = [
  "calamine",
  "chrono",
+ "getrandom 0.3.3",
  "polars-core",
  "polars-io",
  "polars-lazy",
