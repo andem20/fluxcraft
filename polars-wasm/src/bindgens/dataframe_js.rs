@@ -2,7 +2,7 @@ use polars_core::frame::DataFrame;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
-    bindgens::log,
+    bindgens::{log, log_error},
     core::{fluxcraft::FluxCraft, wrapper::DataFrameWrapper},
 };
 
@@ -36,7 +36,7 @@ impl FluxCraftJS {
         let wrapper = match FluxCraft::read_file(buffer, has_headers, &filename) {
             Ok(df) => self.fluxcraft.add(filename, df),
             Err(err) => {
-                log(&format!("{:?}", err));
+                log_error(&err);
                 &DataFrameWrapper::new(DataFrame::empty(), "")
             }
         };
@@ -105,13 +105,7 @@ impl ColumnHeaderJS {
     }
 
     pub fn get_dtype(&self) -> String {
-        return match self.dtype {
-            polars_core::prelude::DataType::String => "string",
-            polars_core::prelude::DataType::Datetime(_, _) => "datetime",
-            polars_core::prelude::DataType::Date => "datetime",
-            _ => "number",
-        }
-        .to_string();
+        return self.dtype.to_string();
     }
 
     pub fn is_primary_key(&self) -> bool {
@@ -196,5 +190,12 @@ impl DataFrameJS {
 
     pub fn get_name(&self) -> String {
         self.wrapper.name.clone()
+    }
+
+    pub fn rename_columns(&mut self, old_column_names: Vec<String>, new_column_names: Vec<String>) {
+        let _ = self
+            .wrapper
+            .rename_columns(old_column_names, new_column_names)
+            .inspect_err(|e| log_error(e));
     }
 }

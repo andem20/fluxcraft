@@ -7,3 +7,7 @@ extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
 }
+
+pub fn log_error(e: &Box<dyn std::error::Error>) {
+    log(format!("{}", e).as_str());
+}

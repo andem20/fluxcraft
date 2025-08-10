@@ -64,7 +64,7 @@ export function Home() {
         headerName: header.get_name(),
         type: "singleSelect",
         valueGetter: (param: any) => {
-          return dtype === "datetime"
+          return dtype.includes("date")
             ? new Date(param).toLocaleString()
             : param;
         },

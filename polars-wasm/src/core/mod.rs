@@ -30,7 +30,7 @@ pub mod fluxcraft {
             }
         }
 
-        pub fn add(&mut self, mut name: String, df: DataFrame) -> &DataFrameWrapper {
+        pub fn add(&mut self, mut name: String, df: DataFrame) -> &mut DataFrameWrapper {
             let mut i = 0;
             name = name.replace(".", "_");
             while let Some(_df) = self.wrappers.get(&name) {
@@ -43,7 +43,7 @@ pub mod fluxcraft {
 
             self.wrappers.insert(name.clone(), wrapper);
 
-            return self.wrappers.get(&name).unwrap();
+            return self.wrappers.get_mut(&name).unwrap();
         }
 
         pub fn remove(&mut self, name: String) {
@@ -160,7 +160,7 @@ pub mod fluxcraft {
                             Data::Empty => AnyValue::Null,
                             Data::Int(i) => AnyValue::Int64(*i),
                             Data::Bool(b) => AnyValue::Boolean(*b),
-                            Data::Error(e) => AnyValue::Null,
+                            Data::Error(_e) => AnyValue::Null,
                             Data::Float(f) => AnyValue::Float64(*f),
                             Data::DateTime(d) => AnyValue::Datetime(
                                 d.as_datetime().unwrap().and_utc().timestamp_millis(),

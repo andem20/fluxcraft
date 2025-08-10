@@ -12,10 +12,38 @@ Visualize the data.
 
 ---
 
-- [ ] Read excel
-- [ ] Change column names
-- [ ] Add headers
+**Week 39-40**
+
+- [ ] Visualize dataframes
+
+---
+
+**Week 37-38**
+
+- [ ] Create Java interface
+
+---
+
+**Week 35-36**
+
+- [ ] Save and load pipelines
+- [ ] Improve error handling
+- [ ] Export data as file
+
+---
+
+**Week 33-34**
+
+- [ ] Add http client
+- [ ] Setup simple data pipeline
 - [ ] Handle timestamps
+
+---
+
+**Week 31-32**
+
+- [x] Read excel
+- [x] Change / add column names
 
 ---
 
@@ -30,7 +58,7 @@ Visualize the data.
 - [x] Upload data (csv, excel ...)
   - [x] Store in memory
     - [x] CSV
-    - [ ] Excel
+    - [x] Excel
     - [x] JSON
   - [ ] Persist as File
   - [x] Handle multiple dataframes

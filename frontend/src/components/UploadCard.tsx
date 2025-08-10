@@ -7,12 +7,19 @@ import {
   styled,
   Grid,
   Paper,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { ChangeEvent, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
 import { fileSlice } from "../stores/slices/FileSlice";
+import { ColumnHeaderJS } from "polars-wasm";
 
 const Input = styled("input")({
   display: "none",
@@ -22,6 +29,16 @@ interface UploadCardProps {
   handleNext: () => void;
 }
 
+interface ColumnHeaderMutationJS {
+  header: ColumnHeaderJS;
+  new_column_name: string | null;
+}
+
+type DataframeMetadata = {
+  name: string;
+  columns: ColumnHeaderMutationJS[];
+};
+
 export function UploadCard(props: UploadCardProps) {
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -29,6 +46,10 @@ export function UploadCard(props: UploadCardProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const [files, setFiles] = useState<String[]>([]);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [hasHeaders, setHasHeaders] = useState<boolean>(true);
+  const [selectedDataframe, setSelectedDataframe] =
+    useState<DataframeMetadata | null>(null);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -39,7 +60,7 @@ export function UploadCard(props: UploadCardProps) {
     for (const file of fileArray) {
       const df = fluxcraftSelector.add(
         new Uint8Array(await file.arrayBuffer()),
-        true,
+        hasHeaders,
         file.name
       );
 
@@ -51,6 +72,22 @@ export function UploadCard(props: UploadCardProps) {
       dispatch(fileSlice.actions.setDataFrame(df));
     }
   };
+
+  function renderTooltip(file: String) {
+    return fluxcraftSelector
+      .get(file as string)
+      .get_headers()
+      .map((header) => (
+        <div>
+          <b>{header.get_name()}</b>: {header.get_dtype()}
+        </div>
+      ));
+  }
+
+  function handleCloseDialog() {
+    setIsOpen(false);
+    setSelectedDataframe(null);
+  }
 
   return (
     <Card elevation={3} sx={{ p: 2, m: 2 }}>
@@ -67,6 +104,16 @@ export function UploadCard(props: UploadCardProps) {
               multiple
               onChange={handleFileChange}
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={hasHeaders}
+                  onChange={(event) => setHasHeaders(event.target.checked)}
+                />
+              }
+              label="Has headers?"
+              labelPlacement="start"
+            />
             <Button
               variant="outlined"
               component="span"
@@ -81,13 +128,31 @@ export function UploadCard(props: UploadCardProps) {
           {files.length > 0 && (
             <Grid container spacing={2}>
               {files.map((file, idx) => (
-                <Paper
-                  elevation={1}
-                  sx={{ p: 1, textAlign: "center" }}
-                  key={idx}
-                >
-                  <Typography variant="body2">{file}</Typography>
-                </Paper>
+                <Tooltip title={renderTooltip(file)}>
+                  <Paper
+                    elevation={1}
+                    sx={{ p: 1, textAlign: "center" }}
+                    key={idx}
+                    onClick={() => {
+                      setIsOpen(true);
+                      setSelectedDataframe({
+                        name: file as string,
+                        columns: fluxcraftSelector
+                          .get(file as string)
+                          .get_headers()
+                          .map((h) => {
+                            return {
+                              header: h,
+                              new_column_name: null,
+                            };
+                          }),
+                      });
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <Typography variant="body2">{file}</Typography>
+                  </Paper>
+                </Tooltip>
               ))}
             </Grid>
           )}
@@ -100,6 +165,22 @@ export function UploadCard(props: UploadCardProps) {
           >
             Next
           </Button>
+          <Dialog onClose={handleCloseDialog} open={isOpen}>
+            <DialogTitle>{selectedDataframe?.name}</DialogTitle>
+            {selectedDataframe?.columns.map((column) => (
+              <TextField
+                id="filled-basic"
+                label={column.header.get_name()}
+                variant="filled"
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  column.new_column_name = event.target.value;
+                }}
+              />
+            ))}
+            <Button onClick={() => console.log(selectedDataframe)}>
+              Submit
+            </Button>
+          </Dialog>
         </Stack>
       </CardContent>
     </Card>
