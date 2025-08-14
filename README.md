@@ -76,7 +76,7 @@ Visualize the data.
 
 ## Data Transformation
 
-- [ ] Rename columns of dataframe
+- [x] Rename columns of dataframe
 - [ ] Aggregate columns
 - [ ] Reshape dataframe (columns to rows -> new set of columns)
 - [ ] Clean data
