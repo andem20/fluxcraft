@@ -36,11 +36,6 @@ export function useDataFrameRenderer() {
         field: index.toString(),
         headerName: header.get_name(),
         type: "singleSelect",
-        valueGetter: (param: any) => {
-          return dtype.includes("date")
-            ? new Date(param).toLocaleString()
-            : param;
-        },
         flex: 1,
         renderHeader: () => (
           <Box display="flex" alignItems="center" gap={1}>
