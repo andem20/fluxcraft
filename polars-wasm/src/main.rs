@@ -6,11 +6,11 @@ use polars_wasm::core::fluxcraft::FluxCraft;
 
 fn main() {
     let file = std::fs::read(
-        "/home/anders/Documents/projects/fluxcraft/resources/datasets/unnormalized.csv",
+        "/home/anders/Documents/projects/fluxcraft/resources/datasets/non_normalized_customers_small.csv",
     )
     .unwrap();
 
-    let df = FluxCraft::read_file(&file, true, "unnormalized.csv");
+    let df = FluxCraft::read_file(&file, true, "test.csv");
 
     println!("{:?}", df);
 

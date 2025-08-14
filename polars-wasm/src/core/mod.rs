@@ -5,6 +5,7 @@ pub mod fluxcraft {
     use calamine::{Data, ExcelDateTime, Reader, Xlsx};
     use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
     use polars_core::{
+        chunked_array::iterator::par::string,
         error::{PolarsError, PolarsResult},
         frame::DataFrame,
         functions::concat_df_horizontal,
@@ -131,7 +132,7 @@ pub mod fluxcraft {
                 _ => Self::read_excel(buffer, has_headers),
             }?;
 
-            let formats = ["%F %T".to_owned()];
+            let formats = ["%F %T".to_owned(), "%F".to_owned()];
 
             df = try_parse_timestamps(&mut df, &formats)?;
 
@@ -217,6 +218,7 @@ pub mod fluxcraft {
             .map(|name| coalesce(&generate_time_formats(formats, &name)))
             .collect();
 
+        println!("{:?}", string_cols);
         let test = df.clone().lazy().with_columns(string_cols).collect();
 
         let df2 = test?;
@@ -243,7 +245,7 @@ pub mod fluxcraft {
                     StrptimeOptions {
                         format: Some(fmt.into()),
                         strict: false,
-                        exact: false,
+                        exact: true,
                         cache: true,
                     },
                     lit("raise"),
