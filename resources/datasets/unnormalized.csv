@@ -1,4 +1,4 @@
 name,item_1,item_2,item_1_timestamp,item_2_timestamp
 Bulbasaur,Grass,,2025-01-01 00:00:00,
 Ivysaur,,Poison,,2025-01-02 00:00:00
-Venusaur,Grass,Poison,2025-01-04 00:00:00,2025-01-03 00:00:00
+Venusaur,Grass,Poison,2025-01-04 00:00:00,2025-01-03 10:00:00.123

@@ -36,7 +36,7 @@ Visualize the data.
 
 - [ ] Add http client
 - [ ] Setup simple data pipeline
-- [ ] Handle timestamps
+- [x] Handle timestamps
 
 ---
 

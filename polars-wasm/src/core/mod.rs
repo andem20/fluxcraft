@@ -2,20 +2,27 @@ pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use calamine::{Data, Reader, Xlsx};
+    use calamine::{Data, ExcelDateTime, Reader, Xlsx};
+    use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
     use polars_core::{
-        error::PolarsError,
+        error::{PolarsError, PolarsResult},
         frame::DataFrame,
-        prelude::{AnyValue, Column, TimeUnit},
+        functions::concat_df_horizontal,
+        prelude::{AnyValue, Column, DataType, PlSmallStr, TimeUnit, TimeZone},
+        utils::concat_df,
     };
-    use polars_io::SerReader;
-    use polars_lazy::frame::{IntoLazy, LazyFrame};
+    use polars_io::{SerReader, prelude::CsvParseOptions};
+    use polars_lazy::{
+        dsl::{Expr, StrptimeOptions, coalesce, col, lit, when},
+        frame::{IntoLazy, LazyFrame},
+    };
 
     use crate::core::wrapper::DataFrameWrapper;
 
     const CSV_SUFFIX: &str = ".csv";
     const TXT_SUFFIX: &str = ".txt";
     const JSON_SUFFIX: &str = ".json";
+    const TIMESTAMP_TRY_ROWS: usize = 20;
 
     pub struct FluxCraft {
         pub wrappers: std::collections::HashMap<String, DataFrameWrapper>,
@@ -116,13 +123,19 @@ pub mod fluxcraft {
             has_headers: bool,
             filename: &str,
         ) -> Result<DataFrame, Box<dyn std::error::Error>> {
-            return match filename.to_lowercase() {
+            let mut df = match filename.to_lowercase() {
                 f if f.ends_with(CSV_SUFFIX) || f.ends_with(TXT_SUFFIX) => {
                     Ok(Self::read_csv(buffer, has_headers)?)
                 }
                 f if f.ends_with(JSON_SUFFIX) => Ok(Self::read_json(buffer)?),
                 _ => Self::read_excel(buffer, has_headers),
-            };
+            }?;
+
+            let formats = ["%F %T".to_owned()];
+
+            df = try_parse_timestamps(&mut df, &formats)?;
+
+            return Ok(df);
         }
 
         pub fn query(&mut self, query: String) -> Result<LazyFrame, PolarsError> {
@@ -182,6 +195,8 @@ pub mod fluxcraft {
                             .unwrap_or(header_name)
                     }
 
+                    // TODO cast to most occuring type
+
                     return Column::new(header_name.into(), col);
                 })
                 .collect::<Vec<Column>>();
@@ -189,4 +204,79 @@ pub mod fluxcraft {
             return Ok(DataFrame::new(columns)?);
         }
     }
+
+    fn try_parse_timestamps(
+        df: &mut DataFrame,
+        formats: &[String],
+    ) -> Result<DataFrame, Box<dyn std::error::Error>> {
+        let string_cols: Vec<Expr> = df
+            .get_columns()
+            .iter()
+            .filter(|col| matches!(col.dtype(), DataType::String))
+            .map(|col| col.name().to_string())
+            .map(|name| coalesce(&generate_time_formats(formats, &name)))
+            .collect();
+
+        let test = df.clone().lazy().with_columns(string_cols).collect();
+
+        let df2 = test?;
+        let string_cols: Vec<String> = df2
+            .get_columns()
+            .iter()
+            .filter(|col| col.is_not_null().any())
+            .map(|c| c.name().to_string())
+            .collect();
+
+        return Ok(concat_df_horizontal(
+            &[df.drop_many(&string_cols), df2.select(string_cols).unwrap()],
+            false,
+        )?);
+    }
+
+    fn generate_time_formats(formats: &[String], name: &str) -> Vec<Expr> {
+        let result = formats
+            .iter()
+            .map(|fmt| {
+                col(name).str().to_datetime(
+                    Some(TimeUnit::Milliseconds),
+                    None,
+                    StrptimeOptions {
+                        format: Some(fmt.into()),
+                        strict: false,
+                        exact: false,
+                        cache: true,
+                    },
+                    lit("raise"),
+                )
+            })
+            .collect::<Vec<Expr>>();
+
+        return result;
+    }
+
+    // fn parse_timestamp_to_datetime(timestamp: &str) -> Option<NaiveDateTime> {
+    //     let date_formats = ["%Y-%m-%d", "%d/%m/%Y", "%m-%d-%Y", "%b %d, %Y"];
+
+    //     let mut result = None;
+
+    //     for fmt in date_formats {
+    //         let date_and_remainder = NaiveDate::parse_and_remainder(timestamp, fmt);
+
+    //         if let Ok((naive_date, remainder)) = date_and_remainder {
+    //             let time = remainder
+    //                 .parse::<NaiveTime>()
+    //                 .unwrap_or(NaiveTime::default());
+
+    //             result = Some(naive_date.and_time(time));
+    //         }
+    //     }
+
+    //     return result;
+    // }
+
+    // fn parse_timestamp_to_time(timestamp: &str) -> Option<NaiveTime> {
+    //     return timestamp
+    //         .parse::<NaiveTime>()
+    //         .map_or_else(|_e| None, |x| Some(x));
+    // }
 }
