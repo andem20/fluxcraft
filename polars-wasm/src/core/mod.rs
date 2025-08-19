@@ -82,8 +82,8 @@ pub mod fluxcraft {
                     .map(|c| c.name().to_string())
                     .collect::<Vec<String>>();
 
-                if !col_list_names.is_empty() {
-                    df = df.explode(&col_list_names)?;
+                for name in col_list_names {
+                    df = df.explode(&[name])?;
                 }
 
                 let col_struct_names = df
@@ -137,7 +137,12 @@ pub mod fluxcraft {
                 _ => Self::read_excel(buffer, has_headers),
             }?;
 
-            let formats = ["%F %T".to_owned(), "%F".to_owned()];
+            let formats = vec![
+                "%FT%T%.fZ".to_owned(), // ISO + fractional seconds
+                "%FT%TZ".to_owned(),    // ISO no fractional
+                "%F %T".to_owned(),     // space separated
+                "%F".to_owned(),        // date only
+            ];
 
             df = try_parse_timestamps(&mut df, &formats)?;
 
@@ -212,7 +217,7 @@ pub mod fluxcraft {
 
         pub async fn read_http_json(url: &str) -> Result<DataFrame, Box<dyn std::error::Error>> {
             let buffer = http_client::fetch_json(url).await?;
-            let df = Self::read_json(buffer.as_bytes())?;
+            let df = Self::read_buffer(buffer.as_bytes(), false, ".json")?;
 
             return Ok(df);
         }

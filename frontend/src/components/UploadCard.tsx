@@ -81,8 +81,8 @@ export function UploadCard(props: UploadCardProps) {
 
   async function fetchJson() {
     const df = await fluxcraftSelector.add_from_http_json(
-      "https://dummyjson.com/todos",
-      "comments"
+      "https://dummyjson.com/products",
+      "products"
     );
 
     console.log(df.print());
