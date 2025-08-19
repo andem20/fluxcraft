@@ -8,9 +8,6 @@ import {
   Grid,
   Paper,
   Tooltip,
-  Dialog,
-  DialogTitle,
-  TextField,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
@@ -46,10 +43,8 @@ export function UploadCard(props: UploadCardProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const [files, setFiles] = useState<String[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hasHeaders, setHasHeaders] = useState<boolean>(true);
-  const [selectedDataframe, setSelectedDataframe] =
-    useState<DataframeMetadata | null>(null);
+  useState<DataframeMetadata | null>(null);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -84,9 +79,20 @@ export function UploadCard(props: UploadCardProps) {
       ));
   }
 
-  function handleCloseDialog() {
-    setIsOpen(false);
-    setSelectedDataframe(null);
+  async function fetchJson() {
+    const df = await fluxcraftSelector.add_from_http_json(
+      "https://dummyjson.com/todos",
+      "comments"
+    );
+
+    console.log(df.print());
+
+    setFiles((prev) => {
+      prev.push(df.get_name());
+      return prev;
+    });
+
+    dispatch(fileSlice.actions.setDataFrame(df));
   }
 
   return (
@@ -116,10 +122,15 @@ export function UploadCard(props: UploadCardProps) {
             />
             <Button
               variant="outlined"
+              sx={{ margin: "2rem" }}
+              onClick={fetchJson}
+            >
+              Fetch external json data
+            </Button>
+            <Button
+              variant="outlined"
               component="span"
               startIcon={<CloudUploadIcon />}
-              fullWidth
-              sx={{ padding: "2rem" }}
             >
               Upload Files
             </Button>
@@ -133,21 +144,6 @@ export function UploadCard(props: UploadCardProps) {
                     elevation={1}
                     sx={{ p: 1, textAlign: "center" }}
                     key={idx}
-                    onClick={() => {
-                      setIsOpen(true);
-                      setSelectedDataframe({
-                        name: file as string,
-                        columns: fluxcraftSelector
-                          .get(file as string)
-                          .get_headers()
-                          .map((h) => {
-                            return {
-                              header: h,
-                              new_column_name: null,
-                            };
-                          }),
-                      });
-                    }}
                     style={{ cursor: "pointer" }}
                   >
                     <Typography variant="body2">{file}</Typography>
@@ -165,22 +161,6 @@ export function UploadCard(props: UploadCardProps) {
           >
             Next
           </Button>
-          <Dialog onClose={handleCloseDialog} open={isOpen}>
-            <DialogTitle>{selectedDataframe?.name}</DialogTitle>
-            {selectedDataframe?.columns.map((column) => (
-              <TextField
-                id="filled-basic"
-                label={column.header.get_name()}
-                variant="filled"
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  column.new_column_name = event.target.value;
-                }}
-              />
-            ))}
-            <Button onClick={() => console.log(selectedDataframe)}>
-              Submit
-            </Button>
-          </Dialog>
         </Stack>
       </CardContent>
     </Card>

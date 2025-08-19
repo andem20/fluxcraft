@@ -30,13 +30,15 @@ export function useDataFrameRenderer() {
     console.time("creating_cols");
     const colDefs: GridColDef[] = columnObjects.map((_, index) => {
       const header = headers[index];
-      const dtype = header.get_dtype() as "string" | "number" | "datetime";
 
       return {
         field: index.toString(),
         headerName: header.get_name(),
         type: "singleSelect",
-        flex: 1,
+        minWidth:
+          header.get_dtype() == "str" || header.get_dtype().includes("datetime")
+            ? 200
+            : 50,
         renderHeader: () => (
           <Box display="flex" alignItems="center" gap={1}>
             {header.is_primary_key() && <VpnKey fontSize="small" />}

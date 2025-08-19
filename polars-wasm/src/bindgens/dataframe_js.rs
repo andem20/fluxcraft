@@ -33,8 +33,22 @@ impl FluxCraftJS {
     }
 
     pub fn add(&mut self, buffer: &[u8], has_headers: bool, filename: String) -> DataFrameJS {
-        let wrapper = match FluxCraft::read_file(buffer, has_headers, &filename) {
+        let wrapper = match FluxCraft::read_buffer(buffer, has_headers, &filename) {
             Ok(df) => self.fluxcraft.add(filename, df),
+            Err(err) => {
+                log_error(&err);
+                &DataFrameWrapper::new(DataFrame::empty(), "")
+            }
+        };
+
+        return DataFrameJS {
+            wrapper: wrapper.clone(),
+        };
+    }
+
+    pub async fn add_from_http_json(&mut self, url: String, name: String) -> DataFrameJS {
+        let wrapper = match FluxCraft::read_http_json(&url).await {
+            Ok(df) => self.fluxcraft.add(name, df),
             Err(err) => {
                 log_error(&err);
                 &DataFrameWrapper::new(DataFrame::empty(), "")

@@ -1,29 +1,26 @@
+mod http_client;
 pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use calamine::{Data, ExcelDateTime, Reader, Xlsx};
-    use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
+    use calamine::{Data, Reader, Xlsx};
     use polars_core::{
-        chunked_array::iterator::par::string,
-        error::{PolarsError, PolarsResult},
+        error::PolarsError,
         frame::DataFrame,
         functions::concat_df_horizontal,
-        prelude::{AnyValue, Column, DataType, PlSmallStr, TimeUnit, TimeZone},
-        utils::concat_df,
+        prelude::{AnyValue, Column, DataType, TimeUnit},
     };
-    use polars_io::{SerReader, prelude::CsvParseOptions};
+    use polars_io::SerReader;
     use polars_lazy::{
-        dsl::{Expr, StrptimeOptions, coalesce, col, lit, when},
+        dsl::{Expr, StrptimeOptions, coalesce, col, lit},
         frame::{IntoLazy, LazyFrame},
     };
 
-    use crate::core::wrapper::DataFrameWrapper;
+    use crate::core::{http_client, wrapper::DataFrameWrapper};
 
     const CSV_SUFFIX: &str = ".csv";
     const TXT_SUFFIX: &str = ".txt";
     const JSON_SUFFIX: &str = ".json";
-    const TIMESTAMP_TRY_ROWS: usize = 20;
 
     pub struct FluxCraft {
         pub wrappers: std::collections::HashMap<String, DataFrameWrapper>,
@@ -74,21 +71,29 @@ pub mod fluxcraft {
 
         fn read_json(buffer: &[u8]) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
-            let mut df = polars_io::prelude::JsonReader::new(handle)
-                .finish()
-                .unwrap();
+            let mut df = polars_io::prelude::JsonReader::new(handle).finish()?;
 
-            df = unnest(df);
+            df = unnest(df)?;
 
-            fn unnest(mut df: polars_core::prelude::DataFrame) -> polars_core::prelude::DataFrame {
-                let col_names = df
+            fn unnest(mut df: polars_core::prelude::DataFrame) -> Result<DataFrame, PolarsError> {
+                let col_list_names = df
+                    .column_iter()
+                    .filter(|c| c.dtype().is_list())
+                    .map(|c| c.name().to_string())
+                    .collect::<Vec<String>>();
+
+                if !col_list_names.is_empty() {
+                    df = df.explode(&col_list_names)?;
+                }
+
+                let col_struct_names = df
                     .column_iter()
                     .filter(|c| c.dtype().is_struct())
                     .map(|c| c.name().to_string())
                     .collect::<Vec<String>>();
 
-                for name in col_names {
-                    let col = df.column(&name).unwrap();
+                for name in col_struct_names {
+                    let col = df.column(&name)?;
 
                     let mut unnested = col.struct_().cloned().unwrap().unnest();
                     let new_col_names = unnested
@@ -100,13 +105,13 @@ pub mod fluxcraft {
                     let _ = unnested.set_column_names(new_col_names);
                     let _ = unnested.drop_in_place(&name);
 
-                    unnested = unnest(unnested);
+                    unnested = unnest(unnested)?;
                     let _ = df.drop_in_place(&name);
                     df = polars_core::functions::concat_df_horizontal(&[df, unnested], false)
                         .unwrap();
                 }
 
-                return df;
+                return Ok(df);
             }
 
             fn add_prefix(col_name: &&polars_core::prelude::PlSmallStr, prefix: &String) -> String {
@@ -119,7 +124,7 @@ pub mod fluxcraft {
             return Ok(df);
         }
 
-        pub fn read_file(
+        pub fn read_buffer(
             buffer: &[u8],
             has_headers: bool,
             filename: &str,
@@ -204,6 +209,13 @@ pub mod fluxcraft {
 
             return Ok(DataFrame::new(columns)?);
         }
+
+        pub async fn read_http_json(url: &str) -> Result<DataFrame, Box<dyn std::error::Error>> {
+            let buffer = http_client::fetch_json(url).await?;
+            let df = Self::read_json(buffer.as_bytes())?;
+
+            return Ok(df);
+        }
     }
 
     fn try_parse_timestamps(
@@ -218,7 +230,6 @@ pub mod fluxcraft {
             .map(|name| coalesce(&generate_time_formats(formats, &name)))
             .collect();
 
-        println!("{:?}", string_cols);
         let test = df.clone().lazy().with_columns(string_cols).collect();
 
         let df2 = test?;
@@ -255,30 +266,4 @@ pub mod fluxcraft {
 
         return result;
     }
-
-    // fn parse_timestamp_to_datetime(timestamp: &str) -> Option<NaiveDateTime> {
-    //     let date_formats = ["%Y-%m-%d", "%d/%m/%Y", "%m-%d-%Y", "%b %d, %Y"];
-
-    //     let mut result = None;
-
-    //     for fmt in date_formats {
-    //         let date_and_remainder = NaiveDate::parse_and_remainder(timestamp, fmt);
-
-    //         if let Ok((naive_date, remainder)) = date_and_remainder {
-    //             let time = remainder
-    //                 .parse::<NaiveTime>()
-    //                 .unwrap_or(NaiveTime::default());
-
-    //             result = Some(naive_date.and_time(time));
-    //         }
-    //     }
-
-    //     return result;
-    // }
-
-    // fn parse_timestamp_to_time(timestamp: &str) -> Option<NaiveTime> {
-    //     return timestamp
-    //         .parse::<NaiveTime>()
-    //         .map_or_else(|_e| None, |x| Some(x));
-    // }
 }
