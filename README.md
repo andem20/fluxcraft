@@ -34,7 +34,7 @@ Visualize the data.
 
 **Week 33-34**
 
-- [ ] Add http client
+- [x] Add http client
 - [ ] Setup simple data pipeline
 - [x] Handle timestamps
 
@@ -64,7 +64,7 @@ Visualize the data.
   - [x] Handle multiple dataframes
 - [ ] Connect datasource
   - [ ] Postgres
-  - [ ] HTTP/JSON
+  - [x] HTTP/JSON
   - [ ] Kafka
 - [ ] Export dataset (HTTP, Kafka, File)
   - [ ] HTTP
@@ -77,13 +77,13 @@ Visualize the data.
 ## Data Transformation
 
 - [x] Rename columns of dataframe
-- [ ] Aggregate columns
+- [x] Aggregate columns (handled as sql)
 - [ ] Reshape dataframe (columns to rows -> new set of columns)
 - [ ] Clean data
   - [ ] Remove outliers
   - [ ] Fill missing data points
 - [ ] Data augmentation
-- [ ] Normalization
+- [x] Normalization (handled as sql)
 
 ## ML Modelling
 
