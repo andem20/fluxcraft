@@ -217,7 +217,7 @@ pub mod fluxcraft {
 
         pub async fn read_http_json(url: &str) -> Result<DataFrame, Box<dyn std::error::Error>> {
             let buffer = http_client::fetch_json(url).await?;
-            let df = Self::read_buffer(buffer.as_bytes(), false, ".json")?;
+            let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
 
             return Ok(df);
         }
