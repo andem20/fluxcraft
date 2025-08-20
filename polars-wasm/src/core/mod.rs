@@ -69,11 +69,12 @@ pub mod fluxcraft {
                 .finish();
         }
 
+        #[allow(dead_code)]
         fn read_json(buffer: &[u8]) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
-            let mut df = polars_io::prelude::JsonReader::new(handle).finish()?;
+            let df = polars_io::prelude::JsonReader::new(handle).finish()?;
 
-            df = unnest(df)?;
+            // df = unnest(df)?;
 
             fn unnest(mut df: polars_core::prelude::DataFrame) -> Result<DataFrame, PolarsError> {
                 let col_list_names = df
@@ -129,15 +130,13 @@ pub mod fluxcraft {
             has_headers: bool,
             filename: &str,
         ) -> Result<DataFrame, Box<dyn std::error::Error>> {
-            let mut df = match filename.to_lowercase() {
+            let df = match filename.to_lowercase() {
                 f if f.ends_with(CSV_SUFFIX) || f.ends_with(TXT_SUFFIX) => {
                     Ok(Self::read_csv(buffer, has_headers)?)
                 }
                 f if f.ends_with(JSON_SUFFIX) => Ok(Self::read_json(buffer)?),
                 _ => Self::read_excel(buffer, has_headers),
             }?;
-
-            df = try_parse_timestamps(&mut df)?;
 
             return Ok(df);
         }
@@ -216,11 +215,13 @@ pub mod fluxcraft {
         }
     }
 
+    #[allow(dead_code)]
     fn try_parse_timestamps(df: &mut DataFrame) -> Result<DataFrame, Box<dyn std::error::Error>> {
         let formats = vec![
             "%FT%T%.fZ".to_owned(), // ISO + fractional seconds
             "%FT%TZ".to_owned(),    // ISO no fractional
             "%F %T".to_owned(),     // space separated
+            "%F %TZ".to_owned(),    // space separated
             "%F".to_owned(),        // date only
         ];
 

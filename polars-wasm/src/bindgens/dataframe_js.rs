@@ -1,4 +1,8 @@
-use polars_core::frame::DataFrame;
+use polars_core::{
+    chunked_array::cast::CastOptions,
+    frame::DataFrame,
+    prelude::{AnyValue, DataType, StructType},
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
@@ -64,10 +68,16 @@ impl FluxCraftJS {
         let filtered_df = self.fluxcraft.query(query);
 
         let wrapper = match filtered_df {
-            Ok(df) => df.collect().unwrap(),
+            Ok(df) => match df.collect() {
+                Ok(d) => d,
+                Err(e) => {
+                    log_error(&e.into());
+                    DataFrame::empty()
+                }
+            },
             Err(e) => {
-                log(&e.to_string());
-                polars_core::prelude::DataFrame::empty()
+                log_error(&e.into());
+                DataFrame::empty()
             }
         };
 
@@ -184,20 +194,19 @@ impl DataFrameJS {
             .get_df()
             .iter()
             .map(|s| {
-                s.cast(&polars_core::datatypes::DataType::String)
-                    .unwrap()
-                    .str()
-                    .unwrap()
-                    .clone()
+                log(&format!("{:?}", s));
+                // iterate over the series, stringify each value
+                let values = s
+                    .iter()
+                    .map(|v| match v {
+                        AnyValue::Null => "null".to_string(),
+                        other => other.to_string(), // works for List, Struct, Int, Float, Utf8, etc.
+                    })
+                    .collect::<Vec<String>>();
+
+                ColumnJS { values }
             })
-            .map(|s| {
-                s.into_iter()
-                    .map(|e| e.unwrap_or("unknown"))
-                    .map(|s| s.to_string())
-                    .collect::<Vec<String>>()
-            })
-            .map(|e| ColumnJS { values: e })
-            .collect::<Vec<ColumnJS>>();
+            .collect();
 
         return slice;
     }
