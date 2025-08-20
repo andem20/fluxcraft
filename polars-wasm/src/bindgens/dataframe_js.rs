@@ -194,16 +194,7 @@ impl DataFrameJS {
             .get_df()
             .iter()
             .map(|s| {
-                log(&format!("{:?}", s));
-                // iterate over the series, stringify each value
-                let values = s
-                    .iter()
-                    .map(|v| match v {
-                        AnyValue::Null => "null".to_string(),
-                        other => other.to_string(), // works for List, Struct, Int, Float, Utf8, etc.
-                    })
-                    .collect::<Vec<String>>();
-
+                let values = s.iter().map(|x| x.to_string()).collect::<Vec<String>>();
                 ColumnJS { values }
             })
             .collect();
