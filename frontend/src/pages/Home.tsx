@@ -6,6 +6,9 @@ import {
   Button,
   Box,
   Typography,
+  Grid,
+  Tooltip,
+  Paper,
 } from "@mui/material";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -30,25 +33,61 @@ export function Home() {
     page: 0,
   });
 
+  const [dataframes, setDataframes] = useState<String[]>([]);
+
   const beforeMount = useSqlCompletions(dfSelector!, fluxcraftSelector);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (fluxcraftSelector)
+    if (fluxcraftSelector) {
       renderDataframe(fluxcraftSelector.query(query.current));
+      setDataframes(fluxcraftSelector.get_dataframe_names());
+    }
   }
 
   function handleNext() {
-    if (dfSelector) renderDataframe(dfSelector);
+    if (dfSelector) {
+      renderDataframe(dfSelector);
+      setDataframes(fluxcraftSelector.get_dataframe_names());
+    }
   }
 
   useEffect(() => {
     handleNext();
   }, []);
 
+  function renderTooltip(file: String) {
+    return fluxcraftSelector.get_schema(file as string).map((header) => (
+      <div>
+        <b>{header.get_name()}</b>: {header.get_dtype()}
+      </div>
+    ));
+  }
+
   return (
     <Container maxWidth={false} disableGutters>
       <UploadCard handleNext={handleNext} />
+
+      <Card elevation={3} sx={{ p: 2, m: 2 }}>
+        <CardContent>
+          {dataframes.length > 0 && (
+            <Grid container spacing={2}>
+              {dataframes.map((name, idx) => (
+                <Tooltip title={renderTooltip(name)}>
+                  <Paper
+                    elevation={1}
+                    sx={{ p: 1, textAlign: "center" }}
+                    key={idx}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <Typography variant="body2">{name}</Typography>
+                  </Paper>
+                </Tooltip>
+              ))}
+            </Grid>
+          )}
+        </CardContent>
+      </Card>
 
       {rows.length > 0 && (
         <Card elevation={3} sx={{ p: 2, m: 2 }}>

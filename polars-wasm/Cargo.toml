@@ -17,6 +17,7 @@ wasm-bindgen = "0.2.100"
 wasm-bindgen-futures = "0.4.50"
 getrandom = { version = "0.3", features = ["wasm_js"] }
 reqwest = "0.12.23"
+polars-schema = "0.50.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { version = "1.47.1", features = ["full"] }

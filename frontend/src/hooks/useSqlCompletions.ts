@@ -71,6 +71,7 @@ export function useSqlCompletions(
           "LOWER",
           "UPPER",
           "COALESCE",
+          "UNNEST",
         ].forEach((func) =>
           suggestions.push({
             label: func,

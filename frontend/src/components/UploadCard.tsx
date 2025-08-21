@@ -5,9 +5,6 @@ import {
   Stack,
   Button,
   styled,
-  Grid,
-  Paper,
-  Tooltip,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
@@ -68,17 +65,6 @@ export function UploadCard(props: UploadCardProps) {
     }
   };
 
-  function renderTooltip(file: String) {
-    return fluxcraftSelector
-      .get(file as string)
-      .get_headers()
-      .map((header) => (
-        <div>
-          <b>{header.get_name()}</b>: {header.get_dtype()}
-        </div>
-      ));
-  }
-
   async function fetchJson() {
     const df = await fluxcraftSelector.add_from_http_json(
       "https://dummyjson.com/products?limit=200",
@@ -133,23 +119,6 @@ export function UploadCard(props: UploadCardProps) {
               Upload Files
             </Button>
           </label>
-
-          {files.length > 0 && (
-            <Grid container spacing={2}>
-              {files.map((file, idx) => (
-                <Tooltip title={renderTooltip(file)}>
-                  <Paper
-                    elevation={1}
-                    sx={{ p: 1, textAlign: "center" }}
-                    key={idx}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <Typography variant="body2">{file}</Typography>
-                  </Paper>
-                </Tooltip>
-              ))}
-            </Grid>
-          )}
 
           <Button
             variant="contained"

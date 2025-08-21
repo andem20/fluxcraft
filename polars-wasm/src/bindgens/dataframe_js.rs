@@ -1,8 +1,4 @@
-use polars_core::{
-    chunked_array::cast::CastOptions,
-    frame::DataFrame,
-    prelude::{AnyValue, DataType, StructType},
-};
+use polars_core::{frame::DataFrame, schema::SchemaNamesAndDtypes};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
@@ -90,6 +86,23 @@ impl FluxCraftJS {
 
     pub fn get_dataframe_names(&self) -> Vec<String> {
         self.fluxcraft.get_dataframe_names()
+    }
+
+    pub fn get_schema(&mut self, name: String) -> Vec<ColumnHeaderJS> {
+        return match self.fluxcraft.get_schema(&name) {
+            Ok(schema) => schema
+                .iter_names_and_dtypes()
+                .map(|(name, dtype)| ColumnHeaderJS {
+                    name: name.to_owned().to_string(),
+                    dtype: dtype.to_owned(),
+                    is_primary_key: false,
+                })
+                .collect(),
+            Err(e) => {
+                log_error(&e.into());
+                return vec![];
+            }
+        };
     }
 }
 
@@ -194,7 +207,11 @@ impl DataFrameJS {
             .get_df()
             .iter()
             .map(|s| {
-                let values = s.iter().map(|x| x.to_string()).collect::<Vec<String>>();
+                let values = s
+                    .rechunk()
+                    .iter()
+                    .map(|x| x.to_string())
+                    .collect::<Vec<String>>();
                 ColumnJS { values }
             })
             .collect();

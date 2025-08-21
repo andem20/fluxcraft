@@ -3,9 +3,11 @@ pub mod wrapper;
 
 pub mod fluxcraft {
 
+    use std::sync::Arc;
+
     use calamine::{Data, Reader, Xlsx};
     use polars_core::{
-        error::PolarsError,
+        error::{ErrString, PolarsError},
         frame::DataFrame,
         functions::concat_df_horizontal,
         prelude::{AnyValue, Column, DataType, TimeUnit},
@@ -15,6 +17,7 @@ pub mod fluxcraft {
         dsl::{Expr, StrptimeOptions, coalesce, col, lit},
         frame::{IntoLazy, LazyFrame},
     };
+    use polars_schema::Schema;
 
     use crate::core::{http_client, wrapper::DataFrameWrapper};
 
@@ -61,8 +64,25 @@ pub mod fluxcraft {
             return self.wrappers.get(name);
         }
 
+        pub fn get_schema(
+            &mut self,
+            name: &str,
+        ) -> Result<Arc<Schema<polars_core::datatypes::DataType>>, PolarsError> {
+            let df = self
+                .sql_ctx
+                .get_table_map()
+                .get_mut(name)
+                .map(|x| x.collect_schema())
+                .unwrap_or(Err(PolarsError::AssertionError(ErrString::new_static(
+                    "Could not find dataframe",
+                ))));
+
+            return df;
+        }
+
         fn read_csv(buffer: &[u8], has_headers: bool) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
+
             return polars_io::prelude::CsvReadOptions::default()
                 .with_has_header(has_headers)
                 .into_reader_with_file_handle(handle)
