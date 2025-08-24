@@ -19,10 +19,6 @@ const Input = styled("input")({
   display: "none",
 });
 
-interface UploadCardProps {
-  handleNext: () => void;
-}
-
 interface ColumnHeaderMutationJS {
   header: ColumnHeaderJS;
   new_column_name: string | null;
@@ -33,13 +29,12 @@ type DataframeMetadata = {
   columns: ColumnHeaderMutationJS[];
 };
 
-export function UploadCard(props: UploadCardProps) {
+export function UploadCard() {
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
   const dispatch = useDispatch<AppDispatch>();
 
-  const [files, setFiles] = useState<String[]>([]);
   const [hasHeaders, setHasHeaders] = useState<boolean>(true);
   useState<DataframeMetadata | null>(null);
 
@@ -56,11 +51,6 @@ export function UploadCard(props: UploadCardProps) {
         file.name
       );
 
-      setFiles((prev) => {
-        prev.push(df.get_name());
-        return prev;
-      });
-
       dispatch(fileSlice.actions.setDataFrame(df));
     }
   };
@@ -70,11 +60,6 @@ export function UploadCard(props: UploadCardProps) {
       "https://dummyjson.com/products?limit=200",
       "products"
     );
-
-    setFiles((prev) => {
-      prev.push(df.get_name());
-      return prev;
-    });
 
     dispatch(fileSlice.actions.setDataFrame(df));
   }

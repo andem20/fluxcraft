@@ -62,14 +62,16 @@ export function QueryCard() {
               Submit
             </Button>
           </Box>
-          <Box sx={{ height: 400, width: "100%" }}>
-            <DataframeViewer
-              rows={rows}
-              columns={columns}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-            />
-          </Box>
+          {rows.length > 0 && (
+            <Box sx={{ height: 400, width: "100%" }}>
+              <DataframeViewer
+                rows={rows}
+                columns={columns}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+              />
+            </Box>
+          )}
         </Stack>
       </CardContent>
     </Card>

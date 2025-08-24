@@ -5,12 +5,15 @@ import {
   Container,
   createTheme,
   CssBaseline,
+  Icon,
+  Stack,
   ThemeProvider,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Home } from "./pages/Home";
+import WebStoriesIcon from "@mui/icons-material/WebStories";
 
 export default function App() {
   const theme = createTheme({
@@ -45,12 +48,15 @@ export default function App() {
           <Toolbar
             sx={{ position: "relative", display: "flex", alignItems: "center" }}
           >
-            <Typography
-              variant="h6"
-              sx={{ color: "white", fontWeight: "bold" }}
-            >
-              FluxCraft
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <WebStoriesIcon />
+              <Typography
+                variant="h6"
+                sx={{ color: "white", fontWeight: "bold" }}
+              >
+                FluxCraft
+              </Typography>
+            </Stack>
 
             <Box
               sx={{
