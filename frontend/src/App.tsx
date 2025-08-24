@@ -5,33 +5,45 @@ import {
   Container,
   createTheme,
   CssBaseline,
-  Icon,
   Stack,
   ThemeProvider,
   Toolbar,
   Typography,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Home } from "./pages/Home";
 import WebStoriesIcon from "@mui/icons-material/WebStories";
+import { useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, toggleDarkMode } from "./stores/Store";
 
 export default function App() {
-  const theme = createTheme({
-    palette: {
-      background: {
-        default: "#f0f0f0",
-      },
-      primary: {
-        main: "#1b9393ff",
-      },
-      secondary: {
-        main: "#745ae5ff",
-      },
-    },
-    typography: {
-      fontFamily: "Roboto, Arial, sans-serif",
-    },
-  });
+  const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
+  const dispatch = useDispatch();
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: darkMode ? "dark" : "light",
+          background: {
+            default: darkMode ? "#121212" : "#f0f0f0",
+          },
+          primary: {
+            main: darkMode ? "#196464" : "#1b9393ff",
+          },
+          secondary: {
+            main: "#603bc7ff",
+          },
+        },
+        typography: {
+          fontFamily: "Roboto, Arial, sans-serif",
+        },
+      }),
+    [darkMode]
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -40,8 +52,9 @@ export default function App() {
         <AppBar
           position="fixed"
           sx={{
-            background:
-              "linear-gradient(90deg, #1b9393ff 0%,  #59bd95ff 70%, #6fdeb2ff 100%)",
+            background: darkMode
+              ? "linear-gradient(90deg, #0a2d2d 0%, #0f4040 40%, #196464 100%)"
+              : "linear-gradient(90deg, #1b9393ff 0%,  #59bd95ff 70%, #6fdeb2ff 100%)",
             boxShadow: "none",
           }}
         >
@@ -89,8 +102,23 @@ export default function App() {
                 Contact
               </Button>
             </Box>
+
+            <Box sx={{ position: "absolute", right: 16 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={darkMode}
+                    onChange={() => dispatch(toggleDarkMode())}
+                    color="default"
+                  />
+                }
+                label="Dark Mode"
+                sx={{ color: "white" }}
+              />
+            </Box>
           </Toolbar>
         </AppBar>
+
         <Container sx={{ pt: 12 }} maxWidth={false}>
           <Routes>
             <Route path="/" element={<Home />} />

@@ -1,4 +1,6 @@
 import Editor from "@monaco-editor/react";
+import { useSelector } from "react-redux";
+import { RootState } from "../stores/Store";
 
 interface QueryEditorProps {
   onChange: (value: string) => void;
@@ -11,6 +13,10 @@ export function QueryEditor({
   onSubmitShortcut,
   beforeMount,
 }: QueryEditorProps) {
+  const darkModeSelector = useSelector(
+    (state: RootState) => state.darkMode.enabled
+  );
+
   function handleEditorDidMount(
     editor: import("monaco-editor").editor.IStandaloneCodeEditor,
     monaco: typeof import("monaco-editor")
@@ -33,6 +39,7 @@ export function QueryEditor({
         lineNumbers: "on",
         fontSize: 16,
         wordWrap: "off",
+        theme: darkModeSelector ? "vs-dark" : "vs-light",
       }}
     />
   );

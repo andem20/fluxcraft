@@ -13,8 +13,11 @@ import { FormEvent, useRef, useState } from "react";
 import { useDataFrameRenderer } from "../hooks/useDataFrameRenderer";
 import { RootState } from "../stores/Store";
 import { useSelector } from "react-redux";
+import { UploadCard } from "./UploadCard";
+import SearchIcon from "@mui/icons-material/Search";
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 
-export function QueryCard() {
+export function TransformCard() {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -36,44 +39,68 @@ export function QueryCard() {
     }
   }
 
+  const [openModal, setOpenModal] = useState(false);
+
   return (
-    <Card elevation={3} sx={{ p: 2, m: 2 }}>
-      <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Query
-        </Typography>
-        <Stack spacing={3}>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ display: "flex", width: "100%" }}
-          >
-            <Box sx={{ flexGrow: 1, mr: 2 }}>
-              <QueryEditor
-                onChange={(val) => (query.current = val)}
-                onSubmitShortcut={() =>
-                  fluxcraftSelector &&
-                  renderDataframe(fluxcraftSelector.query(query.current))
-                }
-                beforeMount={beforeMount}
-              />
-            </Box>
-            <Button type="submit" variant="contained">
-              Submit
+    <>
+      <UploadCard open={openModal} onClose={() => setOpenModal(false)} />
+      <Card elevation={3} sx={{ p: 2, m: 2 }}>
+        <CardContent>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <SearchIcon />
+            <Typography variant="h5" gutterBottom sx={{ flexGrow: 1 }}>
+              Query
+            </Typography>
+            <Button
+              variant="contained"
+              size="medium"
+              color="secondary"
+              startIcon={<AddCircleOutlineOutlinedIcon />}
+              sx={{
+                textTransform: "none", // keep normal casing
+                borderRadius: 2,
+                boxShadow: 2,
+                px: 2,
+                py: 1,
+              }}
+              onClick={() => setOpenModal(true)}
+            >
+              Add Dataframe
             </Button>
-          </Box>
-          {rows.length > 0 && (
-            <Box sx={{ height: 400, width: "100%" }}>
-              <DataframeViewer
-                rows={rows}
-                columns={columns}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-              />
+          </Stack>
+          <Stack spacing={3} sx={{ mt: 5 }}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ display: "flex", width: "100%" }}
+            >
+              <Box sx={{ flexGrow: 1, mr: 2 }}>
+                <QueryEditor
+                  onChange={(val) => (query.current = val)}
+                  onSubmitShortcut={() =>
+                    fluxcraftSelector &&
+                    renderDataframe(fluxcraftSelector.query(query.current))
+                  }
+                  beforeMount={beforeMount}
+                />
+              </Box>
+              <Button type="submit" variant="contained">
+                Submit
+              </Button>
             </Box>
-          )}
-        </Stack>
-      </CardContent>
-    </Card>
+            {rows.length > 0 && (
+              <Box sx={{ height: 400, width: "100%" }}>
+                <DataframeViewer
+                  rows={rows}
+                  columns={columns}
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
+                />
+              </Box>
+            )}
+          </Stack>
+        </CardContent>
+      </Card>
+    </>
   );
 }

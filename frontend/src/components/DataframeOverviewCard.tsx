@@ -3,15 +3,21 @@ import {
   CardContent,
   Grid,
   Paper,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/Store";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 export function DataframeOverviewCard() {
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
+  );
+
+  const dataframeOverviewSelector = useSelector(
+    (state: RootState) => state.dataframeOverviewSlice.dataframes
   );
 
   function renderTooltip(file: String) {
@@ -25,12 +31,15 @@ export function DataframeOverviewCard() {
   return (
     <Card elevation={3} sx={{ p: 2, m: 2 }}>
       <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Dataframe Overview
-        </Typography>
-        {fluxcraftSelector.get_dataframe_names().length > 0 && (
+        <Stack direction="row" spacing={1} alignItems="center">
+          <DescriptionIcon />
+          <Typography variant="h5" gutterBottom>
+            Dataframe Overview
+          </Typography>
+        </Stack>
+        {dataframeOverviewSelector.length > 0 && (
           <Grid container spacing={2}>
-            {fluxcraftSelector.get_dataframe_names().map((name, idx) => (
+            {dataframeOverviewSelector.map((name, idx) => (
               <Tooltip title={renderTooltip(name)}>
                 <Paper
                   elevation={1}
