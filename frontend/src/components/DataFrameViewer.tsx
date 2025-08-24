@@ -7,7 +7,7 @@ interface DataFrameViewerProps {
   onPaginationModelChange: (model: { pageSize: number; page: number }) => void;
 }
 
-export function DataFrameViewer({
+export function DataframeViewer({
   rows,
   columns,
   paginationModel,

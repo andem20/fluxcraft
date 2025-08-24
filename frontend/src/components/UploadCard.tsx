@@ -82,7 +82,7 @@ export function UploadCard(props: UploadCardProps) {
   return (
     <Card elevation={3} sx={{ p: 2, m: 2 }}>
       <CardContent>
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h5" gutterBottom>
           Upload files
         </Typography>
         <Stack spacing={3}>
@@ -119,15 +119,6 @@ export function UploadCard(props: UploadCardProps) {
               Upload Files
             </Button>
           </label>
-
-          <Button
-            variant="contained"
-            size="large"
-            disabled={files.length === 0}
-            onClick={props.handleNext}
-          >
-            Next
-          </Button>
         </Stack>
       </CardContent>
     </Card>
