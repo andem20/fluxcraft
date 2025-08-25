@@ -19,7 +19,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
-export function TransformCard() {
+interface TransformCardProps {
+  id: number;
+}
+
+export function TransformCard(props: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -27,6 +31,7 @@ export function TransformCard() {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
+
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 100,
     page: 0,
@@ -51,7 +56,7 @@ export function TransformCard() {
           <Stack direction="row" spacing={1} alignItems="center">
             <SearchIcon />
             <Typography variant="h5" gutterBottom sx={{ flexGrow: 1 }}>
-              Query
+              #{props.id} Query
             </Typography>
             <Button
               variant="contained"
@@ -64,35 +69,36 @@ export function TransformCard() {
             </Button>
           </Stack>
           <Stack spacing={3} sx={{ mt: 5 }}>
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{ display: "flex", width: "100%" }}
-            >
-              <Box sx={{ flexGrow: 1, mr: 2 }}>
-                <QueryEditor
-                  onChange={(val) => (query.current = val)}
-                  onSubmitShortcut={() =>
-                    fluxcraftSelector &&
-                    renderDataframe(fluxcraftSelector.query(query.current))
-                  }
-                  beforeMount={beforeMount}
-                />
+            <Box component="form" onSubmit={handleSubmit}>
+              <Box sx={{ display: "flex", width: "100%" }}>
+                <Box sx={{ flexGrow: 1, mr: 2 }}>
+                  <QueryEditor
+                    key={"editor-" + props.id}
+                    onChange={(val) => (query.current = val)}
+                    onSubmitShortcut={() =>
+                      fluxcraftSelector &&
+                      renderDataframe(fluxcraftSelector.query(query.current))
+                    }
+                    beforeMount={beforeMount}
+                  />
+                </Box>
               </Box>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-              <Box sx={{ flexGrow: 1 }} />
+              <Box
+                sx={{ display: "flex", alignItems: "center", width: "100%" }}
+              >
+                <Box sx={{ flexGrow: 1 }} />
 
-              <Tooltip title="Run query (Ctrl+Enter)">
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  startIcon={<PlayArrowIcon />}
-                >
-                  Run
-                </Button>
-              </Tooltip>
+                <Tooltip title="Run query (Ctrl+Enter)">
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<PlayArrowIcon />}
+                  >
+                    Run
+                  </Button>
+                </Tooltip>
+              </Box>
             </Box>
 
             {rows.length > 0 && (

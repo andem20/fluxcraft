@@ -6,6 +6,7 @@ interface QueryEditorProps {
   onChange: (value: string) => void;
   onSubmitShortcut: () => void;
   beforeMount: (monaco: typeof import("monaco-editor")) => void;
+  key: string;
 }
 
 export function QueryEditor({
@@ -19,17 +20,30 @@ export function QueryEditor({
 
   function handleEditorDidMount(
     editor: import("monaco-editor").editor.IStandaloneCodeEditor,
-    monaco: typeof import("monaco-editor")
+    _monaco: typeof import("monaco-editor")
   ) {
-    editor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      onSubmitShortcut
-    );
+    const domNode = editor.getDomNode();
+    if (!domNode) return;
+
+    const keyHandler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        if (editor.hasTextFocus()) {
+          e.preventDefault();
+          onSubmitShortcut();
+        }
+      }
+    };
+
+    domNode.addEventListener("keydown", keyHandler);
+
+    editor.onDidDispose(() => {
+      domNode.removeEventListener("keydown", keyHandler);
+    });
   }
 
   return (
     <Editor
-      height="15rem"
+      height="8rem"
       defaultLanguage="sql"
       onChange={(value) => onChange(value ?? "")}
       beforeMount={beforeMount}
