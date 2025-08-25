@@ -32,10 +32,11 @@ export default function App() {
             default: darkMode ? "#121212" : "#f0f0f0",
           },
           primary: {
-            main: darkMode ? "#196464" : "#1b9393ff",
+            main: darkMode ? "#59bd95ff" : "#60dcabff",
+            contrastText: "#032b27ff",
           },
           secondary: {
-            main: "#603bc7ff",
+            main: darkMode ? "#493757ff" : "#828dc9ff",
           },
         },
         typography: {
@@ -62,7 +63,7 @@ export default function App() {
             sx={{ position: "relative", display: "flex", alignItems: "center" }}
           >
             <Stack direction="row" spacing={1} alignItems="center">
-              <WebStoriesIcon />
+              <WebStoriesIcon sx={{ color: "#ffffff" }} />
               <Typography
                 variant="h6"
                 sx={{ color: "white", fontWeight: "bold" }}

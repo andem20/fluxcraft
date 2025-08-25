@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { QueryEditor } from "./QueryEditor";
@@ -16,6 +17,7 @@ import { useSelector } from "react-redux";
 import { UploadCard } from "./UploadCard";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 export function TransformCard() {
   const dfSelector = useSelector((state: RootState) => state.file.df);
@@ -56,13 +58,6 @@ export function TransformCard() {
               size="medium"
               color="secondary"
               startIcon={<AddCircleOutlineOutlinedIcon />}
-              sx={{
-                textTransform: "none", // keep normal casing
-                borderRadius: 2,
-                boxShadow: 2,
-                px: 2,
-                py: 1,
-              }}
               onClick={() => setOpenModal(true)}
             >
               Add Dataframe
@@ -84,10 +79,22 @@ export function TransformCard() {
                   beforeMount={beforeMount}
                 />
               </Box>
-              <Button type="submit" variant="contained">
-                Submit
-              </Button>
             </Box>
+            <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+              <Box sx={{ flexGrow: 1 }} />
+
+              <Tooltip title="Run query (Ctrl+Enter)">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<PlayArrowIcon />}
+                >
+                  Run
+                </Button>
+              </Tooltip>
+            </Box>
+
             {rows.length > 0 && (
               <Box sx={{ height: 400, width: "100%" }}>
                 <DataframeViewer

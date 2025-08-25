@@ -1,6 +1,6 @@
 import { Container } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
-import { TransformCard } from "../components/QueryCard";
+import { TransformCard } from "../components/TransformCard";
 
 export function Home() {
   return (

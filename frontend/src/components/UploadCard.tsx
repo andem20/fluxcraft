@@ -85,10 +85,13 @@ export function UploadCard(props: UploadCardProps) {
     <Modal
       open={props.open}
       onClose={props.onClose}
-      aria-labelledby="modal-modal-title"
-      aria-describedby="modal-modal-description"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
     >
-      <Card elevation={3} sx={{ p: 2, m: 2 }}>
+      <Card elevation={3} sx={{ p: 2, m: 2, maxWidth: 800, width: "100%" }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>
             Upload files

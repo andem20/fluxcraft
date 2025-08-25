@@ -34,12 +34,12 @@ export function QueryEditor({
       onChange={(value) => onChange(value ?? "")}
       beforeMount={beforeMount}
       onMount={handleEditorDidMount}
+      theme={darkModeSelector ? "vs-dark" : "vs-light"}
       options={{
         minimap: { enabled: false },
         lineNumbers: "on",
         fontSize: 16,
         wordWrap: "off",
-        theme: darkModeSelector ? "vs-dark" : "vs-light",
       }}
     />
   );
