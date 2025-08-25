@@ -15,21 +15,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
 import { fileSlice } from "../stores/slices/FileSlice";
 import { dataframesOverviewSlice } from "../stores/Store";
-import { ColumnHeaderJS } from "polars-wasm";
+import { DataFrameJS } from "polars-wasm";
 
 const Input = styled("input")({
   display: "none",
 });
-
-interface ColumnHeaderMutationJS {
-  header: ColumnHeaderJS;
-  new_column_name: string | null;
-}
-
-type DataframeMetadata = {
-  name: string;
-  columns: ColumnHeaderMutationJS[];
-};
 
 interface UploadCardProps {
   open: boolean;
@@ -43,9 +33,10 @@ export function UploadCard(props: UploadCardProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const [hasHeaders, setHasHeaders] = useState<boolean>(true);
-  useState<DataframeMetadata | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
@@ -58,27 +49,30 @@ export function UploadCard(props: UploadCardProps) {
         file.name
       );
 
-      dispatch(fileSlice.actions.setDataFrame(df));
-      dispatch(
-        dataframesOverviewSlice.actions.update(
-          fluxcraftSelector.get_dataframe_names()
-        )
-      );
+      updateDataframeStore(df);
     }
   };
 
   async function fetchJson() {
+    setLoading(true);
     const df = await fluxcraftSelector.add_from_http_json(
       "https://dummyjson.com/products?limit=200",
       "products"
     );
 
+    updateDataframeStore(df);
+  }
+
+  function updateDataframeStore(df: DataFrameJS) {
     dispatch(fileSlice.actions.setDataFrame(df));
     dispatch(
       dataframesOverviewSlice.actions.update(
         fluxcraftSelector.get_dataframe_names()
       )
     );
+
+    props.onClose();
+    setLoading(false);
   }
 
   return (
@@ -119,6 +113,7 @@ export function UploadCard(props: UploadCardProps) {
                 variant="contained"
                 sx={{ margin: "2rem" }}
                 onClick={fetchJson}
+                loading={loading}
               >
                 Fetch external json data
               </Button>
@@ -126,6 +121,7 @@ export function UploadCard(props: UploadCardProps) {
                 variant="contained"
                 component="span"
                 startIcon={<CloudUploadIcon />}
+                loading={loading}
               >
                 Upload Files
               </Button>

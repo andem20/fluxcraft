@@ -38,7 +38,7 @@ export function DataframeOverviewCard() {
           </Typography>
         </Stack>
         {dataframeOverviewSelector.length > 0 && (
-          <Grid container spacing={2}>
+          <Grid container spacing={2} sx={{ mt: 2 }}>
             {dataframeOverviewSelector.map((name, idx) => (
               <Tooltip title={renderTooltip(name)}>
                 <Paper
