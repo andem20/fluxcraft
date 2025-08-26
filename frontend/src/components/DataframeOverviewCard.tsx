@@ -29,7 +29,7 @@ export function DataframeOverviewCard() {
   }
 
   return (
-    <Card elevation={3} sx={{ p: 2, m: 2 }}>
+    <Card elevation={3} sx={{ p: 2 }}>
       <CardContent>
         <Stack direction="row" spacing={1} alignItems="center">
           <DescriptionIcon />

@@ -43,7 +43,7 @@ export function QueryEditor({
 
   return (
     <Editor
-      height="8rem"
+      height="10rem"
       defaultLanguage="sql"
       onChange={(value) => onChange(value ?? "")}
       beforeMount={beforeMount}
