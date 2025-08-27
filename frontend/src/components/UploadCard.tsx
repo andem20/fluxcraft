@@ -24,6 +24,7 @@ const Input = styled("input")({
 interface UploadCardProps {
   open: boolean;
   onClose: () => void;
+  onLoadFile: (loadFile: string) => void;
 }
 
 export function UploadCard(props: UploadCardProps) {
@@ -64,6 +65,7 @@ export function UploadCard(props: UploadCardProps) {
   }
 
   function updateDataframeStore(df: DataFrameJS) {
+    props.onLoadFile(`LOAD(${df.get_name()})`);
     dispatch(fileSlice.actions.setDataFrame(df));
     dispatch(
       dataframesOverviewSlice.actions.update(

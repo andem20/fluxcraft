@@ -1,16 +1,21 @@
 import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fileSlice } from "./slices/FileSlice";
 
-// Dark mode slice
+const initialDarkModeState = {
+  enabled: JSON.parse(localStorage.getItem("darkMode") || "false"),
+};
+
 const darkModeSlice = createSlice({
   name: "darkMode",
-  initialState: { enabled: false },
+  initialState: initialDarkModeState,
   reducers: {
     toggleDarkMode: (state) => {
       state.enabled = !state.enabled;
+      localStorage.setItem("darkMode", JSON.stringify(state.enabled));
     },
     setDarkMode: (state, action: PayloadAction<boolean>) => {
       state.enabled = action.payload;
+      localStorage.setItem("darkMode", JSON.stringify(state.enabled));
     },
   },
 });
