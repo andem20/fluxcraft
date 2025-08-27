@@ -48,9 +48,9 @@ export function TransformCard({ id, ref }: TransformCardProps) {
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
   const steps = useRef<TransformSteps>({});
+  const title = useRef<string>("");
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
-  const [title, setTitle] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
 
   useImperativeHandle(ref, () => ({
@@ -79,7 +79,7 @@ export function TransformCard({ id, ref }: TransformCardProps) {
   const [openModal, setOpenModal] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const openMenu = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
@@ -101,7 +101,6 @@ export function TransformCard({ id, ref }: TransformCardProps) {
           <Typography sx={{ mr: 1, fontSize: "1.2rem" }}>#{id}:</Typography>
           <TextField
             variant="standard"
-            value={title}
             placeholder="Cell title"
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => {
@@ -110,7 +109,7 @@ export function TransformCard({ id, ref }: TransformCardProps) {
             }}
             onBlur={(_e) => setIsEditing(false)}
             onChange={(e) => {
-              setTitle(e.target.value);
+              title.current = e.target.value;
             }}
             slotProps={{
               input: {
@@ -123,17 +122,7 @@ export function TransformCard({ id, ref }: TransformCardProps) {
           <IconButton onClick={handleClick}>
             <MoreVertIcon />
           </IconButton>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            slotProps={{
-              list: {
-                "aria-labelledby": "basic-button",
-              },
-            }}
-          >
+          <Menu anchorEl={anchorEl} open={openMenu} onClose={handleClose}>
             <MenuItem onClick={handleClose}>Delete</MenuItem>
           </Menu>
         </Box>

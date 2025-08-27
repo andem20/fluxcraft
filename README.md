@@ -21,21 +21,21 @@ Visualize the data.
 **Week 37-38**
 
 - [ ] Create Java interface
+- [ ] Export data as file
+- [ ] Improve error handling
 
 ---
 
 **Week 35-36**
 
 - [ ] Save and load pipelines
-- [ ] Improve error handling
-- [ ] Export data as file
+- [ ] Setup simple data pipeline
 
 ---
 
 **Week 33-34**
 
 - [x] Add http client
-- [ ] Setup simple data pipeline
 - [x] Handle timestamps
 
 ---
