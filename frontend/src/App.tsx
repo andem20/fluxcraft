@@ -18,6 +18,7 @@ import WebStoriesIcon from "@mui/icons-material/WebStories";
 import { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, toggleDarkMode } from "./stores/Store";
+import darkScrollbar from "@mui/material/darkScrollbar";
 
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
@@ -41,6 +42,13 @@ export default function App() {
         },
         typography: {
           fontFamily: "Roboto, Arial, sans-serif",
+        },
+        components: {
+          MuiCssBaseline: {
+            styleOverrides: (themeParam) => ({
+              body: themeParam.palette.mode === "dark" ? darkScrollbar() : null,
+            }),
+          },
         },
       }),
     [darkMode]
