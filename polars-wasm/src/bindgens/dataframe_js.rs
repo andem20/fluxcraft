@@ -1,5 +1,5 @@
 use polars_core::{frame::DataFrame, schema::SchemaNamesAndDtypes};
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 
 use crate::{
     bindgens::{log, log_error},
@@ -60,30 +60,22 @@ impl FluxCraftJS {
         };
     }
 
-    pub fn query(&mut self, query: String) -> DataFrameJS {
-        let filtered_df = self.fluxcraft.query(query);
+    pub fn query(&mut self, query: String) -> Result<DataFrameJS, JsError> {
+        let filtered_df = self
+            .fluxcraft
+            .query(query)
+            .map_err(|e| JsError::new(&e.to_string()))?;
 
-        let wrapper = match filtered_df {
-            Ok(df) => match df.collect() {
-                Ok(d) => d,
-                Err(e) => {
-                    log_error(&e.into());
-                    DataFrame::empty()
-                }
-            },
-            Err(e) => {
-                log_error(&e.into());
-                DataFrame::empty()
-            }
-        };
+        let collected = filtered_df
+            .collect()
+            .map_err(|e| JsError::new(&e.to_string()))?;
 
-        let filtered_wrapper = DataFrameWrapper::new(wrapper, "query_dataframe");
+        let filtered_wrapper = DataFrameWrapper::new(collected, "query_dataframe");
 
-        return DataFrameJS {
+        Ok(DataFrameJS {
             wrapper: filtered_wrapper,
-        };
+        })
     }
-
     pub fn get_dataframe_names(&self) -> Vec<String> {
         self.fluxcraft.get_dataframe_names()
     }

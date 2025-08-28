@@ -30,7 +30,7 @@ Visualize the data.
 
 - [ ] Save and load pipelines
 - [ ] Setup simple data pipeline
-- [ ] Show errors in ui
+- [x] Show errors in ui
 
 ---
 
