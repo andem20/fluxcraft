@@ -12,9 +12,16 @@ Visualize the data.
 
 ---
 
+**Week 41-42**
+
+- [ ] Improve excel datatype inference
+
+---
+
 **Week 39-40**
 
 - [ ] Visualize dataframes
+- [ ] Replay data pipeline
 
 ---
 

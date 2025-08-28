@@ -8,7 +8,6 @@ import {
   AccordionDetails,
   Typography,
   TextField,
-  IconButton,
   Menu,
   MenuItem,
   Snackbar,
@@ -39,6 +38,7 @@ interface TransformCardProps {
 }
 
 export type TransformSteps = {
+  id: number;
   load?: string;
   query?: string;
 };
@@ -57,7 +57,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const steps = useRef<TransformSteps>({});
+  const steps = useRef<TransformSteps>({ id });
   const title = useRef<string>("");
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
@@ -104,7 +104,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
@@ -129,7 +129,10 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
         }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", width: "100%" }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Typography sx={{ mr: 1, fontSize: "1.2rem" }}>#{id}:</Typography>
             <TextField
               variant="standard"
@@ -151,9 +154,9 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
               }}
               fullWidth
             />
-            <IconButton onClick={handleClick}>
+            <Box onClick={handleClick}>
               <MoreVertIcon />
-            </IconButton>
+            </Box>
             <Menu anchorEl={anchorEl} open={openMenu} onClose={handleClose}>
               <MenuItem onClick={handleDelete}>
                 <DeleteIcon /> Delete

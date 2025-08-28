@@ -1,6 +1,10 @@
 import { Container, Fab } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
-import { TransformCard, TransformCardRef } from "../components/TransformCard";
+import {
+  TransformCard,
+  TransformCardRef,
+  TransformSteps,
+} from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
 import { useRef, useState } from "react";
 
@@ -11,6 +15,7 @@ type TransformItem = {
 export function Home() {
   const [cells, setCells] = useState<TransformItem[]>([]);
   const [index, setIndex] = useState<number>(1);
+  const [steps, setSteps] = useState<TransformSteps[]>([]);
   const cardRefs = useRef<Map<number, TransformCardRef>>(new Map());
 
   function extractAllSteps() {
@@ -18,7 +23,8 @@ export function Home() {
       const ref = cardRefs.current.get(id);
       return { id, steps: ref?.getSteps() };
     });
-    console.log("All steps:", allSteps);
+    setSteps(allSteps);
+    console.log(steps);
   }
 
   function addTransformCard() {
@@ -37,6 +43,7 @@ export function Home() {
       {cells.map(({ id }) => (
         <TransformCard
           id={id}
+          key={id}
           ref={(el) => {
             if (el) {
               cardRefs.current.set(id, el);
