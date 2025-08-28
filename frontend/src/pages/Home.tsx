@@ -107,7 +107,9 @@ export function Home() {
                     </Typography>
                     <Typography variant="caption">
                       {" "}
-                      {query?.substring(0, 200)}
+                      {query && query?.length > 100
+                        ? query?.substring(0, 100) + "..."
+                        : query}
                     </Typography>
                   </Box>
                 </StepContent>

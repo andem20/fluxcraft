@@ -58,7 +58,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const title = useRef<string>("");
+  const title = useRef<string>("Cell " + id);
   const steps = useRef<TransformStep>({ id, title });
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
