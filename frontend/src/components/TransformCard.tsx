@@ -35,7 +35,6 @@ interface TransformCardProps {
   id: number;
   ref?: React.Ref<TransformCardRef>;
   onRemove: (id: number) => void;
-  onCardStepsChange: (step: TransformStep) => void;
 }
 
 export type TransformStep = {
@@ -48,12 +47,7 @@ export type TransformCardRef = {
   getSteps: () => TransformStep;
 };
 
-export function TransformCard({
-  id,
-  ref,
-  onRemove,
-  onCardStepsChange,
-}: TransformCardProps) {
+export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -99,8 +93,6 @@ export function TransformCard({
         fluxcraftSelector.get_dataframe_names()
       )
     );
-
-    onCardStepsChange(steps.current);
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -178,7 +170,6 @@ export function TransformCard({
             onClose={() => setOpenModal(false)}
             onLoadFile={(loadFile: string) => {
               steps.current.load = loadFile;
-              onCardStepsChange(steps.current);
             }}
           />
           <Stack spacing={3}>

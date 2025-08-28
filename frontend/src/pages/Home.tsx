@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Drawer,
-  Fab,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Container, Drawer, Fab, Typography } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import {
   TransformCard,
@@ -29,23 +20,14 @@ export function Home() {
 
   const cardRefs = useRef<Map<number, TransformCardRef>>(new Map());
 
-  function extractAllSteps() {
+  function onCardStepsChange() {
     const allSteps = cells
       .map(({ id }) => {
         const ref = cardRefs.current.get(id);
         return ref?.getSteps();
       })
       .filter((x) => x != undefined);
-
     setSteps(allSteps);
-    console.log(steps);
-  }
-
-  function onCardStepsChange(step: TransformStep) {
-    setSteps((prev) => {
-      const other = prev.filter((s) => s.id !== step.id);
-      return [...other, step];
-    });
   }
 
   function addTransformCard() {
@@ -55,6 +37,11 @@ export function Home() {
 
     setCells([...cells, newEntry]);
     setIndex(index + 1);
+  }
+
+  function openStepsDrawer(): void {
+    onCardStepsChange();
+    setDrawerOpen(true);
   }
 
   return (
@@ -74,7 +61,6 @@ export function Home() {
           onRemove={(id: number) =>
             setCells(cells.filter((cell) => cell.id !== id))
           }
-          onCardStepsChange={onCardStepsChange}
         />
       ))}
 
@@ -115,7 +101,7 @@ export function Home() {
       <Fab
         color="secondary"
         sx={{ position: "fixed", bottom: 80, right: 16 }}
-        onClick={() => setDrawerOpen(true)}
+        onClick={() => openStepsDrawer()}
       >
         Steps
       </Fab>
