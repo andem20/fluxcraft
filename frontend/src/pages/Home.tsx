@@ -1,4 +1,15 @@
-import { Box, Button, Container, Drawer, Fab, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Drawer,
+  Fab,
+  Step,
+  StepContent,
+  StepLabel,
+  Stepper,
+  Typography,
+} from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import {
   TransformCard,
@@ -74,13 +85,32 @@ export function Home() {
             Transform Steps
           </Typography>
           {steps.length === 0 && <Typography>No steps yet</Typography>}
-          {steps.map(({ id, query, load }) => (
-            <Box key={id} sx={{ mb: 2 }}>
-              <Typography variant="subtitle1">Card {id}</Typography>
-              <Typography key={id}>{load}</Typography>
-              <Typography key={id}>{query}</Typography>
-            </Box>
-          ))}
+          <Stepper orientation="vertical" nonLinear>
+            {steps.map(({ id, query, load }) => (
+              <Step key={id} active>
+                <StepLabel>
+                  <Typography variant="subtitle2" fontWeight="bold">
+                    {id}
+                  </Typography>
+                </StepLabel>
+                <StepContent>
+                  <Box sx={{ pl: 3, mb: 1 }}>
+                    <Typography variant="caption" fontWeight="bold">
+                      Load
+                    </Typography>
+                    <Typography variant="caption"> {load}</Typography>
+                  </Box>
+
+                  <Box sx={{ pl: 3, mb: 1 }}>
+                    <Typography variant="caption" fontWeight="bold">
+                      Query
+                    </Typography>
+                    <Typography variant="caption"> {query}</Typography>
+                  </Box>
+                </StepContent>
+              </Step>
+            ))}
+          </Stepper>
           <Button onClick={() => setDrawerOpen(false)}>Close</Button>
         </Box>
       </Drawer>
