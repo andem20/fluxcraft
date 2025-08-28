@@ -65,7 +65,7 @@ export function UploadCard(props: UploadCardProps) {
   }
 
   function updateDataframeStore(df: DataFrameJS) {
-    props.onLoadFile(`LOAD(${df.get_name()})`);
+    props.onLoadFile(df.get_name());
     dispatch(fileSlice.actions.setDataFrame(df));
     dispatch(
       dataframesOverviewSlice.actions.update(

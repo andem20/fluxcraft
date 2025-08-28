@@ -86,11 +86,11 @@ export function Home() {
           </Typography>
           {steps.length === 0 && <Typography>No steps yet</Typography>}
           <Stepper orientation="vertical" nonLinear>
-            {steps.map(({ id, query, load }) => (
+            {steps.map(({ id, query, load, title }) => (
               <Step key={id} active>
                 <StepLabel>
                   <Typography variant="subtitle2" fontWeight="bold">
-                    {id}
+                    {title.current}
                   </Typography>
                 </StepLabel>
                 <StepContent>
@@ -105,7 +105,10 @@ export function Home() {
                     <Typography variant="caption" fontWeight="bold">
                       Query
                     </Typography>
-                    <Typography variant="caption"> {query}</Typography>
+                    <Typography variant="caption">
+                      {" "}
+                      {query?.substring(0, 200)}
+                    </Typography>
                   </Box>
                 </StepContent>
               </Step>

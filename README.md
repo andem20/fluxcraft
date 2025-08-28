@@ -36,7 +36,7 @@ Visualize the data.
 **Week 35-36**
 
 - [ ] Save and load pipelines
-- [ ] Setup simple data pipeline
+- [x] Setup simple data pipeline
 - [x] Show errors in ui
 
 ---

@@ -39,6 +39,7 @@ interface TransformCardProps {
 
 export type TransformStep = {
   id: number;
+  title: React.RefObject<string>;
   load?: string;
   query?: string;
 };
@@ -57,8 +58,8 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const steps = useRef<TransformStep>({ id });
   const title = useRef<string>("");
+  const steps = useRef<TransformStep>({ id, title });
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
