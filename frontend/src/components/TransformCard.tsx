@@ -35,19 +35,25 @@ interface TransformCardProps {
   id: number;
   ref?: React.Ref<TransformCardRef>;
   onRemove: (id: number) => void;
+  onCardStepsChange: (step: TransformStep) => void;
 }
 
-export type TransformSteps = {
+export type TransformStep = {
   id: number;
   load?: string;
   query?: string;
 };
 
 export type TransformCardRef = {
-  getSteps: () => TransformSteps;
+  getSteps: () => TransformStep;
 };
 
-export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
+export function TransformCard({
+  id,
+  ref,
+  onRemove,
+  onCardStepsChange,
+}: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -57,7 +63,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const steps = useRef<TransformSteps>({ id });
+  const steps = useRef<TransformStep>({ id });
   const title = useRef<string>("");
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
@@ -93,6 +99,8 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
         fluxcraftSelector.get_dataframe_names()
       )
     );
+
+    onCardStepsChange(steps.current);
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -168,7 +176,10 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
           <UploadCard
             open={openModal}
             onClose={() => setOpenModal(false)}
-            onLoadFile={(loadFile: string) => (steps.current.load = loadFile)}
+            onLoadFile={(loadFile: string) => {
+              steps.current.load = loadFile;
+              onCardStepsChange(steps.current);
+            }}
           />
           <Stack spacing={3}>
             <Box component="form" onSubmit={handleFormSubmit}>

@@ -1,9 +1,18 @@
-import { Container, Fab } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Container,
+  Drawer,
+  Fab,
+  Typography,
+} from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import {
   TransformCard,
   TransformCardRef,
-  TransformSteps,
+  TransformStep,
 } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
 import { useRef, useState } from "react";
@@ -15,16 +24,28 @@ type TransformItem = {
 export function Home() {
   const [cells, setCells] = useState<TransformItem[]>([]);
   const [index, setIndex] = useState<number>(1);
-  const [steps, setSteps] = useState<TransformSteps[]>([]);
+  const [steps, setSteps] = useState<TransformStep[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const cardRefs = useRef<Map<number, TransformCardRef>>(new Map());
 
   function extractAllSteps() {
-    const allSteps = cells.map(({ id }) => {
-      const ref = cardRefs.current.get(id);
-      return { id, steps: ref?.getSteps() };
-    });
+    const allSteps = cells
+      .map(({ id }) => {
+        const ref = cardRefs.current.get(id);
+        return ref?.getSteps();
+      })
+      .filter((x) => x != undefined);
+
     setSteps(allSteps);
     console.log(steps);
+  }
+
+  function onCardStepsChange(step: TransformStep) {
+    setSteps((prev) => {
+      const other = prev.filter((s) => s.id !== step.id);
+      return [...other, step];
+    });
   }
 
   function addTransformCard() {
@@ -43,7 +64,6 @@ export function Home() {
       {cells.map(({ id }) => (
         <TransformCard
           id={id}
-          key={id}
           ref={(el) => {
             if (el) {
               cardRefs.current.set(id, el);
@@ -54,8 +74,30 @@ export function Home() {
           onRemove={(id: number) =>
             setCells(cells.filter((cell) => cell.id !== id))
           }
+          onCardStepsChange={onCardStepsChange}
         />
       ))}
+
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
+        <Box sx={{ width: 400, p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Transform Steps
+          </Typography>
+          {steps.length === 0 && <Typography>No steps yet</Typography>}
+          {steps.map(({ id, query, load }) => (
+            <Box key={id} sx={{ mb: 2 }}>
+              <Typography variant="subtitle1">Card {id}</Typography>
+              <Typography key={id}>{load}</Typography>
+              <Typography key={id}>{query}</Typography>
+            </Box>
+          ))}
+          <Button onClick={() => setDrawerOpen(false)}>Close</Button>
+        </Box>
+      </Drawer>
 
       <Fab
         color="primary"
@@ -71,9 +113,9 @@ export function Home() {
       </Fab>
 
       <Fab
-        onClick={extractAllSteps}
         color="secondary"
         sx={{ position: "fixed", bottom: 80, right: 16 }}
+        onClick={() => setDrawerOpen(true)}
       >
         Steps
       </Fab>
