@@ -36,7 +36,7 @@ export default function App() {
             contrastText: "#032b27ff",
           },
           secondary: {
-            main: darkMode ? "#493757ff" : "#828dc9ff",
+            main: darkMode ? "#1f576bff" : "#5f97c7ff",
           },
         },
         typography: {

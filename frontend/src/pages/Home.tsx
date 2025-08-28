@@ -1,4 +1,4 @@
-import { Container, Fab, IconButton } from "@mui/material";
+import { Container, Fab } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import { TransformCard, TransformCardRef } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
@@ -44,6 +44,9 @@ export function Home() {
               cardRefs.current.delete(id);
             }
           }}
+          onRemove={(id: number) =>
+            setCells(cells.filter((cell) => cell.id !== id))
+          }
         />
       ))}
 

@@ -17,17 +17,23 @@ import { DataframeViewer } from "./DataFrameViewer";
 import { useSqlCompletions } from "../hooks/useSqlCompletions";
 import { FormEvent, useImperativeHandle, useRef, useState } from "react";
 import { useDataFrameRenderer } from "../hooks/useDataFrameRenderer";
-import { RootState } from "../stores/Store";
-import { useSelector } from "react-redux";
+import {
+  AppDispatch,
+  dataframesOverviewSlice,
+  RootState,
+} from "../stores/Store";
+import { useDispatch, useSelector } from "react-redux";
 import { UploadCard } from "./UploadCard";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface TransformCardProps {
   id: number;
   ref?: React.Ref<TransformCardRef>;
+  onRemove: (id: number) => void;
 }
 
 export type TransformSteps = {
@@ -39,11 +45,13 @@ export type TransformCardRef = {
   getSteps: () => TransformSteps;
 };
 
-export function TransformCard({ id, ref }: TransformCardProps) {
+export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
@@ -69,6 +77,12 @@ export function TransformCard({ id, ref }: TransformCardProps) {
     if (fluxcraftSelector) {
       renderDataframe(fluxcraftSelector.query(query.current));
     }
+
+    dispatch(
+      dataframesOverviewSlice.actions.update(
+        fluxcraftSelector.get_dataframe_names()
+      )
+    );
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -87,6 +101,13 @@ export function TransformCard({ id, ref }: TransformCardProps) {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  function handleDelete(
+    _event: React.MouseEvent<HTMLLIElement, MouseEvent>
+  ): void {
+    handleClose();
+    onRemove(id);
+  }
 
   return (
     <Accordion
@@ -123,7 +144,9 @@ export function TransformCard({ id, ref }: TransformCardProps) {
             <MoreVertIcon />
           </IconButton>
           <Menu anchorEl={anchorEl} open={openMenu} onClose={handleClose}>
-            <MenuItem onClick={handleClose}>Delete</MenuItem>
+            <MenuItem onClick={handleDelete}>
+              <DeleteIcon /> Delete
+            </MenuItem>
           </Menu>
         </Box>
       </AccordionSummary>
