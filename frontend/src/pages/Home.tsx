@@ -3,7 +3,9 @@ import {
   Button,
   Container,
   Drawer,
-  Fab,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
   Step,
   StepContent,
   StepLabel,
@@ -18,6 +20,8 @@ import {
 } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
 import { useRef, useState } from "react";
+import LineAxisIcon from "@mui/icons-material/LineAxis";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 
 type TransformItem = {
   id: number;
@@ -55,6 +59,16 @@ export function Home() {
     setDrawerOpen(true);
   }
 
+  function exportPipeline() {
+    const pipeline = { pipeline: steps };
+    const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "pipeline.json";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
   return (
     <Container maxWidth={false} disableGutters>
       <DataframeOverviewCard />
@@ -82,7 +96,7 @@ export function Home() {
       >
         <Box sx={{ width: 400, p: 2 }}>
           <Typography variant="h6" gutterBottom>
-            Transform Steps
+            Pipeline
           </Typography>
           {steps.length === 0 && <Typography>No steps yet</Typography>}
           <Stepper orientation="vertical" nonLinear>
@@ -116,30 +130,41 @@ export function Home() {
               </Step>
             ))}
           </Stepper>
-          <Button onClick={() => setDrawerOpen(false)}>Close</Button>
+          <Button
+            startIcon={<FileDownloadIcon />}
+            onClick={() => exportPipeline()}
+          >
+            Export
+          </Button>
         </Box>
       </Drawer>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{
-          position: "fixed",
-          bottom: 16,
-          right: 16,
-        }}
-        onClick={addTransformCard}
+      <SpeedDial
+        ariaLabel="SpeedDial basic example"
+        sx={{ position: "absolute", bottom: 16, right: 16 }}
+        icon={<SpeedDialIcon />}
       >
-        <AddIcon />
-      </Fab>
-
-      <Fab
-        color="secondary"
-        sx={{ position: "fixed", bottom: 80, right: 16 }}
-        onClick={() => openStepsDrawer()}
-      >
-        Steps
-      </Fab>
+        <SpeedDialAction
+          key="pipline"
+          icon={<LineAxisIcon />}
+          onClick={openStepsDrawer}
+          slotProps={{
+            tooltip: {
+              title: "Pipline",
+            },
+          }}
+        />
+        <SpeedDialAction
+          key="add-cell"
+          icon={<AddIcon />}
+          onClick={addTransformCard}
+          slotProps={{
+            tooltip: {
+              title: "Add",
+            },
+          }}
+        />
+      </SpeedDial>
     </Container>
   );
 }
