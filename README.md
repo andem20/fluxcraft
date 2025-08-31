@@ -35,6 +35,7 @@ Visualize the data.
 
 **Week 35-36**
 
+- [ ] Use dataframe in http requests
 - [ ] Save and load pipelines
 - [x] Setup simple data pipeline
 - [x] Show errors in ui
