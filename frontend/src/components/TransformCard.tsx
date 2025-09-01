@@ -40,7 +40,7 @@ interface TransformCardProps {
 export type TransformStep = {
   id: number;
   title: React.RefObject<string>;
-  load?: string;
+  load: string[];
   query?: string;
 };
 
@@ -59,7 +59,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
   const title = useRef<string>("Cell " + id);
-  const steps = useRef<TransformStep>({ id, title });
+  const steps = useRef<TransformStep>({ id, title, load: [] });
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -170,7 +170,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
             open={openModal}
             onClose={() => setOpenModal(false)}
             onLoadFile={(loadFile: string) => {
-              steps.current.load = loadFile;
+              steps.current.load.push(loadFile);
             }}
           />
           <Stack spacing={3}>

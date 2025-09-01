@@ -1,35 +1,24 @@
 use polars_wasm::core::fluxcraft::FluxCraft;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read(
-        "/home/anders/Documents/projects/fluxcraft/resources/datasets/non_normalized_customers_small.csv",
+        "/home/anders/Documents/projects/fluxcraft/resources/datasets/Pokemon_small.csv",
     )
     .unwrap();
 
-    let df = FluxCraft::read_buffer(&file, true, "non_normalized_customers_small.csv");
+    let df = FluxCraft::read_buffer(&file, true, "non_normalized_customers_small.csv")?;
 
-    let slice: Vec<ColumnJS> = df
-        .unwrap()
-        .iter()
-        .map(|s| {
-            let values = s
-                .rechunk()
-                .iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<String>>();
-            ColumnJS { values }
-        })
-        .collect();
+    let mut fc = FluxCraft::new();
+    fc.add("df".to_owned(), df);
 
-    println!("{:?}", slice);
+    let query = "
+        SELECT testfn(Name, Type_1) FROM df
+    ";
 
-    // let df = FluxCraft::read_http_json("https://dummyjson.com/products").await;
+    let result = fc.query(query.to_owned())?.collect()?;
 
-    // println!("{:?}", df);
-}
+    println!("{:?}", result);
 
-#[derive(Debug)]
-pub struct ColumnJS {
-    values: Vec<String>,
+    return Ok(());
 }

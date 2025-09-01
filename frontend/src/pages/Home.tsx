@@ -112,7 +112,10 @@ export function Home() {
                     <Typography variant="caption" fontWeight="bold">
                       Load
                     </Typography>
-                    <Typography variant="caption"> {load}</Typography>
+                    <Typography variant="caption">
+                      {" "}
+                      {load.join("\n")}
+                    </Typography>
                   </Box>
 
                   <Box sx={{ pl: 3, mb: 1 }}>
@@ -140,20 +143,10 @@ export function Home() {
       </Drawer>
 
       <SpeedDial
-        ariaLabel="SpeedDial basic example"
+        ariaLabel="actions"
         sx={{ position: "fixed", bottom: 16, right: 16 }}
         icon={<SpeedDialIcon />}
       >
-        <SpeedDialAction
-          key="pipline"
-          icon={<LineAxisIcon />}
-          onClick={openStepsDrawer}
-          slotProps={{
-            tooltip: {
-              title: "Pipline",
-            },
-          }}
-        />
         <SpeedDialAction
           key="add-cell"
           icon={<AddIcon />}
@@ -161,6 +154,16 @@ export function Home() {
           slotProps={{
             tooltip: {
               title: "Add",
+            },
+          }}
+        />
+        <SpeedDialAction
+          key="pipline"
+          icon={<LineAxisIcon />}
+          onClick={openStepsDrawer}
+          slotProps={{
+            tooltip: {
+              title: "Pipline",
             },
           }}
         />

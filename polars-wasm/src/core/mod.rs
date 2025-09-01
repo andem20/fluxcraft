@@ -1,29 +1,60 @@
 mod http_client;
+pub mod udf;
 pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use std::sync::Arc;
+    use std::{collections::HashMap, sync::Arc};
 
     use calamine::{Data, Reader, Xlsx};
     use polars_core::{
-        error::{ErrString, PolarsError},
+        error::{ErrString, PolarsError, PolarsResult},
         frame::DataFrame,
         functions::concat_df_horizontal,
         prelude::{AnyValue, Column, DataType, TimeUnit},
     };
     use polars_io::SerReader;
     use polars_lazy::{
-        dsl::{Expr, StrptimeOptions, coalesce, col, lit},
+        dsl::{Expr, StrptimeOptions, UserDefinedFunction, coalesce, col, lit},
         frame::{IntoLazy, LazyFrame},
     };
     use polars_schema::Schema;
+    use polars_sql::function_registry::FunctionRegistry;
 
-    use crate::core::{http_client, wrapper::DataFrameWrapper};
+    use crate::core::{http_client, udf::ilike_udf, wrapper::DataFrameWrapper};
 
     const CSV_SUFFIX: &str = ".csv";
     const TXT_SUFFIX: &str = ".txt";
     const JSON_SUFFIX: &str = ".json";
+
+    pub struct CustomFunctionRegistry {
+        udf_map: HashMap<String, UserDefinedFunction>,
+    }
+
+    impl CustomFunctionRegistry {
+        pub fn new() -> Self {
+            Self {
+                udf_map: HashMap::new(),
+            }
+        }
+    }
+
+    impl FunctionRegistry for CustomFunctionRegistry {
+        fn register(&mut self, name: &str, fun: UserDefinedFunction) -> PolarsResult<()> {
+            self.udf_map.insert(name.to_owned(), fun);
+
+            return Ok(());
+        }
+
+        fn get_udf(&self, name: &str) -> PolarsResult<Option<UserDefinedFunction>> {
+            let udf = self.udf_map.get(name).cloned();
+            return Ok(udf);
+        }
+
+        fn contains(&self, name: &str) -> bool {
+            return self.udf_map.contains_key(name);
+        }
+    }
 
     pub struct FluxCraft {
         pub wrappers: std::collections::HashMap<String, DataFrameWrapper>,
@@ -32,9 +63,18 @@ pub mod fluxcraft {
 
     impl FluxCraft {
         pub fn new() -> Self {
+            let sql_ctx = polars_sql::SQLContext::new();
+
+            let mut function_registry = CustomFunctionRegistry::new();
+
+            let (udf_name, udf) = ilike_udf();
+            let _ = function_registry.register(&udf_name, udf);
+
+            let sql_ctx = sql_ctx.with_function_registry(Arc::new(function_registry));
+
             Self {
                 wrappers: std::collections::HashMap::new(),
-                sql_ctx: polars_sql::SQLContext::new(),
+                sql_ctx,
             }
         }
 
@@ -92,9 +132,9 @@ pub mod fluxcraft {
         #[allow(dead_code)]
         fn read_json(buffer: &[u8]) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
-            let df = polars_io::prelude::JsonReader::new(handle).finish()?;
+            let mut df = polars_io::prelude::JsonReader::new(handle).finish()?;
 
-            // df = unnest(df)?;
+            df = unnest(df)?;
 
             fn unnest(mut df: polars_core::prelude::DataFrame) -> Result<DataFrame, PolarsError> {
                 let col_list_names = df
@@ -290,3 +330,22 @@ pub mod fluxcraft {
         return result;
     }
 }
+
+// fn udf() {
+//     let sql_ctx = polars_sql::SQLContext::new();
+
+//     let mut function_registry = CustomFunctionRegistry::new();
+
+//     let udf = UserDefinedFunction::new(
+//         "test".into(),
+//         GetOutput::from_type(polars_core::prelude::DataType::Boolean),
+//         |x: &mut [Column]| {
+//             let c = x.get(0).cloned();
+//             return Ok(c);
+//         },
+//     );
+
+//     let _ = function_registry.register("test", udf);
+
+//     sql_ctx.with_function_registry(Arc::new(function_registry));
+// }

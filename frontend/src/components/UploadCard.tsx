@@ -51,6 +51,7 @@ export function UploadCard(props: UploadCardProps) {
       );
 
       updateDataframeStore(df);
+      props.onLoadFile(`FILE(${file.name})`);
     }
   };
 
@@ -62,10 +63,10 @@ export function UploadCard(props: UploadCardProps) {
     );
 
     updateDataframeStore(df);
+    props.onLoadFile(`HTTP(https://dummyjson.com/products?limit=200)`);
   }
 
   function updateDataframeStore(df: DataFrameJS) {
-    props.onLoadFile(df.get_name());
     dispatch(fileSlice.actions.setDataFrame(df));
     dispatch(
       dataframesOverviewSlice.actions.update(
