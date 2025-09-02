@@ -13,7 +13,7 @@ pub mod fluxcraft {
         functions::concat_df_horizontal,
         prelude::{AnyValue, Column, DataType, TimeUnit},
     };
-    use polars_io::SerReader;
+    use polars_io::{SerReader, SerWriter};
     use polars_lazy::{
         dsl::{Expr, StrptimeOptions, UserDefinedFunction, coalesce, col, lit},
         frame::{IntoLazy, LazyFrame},
@@ -132,9 +132,9 @@ pub mod fluxcraft {
         #[allow(dead_code)]
         fn read_json(buffer: &[u8]) -> Result<DataFrame, PolarsError> {
             let handle = std::io::Cursor::new(&buffer);
-            let mut df = polars_io::prelude::JsonReader::new(handle).finish()?;
+            let df = polars_io::prelude::JsonReader::new(handle).finish()?;
 
-            df = unnest(df)?;
+            // df = unnest(df)?;
 
             fn unnest(mut df: polars_core::prelude::DataFrame) -> Result<DataFrame, PolarsError> {
                 let col_list_names = df
@@ -269,6 +269,23 @@ pub mod fluxcraft {
 
         pub async fn read_http_json(url: &str) -> Result<DataFrame, Box<dyn std::error::Error>> {
             let buffer = http_client::fetch_json(url).await?;
+            let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
+
+            return Ok(df);
+        }
+
+        pub async fn fetch_json(
+            url: &str,
+            mut payload_df: DataFrame,
+        ) -> Result<DataFrame, Box<dyn std::error::Error>> {
+            let mut buffer = vec![];
+            polars_io::json::JsonWriter::new(&mut buffer)
+                .with_json_format(polars_io::json::JsonFormat::Json)
+                .finish(&mut payload_df)?;
+
+            let payload = String::from_utf8(buffer[1..buffer.len() - 1].to_vec())?;
+            println!("{:?}", payload);
+            let buffer = http_client::fetch_json_post(url, payload).await?;
             let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
 
             return Ok(df);
