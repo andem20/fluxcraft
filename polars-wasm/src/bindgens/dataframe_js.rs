@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use polars_core::{frame::DataFrame, schema::SchemaNamesAndDtypes};
 use wasm_bindgen::{JsError, prelude::wasm_bindgen};
+use wasm_bindgen_futures::js_sys;
 
 use crate::{
     bindgens::{log, log_error},
@@ -46,8 +49,59 @@ impl FluxCraftJS {
         };
     }
 
-    pub async fn add_from_http_json(&mut self, url: String, name: String) -> DataFrameJS {
-        let wrapper = match FluxCraft::read_http_json(&url).await {
+    pub async fn add_from_http_json(
+        &mut self,
+        url: String,
+        headers: js_sys::Map,
+        name: String,
+    ) -> DataFrameJS {
+        let mut headers_map = HashMap::<String, String>::new();
+
+        for entry in headers.entries() {
+            let pair: js_sys::Array = entry.unwrap().into();
+            let key = pair.get(0).as_string();
+            let value = pair.get(0).as_string();
+
+            if let (Some(k), Some(v)) = (key, value) {
+                headers_map.insert(k, v);
+            }
+        }
+
+        let wrapper = match FluxCraft::read_http_json(&url, headers_map).await {
+            Ok(df) => self.fluxcraft.add(name, df),
+            Err(err) => {
+                log_error(&err);
+                &DataFrameWrapper::new(DataFrame::empty(), "")
+            }
+        };
+
+        return DataFrameJS {
+            wrapper: wrapper.clone(),
+        };
+    }
+
+    pub async fn add_from_http_json_post(
+        &mut self,
+        url: String,
+        headers: js_sys::Map,
+        name: String,
+        mut payload: DataFrameJS,
+    ) -> DataFrameJS {
+        let mut headers_map = HashMap::<String, String>::new();
+
+        for entry in headers.entries() {
+            let pair: js_sys::Array = entry.unwrap().into();
+            let key = pair.get(0).as_string();
+            let value = pair.get(0).as_string();
+
+            if let (Some(k), Some(v)) = (key, value) {
+                headers_map.insert(k, v);
+            }
+        }
+
+        let payload_df = payload.wrapper.get_df_mut();
+
+        let wrapper = match FluxCraft::read_http_json_post(&url, payload_df, headers_map).await {
             Ok(df) => self.fluxcraft.add(name, df),
             Err(err) => {
                 log_error(&err);

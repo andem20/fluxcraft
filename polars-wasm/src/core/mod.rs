@@ -100,8 +100,16 @@ pub mod fluxcraft {
             }
         }
 
-        pub fn get(&self, name: &str) -> Option<&DataFrameWrapper> {
-            return self.wrappers.get(name);
+        pub fn get(&self, name: &str) -> Option<DataFrameWrapper> {
+            return self
+                .sql_ctx
+                .get_table_map()
+                .get(name)
+                .map(|df| df.clone().collect().unwrap())
+                .map(|df| DataFrameWrapper {
+                    wrapper: df,
+                    name: name.to_string(),
+                });
         }
 
         pub fn get_schema(
@@ -267,25 +275,29 @@ pub mod fluxcraft {
             return Ok(DataFrame::new(columns)?);
         }
 
-        pub async fn read_http_json(url: &str) -> Result<DataFrame, Box<dyn std::error::Error>> {
-            let buffer = http_client::fetch_json(url).await?;
+        pub async fn read_http_json(
+            url: &str,
+            headers: HashMap<String, String>,
+        ) -> Result<DataFrame, Box<dyn std::error::Error>> {
+            let buffer = http_client::fetch_json(url, headers).await?;
             let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
 
             return Ok(df);
         }
 
-        pub async fn fetch_json(
+        pub async fn read_http_json_post(
             url: &str,
-            mut payload_df: DataFrame,
+            mut payload_df: &mut DataFrame,
+            headers: HashMap<String, String>,
         ) -> Result<DataFrame, Box<dyn std::error::Error>> {
             let mut buffer = vec![];
             polars_io::json::JsonWriter::new(&mut buffer)
                 .with_json_format(polars_io::json::JsonFormat::Json)
                 .finish(&mut payload_df)?;
 
+            // FIXME
             let payload = String::from_utf8(buffer[1..buffer.len() - 1].to_vec())?;
-            println!("{:?}", payload);
-            let buffer = http_client::fetch_json_post(url, payload).await?;
+            let buffer = http_client::fetch_json_post(url, payload, headers).await?;
             let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
 
             return Ok(df);
