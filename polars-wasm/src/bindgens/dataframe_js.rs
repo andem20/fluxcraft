@@ -40,7 +40,7 @@ impl FluxCraftJS {
             Ok(df) => self.fluxcraft.add(filename, df),
             Err(err) => {
                 log_error(&err);
-                &DataFrameWrapper::new(DataFrame::empty(), "")
+                DataFrameWrapper::new(DataFrame::empty(), "")
             }
         };
 
@@ -71,7 +71,7 @@ impl FluxCraftJS {
             Ok(df) => self.fluxcraft.add(name, df),
             Err(err) => {
                 log_error(&err);
-                &DataFrameWrapper::new(DataFrame::empty(), "")
+                DataFrameWrapper::new(DataFrame::empty(), "")
             }
         };
 
@@ -105,7 +105,7 @@ impl FluxCraftJS {
             Ok(df) => self.fluxcraft.add(name, df),
             Err(err) => {
                 log_error(&err);
-                &DataFrameWrapper::new(DataFrame::empty(), "")
+                DataFrameWrapper::new(DataFrame::empty(), "")
             }
         };
 

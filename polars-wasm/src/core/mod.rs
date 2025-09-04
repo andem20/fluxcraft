@@ -57,7 +57,6 @@ pub mod fluxcraft {
     }
 
     pub struct FluxCraft {
-        pub wrappers: std::collections::HashMap<String, DataFrameWrapper>,
         pub sql_ctx: polars_sql::SQLContext,
     }
 
@@ -72,27 +71,20 @@ pub mod fluxcraft {
 
             let sql_ctx = sql_ctx.with_function_registry(Arc::new(function_registry));
 
-            Self {
-                wrappers: std::collections::HashMap::new(),
-                sql_ctx,
-            }
+            Self { sql_ctx }
         }
 
-        pub fn add(&mut self, name: String, df: DataFrame) -> &mut DataFrameWrapper {
+        pub fn add(&mut self, name: String, df: DataFrame) -> DataFrameWrapper {
             let name = self.generate_name(name);
 
             self.sql_ctx.register(&name, df.clone().lazy());
-            let wrapper: DataFrameWrapper = DataFrameWrapper::new(df, &name);
-
-            self.wrappers.insert(name.clone(), wrapper);
-
-            return self.wrappers.get_mut(&name).unwrap();
+            return DataFrameWrapper::new(df, &name);
         }
 
         fn generate_name(&mut self, name: String) -> String {
             let mut i = 0;
             let mut new_name = name.replace(".", "_");
-            while let Some(_df) = self.wrappers.get(&new_name) {
+            while let Some(_df) = self.sql_ctx.get_table_map().get(&new_name) {
                 i += 1;
                 new_name.push_str(&i.to_string());
             }
@@ -101,9 +93,7 @@ pub mod fluxcraft {
         }
 
         pub fn remove(&mut self, name: String) {
-            if let Some(_df) = self.wrappers.remove(&name) {
-                self.sql_ctx.unregister(&name);
-            }
+            self.sql_ctx.unregister(&name);
         }
 
         pub fn get(&self, name: &str) -> Option<DataFrameWrapper> {
