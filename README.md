@@ -22,6 +22,7 @@ Visualize the data.
 
 - [ ] Visualize dataframes
 - [ ] Replay data pipeline
+- [ ] Create tests
 
 ---
 
@@ -35,7 +36,7 @@ Visualize the data.
 
 **Week 35-36**
 
-- [ ] Improve error handling
+- [x] Improve error handling
 - [x] Use dataframe in http requests
 - [x] Setup simple data pipeline
 - [x] Show errors in ui

@@ -76,10 +76,11 @@ pub mod fluxcraft {
                 .sql_ctx
                 .get_table_map()
                 .get(name)
-                .map(|df| df.clone().collect().unwrap())
-                .map(|df| DataFrameWrapper {
-                    wrapper: df,
-                    name: name.to_string(),
+                .map(|df| df.clone().collect())
+                .map(|df_result| {
+                    df_result
+                        .map(|df| DataFrameWrapper::new(df, name))
+                        .unwrap_or(DataFrameWrapper::new(DataFrame::empty(), name))
                 });
         }
 

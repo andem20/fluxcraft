@@ -8,7 +8,7 @@ export function useDataFrameRenderer() {
   const [rows, setRows] = useState<any[]>([]);
   const [columns, setColumns] = useState<GridColDef[]>([]);
 
-  const renderDataframe = (df: wasm.DataFrameJS) => {
+  const renderDataframe = (df: wasm.JsDataFrame) => {
     console.time("wasm_load");
     const columnObjects = df.get_columns();
     console.timeEnd("wasm_load");

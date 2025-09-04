@@ -4,14 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
 import { fileSlice } from "../stores/slices/FileSlice";
 import { dataframesOverviewSlice } from "../stores/Store";
-import { DataFrameJS } from "polars-wasm";
+import { JsDataFrame } from "polars-wasm";
 import { JsonFetch } from "./JsonFetch";
 import { FileUpload } from "./FileUpload";
 
 export interface DataSourceProps {
   onLoadFile: (loadFile: string) => void;
   setLoading: (loading: boolean) => void;
-  updateDataframeStore: (df: DataFrameJS) => void;
+  updateDataframeStore: (df: JsDataFrame) => void;
   loading: boolean;
 }
 
@@ -29,7 +29,7 @@ export function UploadCard({ open, onClose, onLoadFile }: UploadCardProps) {
 
   const [loading, setLoading] = useState(false);
 
-  function updateDataframeStore(df: DataFrameJS) {
+  function updateDataframeStore(df: JsDataFrame) {
     dispatch(fileSlice.actions.setDataFrame(df));
     dispatch(
       dataframesOverviewSlice.actions.update(

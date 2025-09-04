@@ -3,14 +3,14 @@ import * as wasm from "polars-wasm";
 
 export type FileState = {
   file?: File | null;
-  df?: wasm.DataFrameJS | null;
-  fluxcraft: wasm.FluxCraftJS;
+  df?: wasm.JsDataFrame | null;
+  fluxcraft: wasm.JsFluxCraft;
 };
 
 const initialState: FileState = {
   file: null,
   df: null,
-  fluxcraft: new wasm.FluxCraftJS(),
+  fluxcraft: new wasm.JsFluxCraft(),
 };
 
 export const fileSlice = createSlice({
@@ -20,7 +20,7 @@ export const fileSlice = createSlice({
     setFile: (state, action: PayloadAction<File>) => {
       state.file = action.payload;
     },
-    setDataFrame: (state, action: PayloadAction<wasm.DataFrameJS>) => {
+    setDataFrame: (state, action: PayloadAction<wasm.JsDataFrame>) => {
       state.df = action.payload;
     },
   },
