@@ -89,7 +89,7 @@ pub mod fluxcraft {
                 new_name.push_str(&i.to_string());
             }
 
-            return name;
+            return new_name;
         }
 
         pub fn remove(&mut self, name: String) {

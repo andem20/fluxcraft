@@ -44,9 +44,7 @@ impl FluxCraftJS {
             }
         };
 
-        return DataFrameJS {
-            wrapper: wrapper.clone(),
-        };
+        return DataFrameJS { wrapper };
     }
 
     pub async fn add_from_http_json(
@@ -109,9 +107,7 @@ impl FluxCraftJS {
             }
         };
 
-        return DataFrameJS {
-            wrapper: wrapper.clone(),
-        };
+        return DataFrameJS { wrapper };
     }
 
     pub fn query(&mut self, query: String) -> Result<DataFrameJS, JsError> {

@@ -18,7 +18,7 @@
     "@mui/x-data-grid": "^8.2.0",
     "@reduxjs/toolkit": "^2.7.0",
     "motion": "^12.9.2",
-    "polars-wasm": "file:///home/anders/Documents/projects/fluxcraft/polars-wasm/pkg",
+    "polars-wasm": "file://../polars-wasm/pkg",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
