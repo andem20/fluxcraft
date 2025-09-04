@@ -1,5 +1,6 @@
+mod function_registry;
 mod http_client;
-pub mod udf;
+mod udf;
 pub mod wrapper;
 
 pub mod fluxcraft {
@@ -8,53 +9,27 @@ pub mod fluxcraft {
 
     use calamine::{Data, Reader, Xlsx};
     use polars_core::{
-        error::{ErrString, PolarsError, PolarsResult},
+        error::{ErrString, PolarsError},
         frame::DataFrame,
         functions::concat_df_horizontal,
         prelude::{AnyValue, Column, DataType, TimeUnit},
     };
     use polars_io::{SerReader, SerWriter};
     use polars_lazy::{
-        dsl::{Expr, StrptimeOptions, UserDefinedFunction, coalesce, col, lit},
+        dsl::{Expr, StrptimeOptions, coalesce, col, lit},
         frame::{IntoLazy, LazyFrame},
     };
     use polars_schema::Schema;
     use polars_sql::function_registry::FunctionRegistry;
 
-    use crate::core::{http_client, udf::ilike_udf, wrapper::DataFrameWrapper};
+    use crate::core::{
+        function_registry::CustomFunctionRegistry, http_client, udf::ilike_udf,
+        wrapper::DataFrameWrapper,
+    };
 
     const CSV_SUFFIX: &str = ".csv";
     const TXT_SUFFIX: &str = ".txt";
     const JSON_SUFFIX: &str = ".json";
-
-    pub struct CustomFunctionRegistry {
-        udf_map: HashMap<String, UserDefinedFunction>,
-    }
-
-    impl CustomFunctionRegistry {
-        pub fn new() -> Self {
-            Self {
-                udf_map: HashMap::new(),
-            }
-        }
-    }
-
-    impl FunctionRegistry for CustomFunctionRegistry {
-        fn register(&mut self, name: &str, fun: UserDefinedFunction) -> PolarsResult<()> {
-            self.udf_map.insert(name.to_owned(), fun);
-
-            return Ok(());
-        }
-
-        fn get_udf(&self, name: &str) -> PolarsResult<Option<UserDefinedFunction>> {
-            let udf = self.udf_map.get(name).cloned();
-            return Ok(udf);
-        }
-
-        fn contains(&self, name: &str) -> bool {
-            return self.udf_map.contains_key(name);
-        }
-    }
 
     pub struct FluxCraft {
         pub sql_ctx: polars_sql::SQLContext,
@@ -355,22 +330,3 @@ pub mod fluxcraft {
         return result;
     }
 }
-
-// fn udf() {
-//     let sql_ctx = polars_sql::SQLContext::new();
-
-//     let mut function_registry = CustomFunctionRegistry::new();
-
-//     let udf = UserDefinedFunction::new(
-//         "test".into(),
-//         GetOutput::from_type(polars_core::prelude::DataType::Boolean),
-//         |x: &mut [Column]| {
-//             let c = x.get(0).cloned();
-//             return Ok(c);
-//         },
-//     );
-
-//     let _ = function_registry.register("test", udf);
-
-//     sql_ctx.with_function_registry(Arc::new(function_registry));
-// }

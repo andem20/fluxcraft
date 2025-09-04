@@ -29,14 +29,14 @@ Visualize the data.
 
 - [ ] Create Java interface
 - [ ] Export data as file
-- [ ] Improve error handling
+- [ ] Save and load pipelines
 
 ---
 
 **Week 35-36**
 
-- [ ] Use dataframe in http requests
-- [ ] Save and load pipelines
+- [ ] Improve error handling
+- [x] Use dataframe in http requests
 - [x] Setup simple data pipeline
 - [x] Show errors in ui
 
