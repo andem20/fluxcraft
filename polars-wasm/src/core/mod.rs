@@ -78,13 +78,8 @@ pub mod fluxcraft {
             }
         }
 
-        pub fn add(&mut self, mut name: String, df: DataFrame) -> &mut DataFrameWrapper {
-            let mut i = 0;
-            name = name.replace(".", "_");
-            while let Some(_df) = self.wrappers.get(&name) {
-                i += 1;
-                name.push_str(&i.to_string());
-            }
+        pub fn add(&mut self, name: String, df: DataFrame) -> &mut DataFrameWrapper {
+            let name = self.generate_name(name);
 
             self.sql_ctx.register(&name, df.clone().lazy());
             let wrapper: DataFrameWrapper = DataFrameWrapper::new(df, &name);
@@ -92,6 +87,17 @@ pub mod fluxcraft {
             self.wrappers.insert(name.clone(), wrapper);
 
             return self.wrappers.get_mut(&name).unwrap();
+        }
+
+        fn generate_name(&mut self, name: String) -> String {
+            let mut i = 0;
+            let mut new_name = name.replace(".", "_");
+            while let Some(_df) = self.wrappers.get(&new_name) {
+                i += 1;
+                new_name.push_str(&i.to_string());
+            }
+
+            return name;
         }
 
         pub fn remove(&mut self, name: String) {
