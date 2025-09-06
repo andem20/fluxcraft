@@ -12,7 +12,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     fl.add("test".to_owned(), df);
 
     let result = fl
-        .query("select to_struct(properties) from test".to_owned())?
+        .query(
+            "select p.* from (select to_struct(properties, hello) as p from (select properties, 'hello' as hello from test) _a) _b".to_owned(),
+        )?
         .collect();
 
     println!("{:?}", result);
