@@ -1,22 +1,19 @@
-use std::collections::HashMap;
-
-use polars_core::df;
 use polars_wasm::core::fluxcraft::FluxCraft;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let file = std::fs::read(
-    //     "/home/anders/Documents/projects/fluxcraft/resources/datasets/Pokemon_small.csv",
-    // )
-    // .unwrap();
+    let file =
+        std::fs::read("/home/anders/Documents/projects/fluxcraft/resources/datasets/structs.csv")
+            .unwrap();
 
-    // let df = FluxCraft::read_buffer(&file, true, "non_normalized_customers_small.csv")?;
+    let df = FluxCraft::read_buffer(&file, true, "structs.csv")?;
 
-    let mut df = df!("username" => ["emilys"], "password" => ["emilyspass"])?;
+    let mut fl = FluxCraft::new();
+    fl.add("test".to_owned(), df);
 
-    let result =
-        FluxCraft::read_http_json_post("https://dummyjson.com/auth/login", &mut df, HashMap::new())
-            .await?;
+    let result = fl
+        .query("select to_struct(properties) from test".to_owned())?
+        .collect();
 
     println!("{:?}", result);
 

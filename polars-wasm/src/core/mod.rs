@@ -23,7 +23,9 @@ pub mod fluxcraft {
     use polars_sql::function_registry::FunctionRegistry;
 
     use crate::core::{
-        function_registry::CustomFunctionRegistry, http_client, udf::ilike_udf,
+        function_registry::CustomFunctionRegistry,
+        http_client,
+        udf::{ilike_udf, to_struct_udf},
         wrapper::DataFrameWrapper,
     };
 
@@ -42,6 +44,9 @@ pub mod fluxcraft {
             let mut function_registry = CustomFunctionRegistry::new();
 
             let (udf_name, udf) = ilike_udf();
+            let _ = function_registry.register(&udf_name, udf);
+
+            let (udf_name, udf) = to_struct_udf();
             let _ = function_registry.register(&udf_name, udf);
 
             let sql_ctx = sql_ctx.with_function_registry(Arc::new(function_registry));
