@@ -1,34 +1,35 @@
 use polars_core::{
     error::PolarsError,
-    prelude::{BooleanChunked, Column, DataType, Field, IntoColumn, StringChunked},
+    prelude::{BooleanChunked, Column, DataType, Field, IntoColumn, PlSmallStr, StringChunked},
+    schema::Schema,
 };
-use polars_lazy::dsl::{GetOutput, UserDefinedFunction};
+use polars_lazy::dsl::{BaseColumnUdf, UserDefinedFunction};
 use serde_json::{Map, Value};
 
-fn ilike(args: &mut [Column]) -> Result<Option<Column>, PolarsError> {
-    if args.len() != 2 {
-        return Err(PolarsError::ComputeError(
-            "ilike expects exactly two arguments".into(),
-        ));
-    }
+// fn ilike(args: &mut [Column]) -> Result<Option<Column>, PolarsError> {
+//     if args.len() != 2 {
+//         return Err(PolarsError::ComputeError(
+//             "ilike expects exactly two arguments".into(),
+//         ));
+//     }
 
-    let s1 = args[0].str()?;
-    let s2 = args[1].str()?;
+//     let s1 = args[0].str()?;
+//     let s2 = args[1].str()?;
 
-    let mask: BooleanChunked = s1
-        .into_iter()
-        .zip(s2.into_iter())
-        .map(|(a, b)| match (a, b) {
-            (Some(lhs), Some(rhs)) => lhs.to_lowercase().contains(&rhs.to_lowercase()),
-            (None, None) => true,
-            _ => false,
-        })
-        .collect();
+//     let mask: BooleanChunked = s1
+//         .into_iter()
+//         .zip(s2.into_iter())
+//         .map(|(a, b)| match (a, b) {
+//             (Some(lhs), Some(rhs)) => lhs.to_lowercase().contains(&rhs.to_lowercase()),
+//             (None, None) => true,
+//             _ => false,
+//         })
+//         .collect();
 
-    Ok(Some(mask.into_column()))
-}
+//     Ok(Some(mask.into_column()))
+// }
 
-fn to_struct(args: &mut [Column]) -> Result<Option<Column>, PolarsError> {
+fn to_struct(args: &mut [Column]) -> Result<Column, PolarsError> {
     if args.len() < 2 {
         return Err(PolarsError::ComputeError(
             "to_struct expects column, ...keys".into(),
@@ -39,14 +40,9 @@ fn to_struct(args: &mut [Column]) -> Result<Option<Column>, PolarsError> {
 
     let keys: Vec<String> = args[1..]
         .iter()
-        .map(|col| {
-            col.str()
-                .map_err(|_e| PolarsError::ComputeError("expected literal string".into()))?
-                .get(0)
-                .ok_or_else(|| PolarsError::ComputeError("empty literal".into()))
-                .map(|s| s.to_string())
-        })
-        .collect::<Result<Vec<_>, PolarsError>>()?;
+        .map(Column::name)
+        .map(PlSmallStr::to_string)
+        .collect();
 
     let json_map: Vec<Option<Map<String, Value>>> = s1
         .into_iter()
@@ -84,38 +80,54 @@ fn to_struct(args: &mut [Column]) -> Result<Option<Column>, PolarsError> {
 
     let col = chunked_struct.into_column();
     println!("{:?}", col);
-    Ok(Some(col))
+    Ok(col)
 }
 
-pub fn ilike_udf() -> (String, UserDefinedFunction) {
-    let name = "ilike";
-    return (
-        name.to_string(),
-        UserDefinedFunction::new(
-            name.into(),
-            GetOutput::from_type(polars_core::prelude::DataType::Boolean),
-            ilike,
-        ),
+// pub fn ilike_udf() -> (String, UserDefinedFunction) {
+//     let name = "ilike";
+//     return (
+//         name.to_string(),
+//         UserDefinedFunction::new(
+//             name.into(),
+//             GetOutput::from_type(polars_core::prelude::DataType::Boolean),
+//             ilike,
+//         ),
+//     );
+// }
+
+pub fn to_struct_udf() -> UserDefinedFunction {
+    return UserDefinedFunction::new(
+        "to_struct".into(),
+        BaseColumnUdf::new(to_struct, |_: &Schema, fs: &[Field]| {
+            let child_fields: Vec<Field> = fs[1..]
+                .iter()
+                .map(|f| Field::new(f.name.clone(), DataType::String))
+                .collect();
+
+            Ok(Field::new("struct".into(), DataType::Struct(child_fields)))
+        }),
     );
 }
 
-pub fn to_struct_udf() -> (String, UserDefinedFunction) {
-    let name = "to_struct";
-
-    return (
-        name.to_string(),
-        UserDefinedFunction::new(
-            name.into(),
-            GetOutput::map_fields(|input_fields| {
-                // skip the first argument (the JSON column itself)
-                let child_fields: Vec<Field> = input_fields[1..]
+pub fn to_field_udf() -> UserDefinedFunction {
+    return UserDefinedFunction::new(
+        "to_field".into(),
+        BaseColumnUdf::new(
+            |args: &mut [Column]| -> Result<Column, PolarsError> {
+                let name = args[0].str()?.first().unwrap_or("unknown");
+                println!("{}", name);
+                let col = Column::new(name.into(), args[0].str()?.clone());
+                Ok(col)
+            },
+            |_: &Schema, fs: &[Field]| {
+                let child_fields: Vec<Field> = fs
                     .iter()
                     .map(|f| Field::new(f.name.clone(), DataType::String))
                     .collect();
 
-                Ok(Field::new("struct".into(), DataType::Struct(child_fields)))
-            }),
-            to_struct,
+                println!("{:?}", fs);
+                Ok(Field::new("struct".into(), DataType::String))
+            },
         ),
     );
 }

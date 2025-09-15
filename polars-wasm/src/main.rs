@@ -13,7 +13,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = fl
         .query(
-            "select p.* from (select to_struct(properties, hello) as p from (select properties, 'hello' as hello from test) _a) _b".to_owned(),
+            // "select p.* from (select to_struct(properties, hello) as p from (select properties, 'hello' as hello from test) _a) _b".to_owned(),
+            "select json_value(properties, '$.hello') as p from test".to_owned(),
         )?
         .collect();
 

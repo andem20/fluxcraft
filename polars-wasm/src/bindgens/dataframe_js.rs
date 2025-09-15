@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use polars_core::schema::SchemaNamesAndDtypes;
+use polars_core::{prelude::DataType, schema::SchemaNamesAndDtypes};
 use polars_schema::Schema;
 use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 use wasm_bindgen_futures::js_sys;
@@ -238,7 +238,10 @@ impl JsDataFrame {
                 let values = s
                     .rechunk()
                     .iter()
-                    .map(|x| x.to_string())
+                    .map(|x| match x.dtype() {
+                        DataType::String => x.get_str().unwrap_or("null").to_owned(),
+                        _ => x.to_string(),
+                    })
                     .collect::<Vec<String>>();
                 ColumnJS { values }
             })

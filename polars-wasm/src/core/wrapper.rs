@@ -1,31 +1,31 @@
-use polars_core::{prelude::PlSmallStr, utils::Container};
+use polars_core::{frame::DataFrame, prelude::PlSmallStr};
 
 #[derive(Clone, Debug)]
 pub struct DataFrameWrapper {
-    pub df: polars_core::prelude::DataFrame,
+    pub df: DataFrame,
     pub name: String,
 }
 
 impl DataFrameWrapper {
-    pub fn new(wrapper: polars_core::prelude::DataFrame, name: &str) -> Self {
+    pub fn new(wrapper: DataFrame, name: &str) -> Self {
         Self {
             df: wrapper,
             name: name.to_string(),
         }
     }
 
-    pub fn get_df(&self) -> &polars_core::prelude::DataFrame {
+    pub fn get_df(&self) -> &DataFrame {
         return &self.df;
     }
 
-    pub fn get_df_mut(&mut self) -> &mut polars_core::prelude::DataFrame {
+    pub fn get_df_mut(&mut self) -> &mut DataFrame {
         return &mut self.df;
     }
 
     pub fn get_primary_keys(&self) -> Vec<String> {
         self.get_df()
             .column_iter()
-            .filter(|c| c.n_unique().unwrap_or(0) == self.get_df().len())
+            .filter(|c| c.n_unique().unwrap_or(0) == self.get_df().size())
             .map(|c| c.name().to_string())
             .collect()
     }

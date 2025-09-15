@@ -9,11 +9,11 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 calamine = {version = "0.30.0", features = ["dates"]}
 chrono = "0.4.41"
-polars-core = {version = "0.50.0", features = ["fmt_no_tty", "dtype-datetime", "dtype-date", "serde"]}
-polars-io = {version = "0.50.0", features = ["dtype-datetime", "dtype-date", "json"]}
-polars-lazy = "0.50.0"
-polars-sql = "0.50.0"
-polars-schema = "0.50.0"
+polars-core = {git = "https://github.com/andem20/polars-fork", features = ["fmt_no_tty", "dtype-datetime", "dtype-date", "serde"]}
+polars-io = {git = "https://github.com/andem20/polars-fork", features = ["dtype-datetime", "dtype-date", "json"]}
+polars-lazy = {git = "https://github.com/andem20/polars-fork"}
+polars-schema = {git = "https://github.com/andem20/polars-fork"}
+polars-sql = {git = "https://github.com/andem20/polars-fork", features = ["json"]}
 wasm-bindgen = "0.2.100"
 wasm-bindgen-futures = "0.4.50"
 getrandom = { version = "0.3", features = ["wasm_js"] }

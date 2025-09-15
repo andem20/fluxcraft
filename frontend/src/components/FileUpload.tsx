@@ -43,6 +43,8 @@ export function FileUpload({
       );
       updateDataframeStore(df);
       onLoadFile(`FILE(${file.name})`);
+
+      setLoading(false);
     }
   };
 

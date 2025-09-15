@@ -60,28 +60,26 @@ export function JsonFetch({
     method: "GET" | "POST" = "GET",
     payloadName?: string
   ) {
-    try {
-      setLoading(true);
-      let df;
-      console.log(headers);
-      if (method === "GET") {
-        df = await fluxcraftSelector.add_from_http_json(url, headers, name);
-      } else {
-        const payload = fluxcraftSelector.get(payloadName!);
+    setLoading(true);
+    let df;
+    console.log(headers);
+    if (method === "GET") {
+      df = await fluxcraftSelector.add_from_http_json(url, headers, name);
+    } else {
+      const payload = fluxcraftSelector.get(payloadName!);
 
-        df = await fluxcraftSelector.add_from_http_json_post(
-          url,
-          headers,
-          name,
-          payload
-        );
-      }
-
-      updateDataframeStore(df);
-      onLoadFile(`HTTP(${url}) → ${name}`);
-    } finally {
-      setLoading(false);
+      df = await fluxcraftSelector.add_from_http_json_post(
+        url,
+        headers,
+        name,
+        payload
+      );
     }
+
+    updateDataframeStore(df);
+    onLoadFile(`HTTP(${url}) → ${name}`);
+
+    setLoading(false);
   }
 
   return (

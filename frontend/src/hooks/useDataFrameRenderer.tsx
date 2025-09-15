@@ -15,7 +15,10 @@ export function useDataFrameRenderer() {
 
     const numRows = columnObjects[0].get_values().length;
     const headers = df.get_headers();
-    const cols: string[][] = columnObjects.map((col) => col.get_values());
+    const cols: string[][] = columnObjects.map((col) => {
+      console.log(col.get_values());
+      return col.get_values();
+    });
 
     console.time("creating_rows");
     const rowData = Array.from({ length: numRows }, (_, rowIndex) => {
