@@ -1,15 +1,18 @@
 import {
   Box,
   Button,
+  Chip,
   Container,
   Drawer,
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
+  Stack,
   Step,
   StepContent,
   StepLabel,
   Stepper,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
@@ -22,6 +25,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { useRef, useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import ArticleIcon from "@mui/icons-material/Article";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 
 type TransformItem = {
   id: number;
@@ -111,11 +116,28 @@ export function Home() {
                   <Box sx={{ pl: 3, mb: 1 }}>
                     <Typography variant="caption" fontWeight="bold">
                       Load
+                      <br />
                     </Typography>
-                    <Typography variant="caption">
-                      {" "}
-                      {load.join("\n")}
-                    </Typography>
+                    <Stack direction="row" spacing={0.5}>
+                      {load.map((x) => {
+                        return (
+                          <Tooltip title={x.uri}>
+                            <Chip
+                              icon={
+                                x.type === "FILE" ? (
+                                  <ArticleIcon />
+                                ) : (
+                                  <CloudDownloadIcon />
+                                )
+                              }
+                              label={x.name}
+                              size="small"
+                              variant="filled"
+                            />
+                          </Tooltip>
+                        );
+                      })}
+                    </Stack>
                   </Box>
 
                   <Box sx={{ pl: 3, mb: 1 }}>

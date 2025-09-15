@@ -37,12 +37,18 @@ interface TransformCardProps {
   onRemove: (id: number) => void;
 }
 
-export type TransformStep = {
+export interface LoadStep {
+  type: "FILE" | "HTTP";
+  uri: string;
+  name: string;
+}
+
+export interface TransformStep {
   id: number;
   title: React.RefObject<string>;
-  load: string[];
+  load: LoadStep[];
   query?: string;
-};
+}
 
 export type TransformCardRef = {
   getSteps: () => TransformStep;
@@ -169,7 +175,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
           <UploadCard
             open={openModal}
             onClose={() => setOpenModal(false)}
-            onLoadFile={(loadFile: string) => {
+            onLoadFile={(loadFile: LoadStep) => {
               steps.current.load.push(loadFile);
             }}
           />

@@ -7,9 +7,10 @@ import { dataframesOverviewSlice } from "../stores/Store";
 import { JsDataFrame } from "polars-wasm";
 import { JsonFetch } from "./JsonFetch";
 import { FileUpload } from "./FileUpload";
+import { LoadStep } from "./TransformCard";
 
 export interface DataSourceProps {
-  onLoadFile: (loadFile: string) => void;
+  onLoadFile: (loadFile: LoadStep) => void;
   setLoading: (loading: boolean) => void;
   updateDataframeStore: (df: JsDataFrame) => void;
   loading: boolean;
@@ -18,7 +19,7 @@ export interface DataSourceProps {
 interface UploadCardProps {
   open: boolean;
   onClose: () => void;
-  onLoadFile: (loadFile: string) => void;
+  onLoadFile: (loadFile: LoadStep) => void;
 }
 
 export function UploadCard({ open, onClose, onLoadFile }: UploadCardProps) {

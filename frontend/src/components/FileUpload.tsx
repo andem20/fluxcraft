@@ -42,7 +42,11 @@ export function FileUpload({
         file.name
       );
       updateDataframeStore(df);
-      onLoadFile(`FILE(${file.name})`);
+      onLoadFile({
+        type: "FILE",
+        uri: file.name,
+        name: file.name,
+      });
 
       setLoading(false);
     }

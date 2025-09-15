@@ -77,7 +77,11 @@ export function JsonFetch({
     }
 
     updateDataframeStore(df);
-    onLoadFile(`HTTP(${url}) → ${name}`);
+    onLoadFile({
+      type: "HTTP",
+      uri: url,
+      name,
+    });
 
     setLoading(false);
   }
