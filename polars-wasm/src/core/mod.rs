@@ -1,5 +1,7 @@
+pub mod error;
 mod function_registry;
 mod http_client;
+pub mod pipeline;
 mod udf;
 pub mod wrapper;
 

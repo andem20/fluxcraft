@@ -15,21 +15,23 @@ Visualize the data.
 **Week 41-42**
 
 - [ ] Improve excel datatype inference
+- [ ] Visualize dataframes
+- [ ] Create tests
+- [ ] Replay data pipeline
 
 ---
 
 **Week 39-40**
 
-- [ ] Visualize dataframes
-- [ ] Replay data pipeline
-- [ ] Create tests
+- [ ] Hide header values / use placeholders
+- [ ] Export data as file
+- [ ] Create Java interface
 
 ---
 
 **Week 37-38**
 
-- [ ] Create Java interface
-- [ ] Export data as file
+- [ ] Refactor into multiple crates
 - [ ] Save and load pipelines
 
 ---

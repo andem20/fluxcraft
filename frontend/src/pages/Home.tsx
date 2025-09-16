@@ -65,7 +65,9 @@ export function Home() {
   }
 
   function exportPipeline() {
-    const pipeline = { pipeline: steps };
+    const pipeline = {
+      steps: steps.map((step) => ({ ...step, title: step.title.current })),
+    };
     const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
