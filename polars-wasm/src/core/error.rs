@@ -29,8 +29,6 @@ impl std::error::Error for FluxCraftError {
 
 impl Display for FluxCraftError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        println!("{:?}", self.msg);
-
-        Ok(())
+        write!(f, "{:?}", self.msg)
     }
 }

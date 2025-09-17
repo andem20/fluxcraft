@@ -46,6 +46,9 @@ export function FileUpload({
         type: "FILE",
         uri: file.name,
         name: file.name,
+        options: {
+          has_headers: String(hasHeaders),
+        },
       });
 
       setLoading(false);

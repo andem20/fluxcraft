@@ -41,6 +41,7 @@ export interface LoadStep {
   type: "FILE" | "HTTP";
   uri: string;
   name: string;
+  options: Record<string, string>;
 }
 
 export interface TransformStep {

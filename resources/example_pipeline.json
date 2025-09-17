@@ -1,1 +1,30 @@
-{"steps":[{"id":1,"title":"cell 1","load":[{"type":"FILE","uri":"customers.csv","name":"customers.csv"}],"query":"SELECT * from customers_csv"},{"id":2,"title":"load products and unnest","load":[{"type":"HTTP","uri":"https://dummyjson.com/products?limit=200","name":"products"}],"query":"SELECT df.* from (SELECT UNNEST(products) as df from products) _a"}]}
+{
+  "steps": [
+    {
+      "id": 1,
+      "title": "cell 1",
+      "load": [
+        {
+          "type": "FILE",
+          "uri": "customers.csv",
+          "name": "customers.csv",
+          "options": { "has_headers": "true" }
+        }
+      ],
+      "query": "SELECT * from customers_csv"
+    },
+    {
+      "id": 2,
+      "title": "load product and unnest",
+      "load": [
+        {
+          "type": "HTTP",
+          "uri": "https://dummyjson.com/products?limit=200",
+          "name": "products",
+          "options": { "test": "hey" }
+        }
+      ],
+      "query": "SELECT df.* from (SELECT UNNEST(products) as df from products) _a"
+    }
+  ]
+}

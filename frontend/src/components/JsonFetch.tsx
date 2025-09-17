@@ -62,7 +62,6 @@ export function JsonFetch({
   ) {
     setLoading(true);
     let df;
-    console.log(headers);
     if (method === "GET") {
       df = await fluxcraftSelector.add_from_http_json(url, headers, name);
     } else {
@@ -81,6 +80,7 @@ export function JsonFetch({
       type: "HTTP",
       uri: url,
       name,
+      options: Object.fromEntries(headers),
     });
 
     setLoading(false);

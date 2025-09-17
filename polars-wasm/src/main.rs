@@ -20,11 +20,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // println!("{:?}", result);
 
-    let pipeline = Pipeline::load(
+    let mut pipeline = Pipeline::load(
         "/home/anders/Documents/projects/fluxcraft/resources/example_pipeline.json",
     )?;
 
-    pipeline.execute();
+    let _ = pipeline.execute().await;
 
     return Ok(());
 }
