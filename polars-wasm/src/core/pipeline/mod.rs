@@ -1,6 +1,8 @@
 use std::{collections::HashMap, fmt::Display};
 
-use crate::core::fluxcraft::FluxCraft;
+use polars_core::frame::DataFrame;
+
+use crate::core::{error::FluxCraftError, fluxcraft::FluxCraft};
 
 const BASE_PATH: &str = "/home/anders/Documents/projects/fluxcraft/resources/datasets";
 
@@ -38,7 +40,7 @@ impl Pipeline {
             println!("Running step #{}, {}", step.id, step.title);
 
             for load in step.load.iter() {
-                let df = handle_load(load).await?;
+                let df = self.handle_load(load).await?;
 
                 let _ = self.fluxcraft.add(load.name.to_owned(), df);
             }
@@ -51,31 +53,61 @@ impl Pipeline {
 
         Ok(())
     }
-}
+    async fn handle_load(
+        &self,
+        load: &Load,
+    ) -> Result<polars_core::prelude::DataFrame, Box<dyn std::error::Error>> {
+        println!(
+            "  Loading resource with name {} from uri: {}, using type {}",
+            load.name, load.uri, load.kind
+        );
 
-async fn handle_load(
-    load: &Load,
-) -> Result<polars_core::prelude::DataFrame, Box<dyn std::error::Error>> {
-    println!(
-        "  Loading resource with name {} from uri: {}, using type {}",
-        load.name, load.uri, load.kind
-    );
+        let df = match load.kind {
+            LoadKind::FILE => {
+                let buffer = std::fs::read(format!("{}/{}", BASE_PATH, load.uri))?;
+                let has_headers = load
+                    .options
+                    .get("has_headers")
+                    .map(|v| v.to_lowercase() == "true")
+                    .unwrap_or(true);
 
-    let df = match load.kind {
-        LoadKind::FILE => {
-            let buffer = std::fs::read(format!("{}/{}", BASE_PATH, load.uri))?;
-            let has_headers = load
-                .options
-                .get("has_headers")
-                .map(|v| v.to_lowercase() == "true")
-                .unwrap_or(true);
+                FluxCraft::read_buffer(&buffer, has_headers, &load.name)?
+            }
+            LoadKind::HTTP => {
+                if let Some(method) = load.options.get("method") {
+                    match method.as_str() {
+                        "GET" => {
+                            FluxCraft::read_http_json(
+                                &load.uri,
+                                load.headers.clone().unwrap_or(HashMap::new()),
+                            )
+                            .await?
+                        }
+                        _ => {
+                            let mut payload_df = load
+                                .options
+                                .get("payload_name")
+                                .map(|name| self.fluxcraft.get(name))
+                                .flatten()
+                                .map(|df| df.get_df().clone())
+                                .unwrap_or(DataFrame::empty());
 
-            FluxCraft::read_buffer(&buffer, has_headers, &load.name)?
-        }
-        LoadKind::HTTP => FluxCraft::read_http_json(&load.uri, load.options.clone()).await?,
-    };
+                            FluxCraft::read_http_json_post(
+                                &load.uri,
+                                &mut payload_df,
+                                load.headers.clone().unwrap_or(HashMap::new()),
+                            )
+                            .await?
+                        }
+                    }
+                } else {
+                    return Err(FluxCraftError::new("Method must be specified").into());
+                }
+            }
+        };
 
-    Ok(df)
+        Ok(df)
+    }
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -93,6 +125,7 @@ struct Load {
     uri: String,
     name: String,
     options: HashMap<String, String>,
+    headers: Option<HashMap<String, String>>,
 }
 
 #[derive(serde::Deserialize, Debug)]

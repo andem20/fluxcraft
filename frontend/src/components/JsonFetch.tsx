@@ -80,7 +80,11 @@ export function JsonFetch({
       type: "HTTP",
       uri: url,
       name,
-      options: Object.fromEntries(headers),
+      options: {
+        method,
+        payload_name: payloadName,
+      },
+      headers: Object.fromEntries(headers),
     });
 
     setLoading(false);
