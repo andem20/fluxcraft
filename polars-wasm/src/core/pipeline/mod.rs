@@ -35,7 +35,9 @@ impl Pipeline {
         })
     }
 
-    pub async fn execute(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn execute(&mut self) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        let mut result = None;
+
         for step in self.pipeline.steps.iter() {
             println!("Running step #{}, {}", step.id, step.title);
 
@@ -49,10 +51,17 @@ impl Pipeline {
             let df = self.fluxcraft.query(step.query.to_owned())?.collect()?;
             println!("{}", df.head(Some(1)));
             println!("");
+
+            result = Some(df);
         }
 
-        Ok(())
+        if let Some(mut df) = result {
+            return Ok(FluxCraft::export(&mut df)?);
+        }
+
+        Err(FluxCraftError::new("No final df defined").into())
     }
+
     async fn handle_load(
         &self,
         load: &Load,

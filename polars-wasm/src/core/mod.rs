@@ -7,7 +7,7 @@ pub mod wrapper;
 
 pub mod fluxcraft {
 
-    use std::{collections::HashMap, sync::Arc};
+    use std::{collections::HashMap, io::Cursor, sync::Arc};
 
     use calamine::{Data, Reader, Xlsx};
     use polars_core::{
@@ -283,6 +283,18 @@ pub mod fluxcraft {
             let df = Self::read_buffer(buffer.as_bytes(), false, JSON_SUFFIX)?;
 
             return Ok(df);
+        }
+
+        pub fn export(df: &mut DataFrame) -> Result<Vec<u8>, std::io::Error> {
+            let mut buffer = vec![];
+
+            let writer = Cursor::new(&mut buffer);
+            let _ = polars_io::csv::write::CsvWriter::new(writer)
+                .include_header(true)
+                .with_separator(b',')
+                .finish(df);
+
+            Ok(buffer)
         }
     }
 

@@ -24,7 +24,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "/home/anders/Documents/projects/fluxcraft/resources/example_pipeline.json",
     )?;
 
-    let _ = pipeline.execute().await;
+    let result = pipeline.execute().await?;
+
+    println!("{:?}", String::from_utf8(result));
 
     return Ok(());
 }
