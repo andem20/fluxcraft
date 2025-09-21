@@ -24,15 +24,15 @@ Visualize the data.
 **Week 39-40**
 
 - [ ] Hide header values / use placeholders
-- [ ] Export data as file
 - [ ] Create Java interface
+- [ ] Refactor into multiple crates
 
 ---
 
 **Week 37-38**
 
-- [ ] Refactor into multiple crates
-- [ ] Save and load pipelines
+- [x] Export data as file
+- [x] Save and load pipelines
 
 ---
 

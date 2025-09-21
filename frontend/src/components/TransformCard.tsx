@@ -30,6 +30,8 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { FileDownload } from "@mui/icons-material";
+import { fileSlice } from "../stores/slices/FileSlice";
 
 interface TransformCardProps {
   id: number;
@@ -90,6 +92,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
     if (fluxcraftSelector) {
       try {
         const df = fluxcraftSelector.query(query.current);
+        dispatch(fileSlice.actions.setDataFrame(df));
         renderDataframe(df);
       } catch (error: any) {
         console.error(error);
@@ -126,6 +129,19 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   ): void {
     handleClose();
     onRemove(id);
+  }
+
+  function exportDataframe(): void {
+    const inputDf = dfSelector;
+    if (inputDf) {
+      const df = fluxcraftSelector.export_csv(inputDf);
+      const blob = new Blob([df], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "test.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
   }
 
   return (
@@ -201,8 +217,18 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
                     color="secondary"
                     startIcon={<AddCircleOutlineOutlinedIcon />}
                     onClick={() => setOpenModal(true)}
+                    sx={{ mr: 2 }}
                   >
                     Add Dataframe
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="secondary"
+                    onClick={exportDataframe}
+                    startIcon={<FileDownload />}
+                  >
+                    Export
                   </Button>
                 </Box>
 

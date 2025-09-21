@@ -7,7 +7,10 @@ use wasm_bindgen_futures::js_sys;
 
 use crate::{
     bindgens::{log, log_error},
-    core::{fluxcraft::FluxCraft, wrapper::DataFrameWrapper},
+    core::{
+        fluxcraft::{self, FluxCraft},
+        wrapper::DataFrameWrapper,
+    },
 };
 
 #[wasm_bindgen]
@@ -111,6 +114,13 @@ impl JsFluxCraft {
             .map(to_column_header)
             .map_err(|e| JsError::new(&e.to_string()));
     }
+
+    pub fn export_csv(&self, mut input_df: JsDataFrame) -> Result<String, JsError> {
+        let mut df = input_df.get_df_mut();
+        let result = FluxCraft::export_csv(&mut df).map_err(|e| JsError::new(&e.to_string()))?;
+        let result_string = String::from_utf8(result).map_err(|e| JsError::new(&e.to_string()))?;
+        return Ok(result_string);
+    }
 }
 
 fn to_column_header(schema: Arc<Schema<polars_core::datatypes::DataType>>) -> Vec<ColumnHeaderJS> {
@@ -148,6 +158,10 @@ pub struct JsDataFrame {
 impl JsDataFrame {
     fn get_df(&self) -> &polars_core::prelude::DataFrame {
         return &self.wrapper.get_df();
+    }
+
+    fn get_df_mut(&mut self) -> &mut polars_core::prelude::DataFrame {
+        return self.wrapper.get_df_mut();
     }
 }
 
