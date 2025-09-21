@@ -15,6 +15,7 @@ pub mod fluxcraft {
         frame::DataFrame,
         functions::concat_df_horizontal,
         prelude::{AnyValue, Column, DataType, TimeUnit},
+        series::Series,
     };
     use polars_io::{SerReader, SerWriter};
     use polars_lazy::{
@@ -285,14 +286,32 @@ pub mod fluxcraft {
             return Ok(df);
         }
 
-        pub fn export(df: &mut DataFrame) -> Result<Vec<u8>, std::io::Error> {
+        pub fn export_csv(df: &mut DataFrame) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+            let cols: Vec<Column> = df
+                .iter()
+                .map(|s| {
+                    let series = s
+                        .rechunk()
+                        .iter()
+                        .map(|x| match x.dtype() {
+                            DataType::String => x.get_str().unwrap_or("null").to_owned(),
+                            _ => x.to_string(),
+                        })
+                        .collect::<Series>();
+
+                    Column::new(s.name().to_owned(), series)
+                })
+                .collect();
+
+            let mut df = DataFrame::new(cols)?;
+
             let mut buffer = vec![];
 
             let writer = Cursor::new(&mut buffer);
             let _ = polars_io::csv::write::CsvWriter::new(writer)
                 .include_header(true)
                 .with_separator(b',')
-                .finish(df);
+                .finish(&mut df);
 
             Ok(buffer)
         }

@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use polars_wasm::core::{fluxcraft::FluxCraft, pipeline::Pipeline};
 
 #[tokio::main]
@@ -26,7 +28,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = pipeline.execute().await?;
 
-    println!("{:?}", String::from_utf8(result));
+    let mut file =
+        std::fs::File::create("/home/anders/Documents/projects/fluxcraft/resources/output.csv")?;
+
+    let _ = file.write_all(&result)?;
 
     return Ok(());
 }

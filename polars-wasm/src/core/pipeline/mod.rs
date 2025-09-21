@@ -56,7 +56,8 @@ impl Pipeline {
         }
 
         if let Some(mut df) = result {
-            return Ok(FluxCraft::export(&mut df)?);
+            // FIXME allow more formats
+            return Ok(FluxCraft::export_csv(&mut df)?);
         }
 
         Err(FluxCraftError::new("No final df defined").into())
