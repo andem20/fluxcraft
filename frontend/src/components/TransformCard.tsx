@@ -31,7 +31,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { FileDownload } from "@mui/icons-material";
-import { fileSlice } from "../stores/slices/FileSlice";
+import { JsDataFrame } from "polars-wasm";
 
 interface TransformCardProps {
   id: number;
@@ -73,6 +73,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [output, setOutput] = useState<JsDataFrame | null>(null);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -92,7 +93,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
     if (fluxcraftSelector) {
       try {
         const df = fluxcraftSelector.query(query.current);
-        dispatch(fileSlice.actions.setDataFrame(df));
+        setOutput(df);
         renderDataframe(df);
       } catch (error: any) {
         console.error(error);
@@ -132,7 +133,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   }
 
   function exportDataframe(): void {
-    const inputDf = dfSelector;
+    const inputDf = output;
     if (inputDf) {
       const df = fluxcraftSelector.export_csv(inputDf);
       const blob = new Blob([df], { type: "text/plain" });
