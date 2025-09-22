@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use polars_wasm::core::{fluxcraft::FluxCraft, pipeline::Pipeline};
+use fluxcraft_pipeline::pipeline::Pipeline;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

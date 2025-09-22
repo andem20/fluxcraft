@@ -1,0 +1,12 @@
+[package]
+name = "fluxcraft-io"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+fluxcraft-core = { workspace = true }
+
+polars-core = { workspace = true }
+polars-io = { workspace = true }
+
+reqwest = "0.12.23"

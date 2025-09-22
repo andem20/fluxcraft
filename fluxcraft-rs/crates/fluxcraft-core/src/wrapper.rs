@@ -7,9 +7,9 @@ pub struct DataFrameWrapper {
 }
 
 impl DataFrameWrapper {
-    pub fn new(wrapper: DataFrame, name: &str) -> Self {
+    pub fn new(df: DataFrame, name: &str) -> Self {
         Self {
-            df: wrapper,
+            df,
             name: name.to_string(),
         }
     }

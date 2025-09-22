@@ -1,9 +1,9 @@
 use std::{collections::HashMap, fmt::Display};
 
+use fluxcraft_core::{FluxCraft, error::FluxCraftError};
 use polars_core::frame::DataFrame;
 
-use crate::core::{error::FluxCraftError, fluxcraft::FluxCraft};
-
+//FIMXE
 const BASE_PATH: &str = "/home/anders/Documents/projects/fluxcraft/resources/datasets";
 
 pub struct Pipeline {
@@ -63,10 +63,7 @@ impl Pipeline {
         Err(FluxCraftError::new("No final df defined").into())
     }
 
-    async fn handle_load(
-        &self,
-        load: &Load,
-    ) -> Result<polars_core::prelude::DataFrame, Box<dyn std::error::Error>> {
+    async fn handle_load(&self, load: &Load) -> Result<DataFrame, Box<dyn std::error::Error>> {
         println!(
             "  Loading resource with name {} from uri: {}, using type {}",
             load.name, load.uri, load.kind
@@ -87,7 +84,7 @@ impl Pipeline {
                 if let Some(method) = load.options.get("method") {
                     match method.as_str() {
                         "GET" => {
-                            FluxCraft::read_http_json(
+                            fluxcraft_io::read_http_json(
                                 &load.uri,
                                 load.headers.clone().unwrap_or(HashMap::new()),
                             )
@@ -102,7 +99,7 @@ impl Pipeline {
                                 .map(|df| df.get_df().clone())
                                 .unwrap_or(DataFrame::empty());
 
-                            FluxCraft::read_http_json_post(
+                            fluxcraft_io::read_http_json_post(
                                 &load.uri,
                                 &mut payload_df,
                                 load.headers.clone().unwrap_or(HashMap::new()),

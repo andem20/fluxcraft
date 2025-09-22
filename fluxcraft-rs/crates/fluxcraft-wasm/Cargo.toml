@@ -1,0 +1,19 @@
+[package]
+name = "fluxcraft-wasm"
+version = { workspace = true }
+edition = { workspace = true }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+fluxcraft-core = { workspace = true }
+fluxcraft-io = { workspace = true }
+
+polars-core = { workspace = true }
+polars-schema = { workspace = true }
+
+wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4.50"
+
+getrandom = { version = "0.3", features = ["wasm_js"] }

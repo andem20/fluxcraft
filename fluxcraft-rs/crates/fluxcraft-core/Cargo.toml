@@ -1,0 +1,13 @@
+[package]
+name = "fluxcraft-core"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+polars-core = {workspace = true}
+polars-io = { workspace = true }
+polars-lazy = { workspace = true }
+polars-schema = { workspace = true }
+polars-sql = { workspace = true }
+
+calamine = {version = "0.30.0", features = ["dates"]}

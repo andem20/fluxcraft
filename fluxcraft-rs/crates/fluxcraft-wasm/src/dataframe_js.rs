@@ -1,17 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
+use fluxcraft_core::{FluxCraft, wrapper::DataFrameWrapper};
 use polars_core::{prelude::DataType, schema::SchemaNamesAndDtypes};
 use polars_schema::Schema;
 use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 use wasm_bindgen_futures::js_sys;
 
-use crate::{
-    bindgens::{log, log_error},
-    core::{
-        fluxcraft::{self, FluxCraft},
-        wrapper::DataFrameWrapper,
-    },
-};
+use crate::{log, log_error};
 
 #[wasm_bindgen]
 pub struct JsFluxCraft {
@@ -58,7 +53,7 @@ impl JsFluxCraft {
     ) -> Result<JsDataFrame, JsError> {
         let headers_map = get_headers(headers);
 
-        let result = FluxCraft::read_http_json(&url, headers_map)
+        let result = fluxcraft_io::read_http_json(&url, headers_map)
             .await
             .map(|df| self.fluxcraft.add(name, df))
             .map(|wrapper| JsDataFrame { wrapper })
@@ -78,7 +73,7 @@ impl JsFluxCraft {
 
         let payload_df = payload.wrapper.get_df_mut();
 
-        let result = FluxCraft::read_http_json_post(&url, payload_df, headers_map)
+        let result = fluxcraft_io::read_http_json_post(&url, payload_df, headers_map)
             .await
             .map(|df| self.fluxcraft.add(name, df))
             .map(|wrapper| JsDataFrame { wrapper })

@@ -25,7 +25,7 @@ Visualize the data.
 
 - [ ] Hide header values / use placeholders
 - [ ] Create Java interface
-- [ ] Refactor into multiple crates
+- [x] Refactor into multiple crates
 
 ---
 

@@ -1,0 +1,17 @@
+[package]
+name = "fluxcraft-pipeline"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+serde_json = "1.0.143"
+serde = "1.0.225"
+fluxcraft-core = { workspace = true }
+fluxcraft-io = { workspace = true }
+polars-core = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tokio = { version = "1.47.1", features = ["full"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tokio = { version = "1.47.1", features = ["time"] }
