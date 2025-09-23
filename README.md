@@ -12,19 +12,24 @@ Visualize the data.
 
 ---
 
-**Week 41-42**
+**Week 43-44**
 
 - [ ] Improve excel datatype inference
 - [ ] Visualize dataframes
 - [ ] Create tests
-- [ ] Replay data pipeline
+
+---
+
+**Week 41-42**
+
+- [ ] Create Java interface
+- [ ] Hide header values / use placeholders
 
 ---
 
 **Week 39-40**
 
-- [ ] Hide header values / use placeholders
-- [ ] Create Java interface
+- [ ] Replay data pipeline
 - [x] Refactor into multiple crates
 
 ---
@@ -81,8 +86,8 @@ Visualize the data.
 - [ ] Export dataset (HTTP, Kafka, File)
   - [ ] HTTP
   - [ ] Kafka
-  - [ ] File
-    - [ ] CSV
+  - [x] File
+    - [x] CSV
     - [ ] Excel
     - [ ] JSON
 
@@ -90,7 +95,7 @@ Visualize the data.
 
 - [x] Rename columns of dataframe
 - [x] Aggregate columns (handled as sql)
-- [ ] Reshape dataframe (columns to rows -> new set of columns)
+- [x] Reshape dataframe (columns to rows -> new set of columns)
 - [ ] Clean data
   - [ ] Remove outliers
   - [ ] Fill missing data points
