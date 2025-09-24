@@ -16,7 +16,7 @@ import {
 import { QueryEditor } from "./QueryEditor";
 import { DataframeViewer } from "./DataFrameViewer";
 import { useSqlCompletions } from "../hooks/useSqlCompletions";
-import { FormEvent, useImperativeHandle, useRef, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { useDataFrameRenderer } from "../hooks/useDataFrameRenderer";
 import {
   AppDispatch,
@@ -34,8 +34,7 @@ import { FileDownload } from "@mui/icons-material";
 import { JsDataFrame } from "polars-wasm";
 
 interface TransformCardProps {
-  id: number;
-  ref?: React.Ref<TransformCardRef>;
+  step: TransformStep;
   onRemove: (id: number) => void;
 }
 
@@ -49,16 +48,12 @@ export interface LoadStep {
 
 export interface TransformStep {
   id: number;
-  title: React.RefObject<string>;
+  title: string;
   load: LoadStep[];
   query?: string;
 }
 
-export type TransformCardRef = {
-  getSteps: () => TransformStep;
-};
-
-export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
+export function TransformCard({ step, onRemove }: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -68,18 +63,13 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const title = useRef<string>("Cell " + id);
-  const steps = useRef<TransformStep>({ id, title, load: [] });
+  const title = useRef<string>("Cell " + step.id);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
   const [output, setOutput] = useState<JsDataFrame | null>(null);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useImperativeHandle(ref, () => ({
-    getSteps: () => steps.current,
-  }));
 
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 100,
@@ -89,7 +79,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   const beforeMount = useSqlCompletions(dfSelector!, fluxcraftSelector);
 
   function handleSubmit() {
-    steps.current.query = query.current;
+    step.query = query.current;
     if (fluxcraftSelector) {
       try {
         const df = fluxcraftSelector.query(query.current);
@@ -129,7 +119,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
     _event: React.MouseEvent<HTMLLIElement, MouseEvent>
   ): void {
     handleClose();
-    onRemove(id);
+    onRemove(step.id);
   }
 
   function exportDataframe(): void {
@@ -148,7 +138,7 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
   return (
     <>
       <Accordion
-        key={id}
+        key={step.id}
         expanded={isExpanded}
         onChange={() => {
           if (!isEditing) setIsExpanded(!isExpanded);
@@ -159,7 +149,9 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
             sx={{ display: "flex", alignItems: "center", width: "100%" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Typography sx={{ mr: 1, fontSize: "1.2rem" }}>#{id}:</Typography>
+            <Typography sx={{ mr: 1, fontSize: "1.2rem" }}>
+              #{step.id}:
+            </Typography>
             <TextField
               variant="standard"
               placeholder="Cell title"
@@ -168,7 +160,10 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
                 setIsEditing(true);
                 e.stopPropagation();
               }}
-              onBlur={(_e) => setIsEditing(false)}
+              onBlur={(_e) => {
+                setIsEditing(false);
+                step.title = title.current;
+              }}
               onChange={(e) => {
                 title.current = e.target.value;
               }}
@@ -195,14 +190,14 @@ export function TransformCard({ id, ref, onRemove }: TransformCardProps) {
             open={openModal}
             onClose={() => setOpenModal(false)}
             onLoadFile={(loadFile: LoadStep) => {
-              steps.current.load.push(loadFile);
+              step.load.push(loadFile);
             }}
           />
           <Stack spacing={3}>
             <Box component="form" onSubmit={handleFormSubmit}>
               <Box sx={{ display: "flex", width: "100%", mb: 3 }}>
                 <QueryEditor
-                  key={"editor-" + id}
+                  key={"editor-" + step.id}
                   onChange={(val) => (query.current = val)}
                   onSubmitShortcut={handleSubmit}
                   beforeMount={beforeMount}

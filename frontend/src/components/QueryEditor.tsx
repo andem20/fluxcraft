@@ -29,6 +29,7 @@ export function QueryEditor({
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         if (editor.hasTextFocus()) {
           e.preventDefault();
+          e.stopPropagation();
           onSubmitShortcut();
         }
       }

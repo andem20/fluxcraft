@@ -5,49 +5,27 @@ import {
   SpeedDialIcon,
 } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
-import {
-  TransformCard,
-  TransformCardRef,
-  TransformStep,
-} from "../components/TransformCard";
+import { TransformCard, TransformStep } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
-import { Pipeline } from "../components/Pipeline";
-
-type TransformItem = {
-  id: number;
-};
+import { PipelineDrawer } from "../components/PipelineDrawer";
 
 export function Home() {
-  const [cells, setCells] = useState<TransformItem[]>([]);
-  const [index, setIndex] = useState<number>(1);
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const cardRefs = useRef<Map<number, TransformCardRef>>(new Map());
-
-  function onCardStepsChange() {
-    const allSteps = cells
-      .map(({ id }) => {
-        const ref = cardRefs.current.get(id);
-        return ref?.getSteps();
-      })
-      .filter((x) => x != undefined);
-    setSteps(allSteps);
-  }
-
   function addTransformCard() {
-    const newEntry: TransformItem = {
-      id: index,
+    const step: TransformStep = {
+      id: steps.reduce((max, step) => (step.id > max ? step.id : max), 0),
+      title: "",
+      load: [],
     };
 
-    setCells([...cells, newEntry]);
-    setIndex(index + 1);
+    setSteps([...steps, step]);
   }
 
   function openStepsDrawer(): void {
-    onCardStepsChange();
     setDrawerOpen(true);
   }
 
@@ -55,24 +33,19 @@ export function Home() {
     <Container maxWidth={false} disableGutters>
       <DataframeOverviewCard />
 
-      {cells.map(({ id }) => (
+      {steps.map((step) => (
         <TransformCard
-          id={id}
-          ref={(el) => {
-            if (el) {
-              cardRefs.current.set(id, el);
-            } else {
-              cardRefs.current.delete(id);
-            }
-          }}
+          key={step.id}
+          step={step}
           onRemove={(id: number) =>
-            setCells(cells.filter((cell) => cell.id !== id))
+            setSteps(steps.filter((step) => step.id !== id))
           }
         />
       ))}
 
-      <Pipeline
+      <PipelineDrawer
         steps={steps}
+        setSteps={setSteps}
         drawerOpen={drawerOpen}
         setDrawerOpen={setDrawerOpen}
       />

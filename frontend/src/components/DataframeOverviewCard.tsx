@@ -40,7 +40,7 @@ export function DataframeOverviewCard() {
         {dataframeOverviewSelector.length > 0 && (
           <Grid container spacing={2} sx={{ mt: 2 }}>
             {dataframeOverviewSelector.map((name, idx) => (
-              <Tooltip title={renderTooltip(name)}>
+              <Tooltip title={renderTooltip(name)} key={idx}>
                 <Paper
                   elevation={1}
                   sx={{ p: 1, textAlign: "center" }}

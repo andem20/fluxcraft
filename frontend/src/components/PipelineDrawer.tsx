@@ -14,18 +14,35 @@ import {
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+import { ChangeEvent } from "react";
 import { TransformStep } from "./TransformCard";
+import { Input } from "./FileUpload";
 
 interface PipelineProps {
   steps: TransformStep[];
+  setSteps: (steps: TransformStep[]) => void;
   drawerOpen: boolean;
   setDrawerOpen: (isOpen: boolean) => void;
 }
 
-export function Pipeline({ steps, drawerOpen, setDrawerOpen }: PipelineProps) {
+interface TransformStepMod extends Omit<TransformStep, "title"> {
+  title: string;
+}
+
+interface Pipeline {
+  steps: TransformStepMod[];
+}
+
+export function PipelineDrawer({
+  steps,
+  setSteps,
+  drawerOpen,
+  setDrawerOpen,
+}: PipelineProps) {
   function exportPipeline() {
-    const pipeline = {
-      steps: steps.map((step) => ({ ...step, title: step.title.current })),
+    const pipeline: Pipeline = {
+      steps,
     };
     const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });
     const link = document.createElement("a");
@@ -35,7 +52,15 @@ export function Pipeline({ steps, drawerOpen, setDrawerOpen }: PipelineProps) {
     URL.revokeObjectURL(link.href);
   }
 
-  function importPipeline() {}
+  async function handlePipelineImport(e: ChangeEvent<HTMLInputElement>) {
+    const selectedFiles = e.target.files;
+
+    if (selectedFiles?.length === 1) {
+      const file = selectedFiles[0];
+      const pipeline: Pipeline = JSON.parse(await file.text());
+      console.log(pipeline);
+    }
+  }
 
   return (
     <Drawer
@@ -53,7 +78,7 @@ export function Pipeline({ steps, drawerOpen, setDrawerOpen }: PipelineProps) {
             <Step key={id} active>
               <StepLabel>
                 <Typography variant="subtitle2" fontWeight="bold">
-                  {title.current}
+                  {title}
                 </Typography>
               </StepLabel>
               <StepContent>
@@ -65,7 +90,7 @@ export function Pipeline({ steps, drawerOpen, setDrawerOpen }: PipelineProps) {
                   <Stack direction="row" spacing={0.5}>
                     {load.map((x) => {
                       return (
-                        <Tooltip title={x.uri}>
+                        <Tooltip title={x.uri} key={x.name}>
                           <Chip
                             icon={
                               x.type === "FILE" ? (
@@ -99,18 +124,24 @@ export function Pipeline({ steps, drawerOpen, setDrawerOpen }: PipelineProps) {
             </Step>
           ))}
         </Stepper>
-        <Button
-          startIcon={<FileDownloadIcon />}
-          onClick={() => exportPipeline()}
-        >
-          Export
-        </Button>
-        <Button
-          startIcon={<FileDownloadIcon />}
-          onClick={() => importPipeline()}
-        >
-          Import
-        </Button>
+        <Box>
+          <Button
+            startIcon={<FileDownloadIcon />}
+            onClick={() => exportPipeline()}
+          >
+            Export
+          </Button>
+          <label htmlFor="pipeline-upload">
+            <Input
+              id="pipeline-upload"
+              type="file"
+              onChange={handlePipelineImport}
+            />
+            <Button component="span" startIcon={<FileUploadIcon />}>
+              Import
+            </Button>
+          </label>
+        </Box>
       </Box>
     </Drawer>
   );

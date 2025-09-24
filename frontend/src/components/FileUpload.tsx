@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import { ChangeEvent, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-const Input = styled("input")({
+export const Input = styled("input")({
   display: "none",
 });
 
@@ -58,12 +58,7 @@ export function FileUpload({
   return (
     <Stack direction="row" spacing={2} alignItems="center">
       <label htmlFor="file-upload">
-        <Input
-          id="file-upload"
-          type="file"
-          multiple
-          onChange={handleFileChange}
-        />
+        <Input id="file-upload" type="file" onChange={handleFileChange} />
         <Button
           variant="contained"
           component="span"
