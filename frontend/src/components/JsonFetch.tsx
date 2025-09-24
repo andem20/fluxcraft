@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { DataSourceProps } from "./UploadCard";
 
 export function JsonFetch({
+  step,
   onLoadFile,
   setLoading,
   updateDataframeStore,

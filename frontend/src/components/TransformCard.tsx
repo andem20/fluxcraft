@@ -35,6 +35,7 @@ import { JsDataFrame } from "polars-wasm";
 
 interface TransformCardProps {
   step: TransformStep;
+  nextPendingStep: () => void;
   onRemove: (id: number) => void;
 }
 
@@ -51,9 +52,16 @@ export interface TransformStep {
   title?: string;
   load: LoadStep[];
   query?: string;
+  metadata?: {
+    shouldOpenFileModal: boolean;
+  };
 }
 
-export function TransformCard({ step, onRemove }: TransformCardProps) {
+export function TransformCard({
+  step,
+  nextPendingStep,
+  onRemove,
+}: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
@@ -62,7 +70,7 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
-  const query = useRef<string>("");
+  const query = useRef<string>(step.query ?? "");
   const title = useRef<string>(step.title ?? "Cell " + step.id);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
@@ -103,7 +111,9 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
     handleSubmit();
   }
 
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(
+    step.metadata?.shouldOpenFileModal ?? false
+  );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -188,8 +198,17 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
         </AccordionSummary>
         <AccordionDetails>
           <UploadCard
+            step={step}
             open={openModal}
-            onClose={() => setOpenModal(false)}
+            onClose={() => {
+              setOpenModal(false);
+              if (step.metadata) {
+                nextPendingStep();
+                handleSubmit();
+                setIsExpanded(false);
+                delete step.metadata;
+              }
+            }}
             onLoadFile={(loadFile: LoadStep) => {
               step.load.push(loadFile);
             }}

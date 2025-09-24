@@ -23,13 +23,13 @@ Visualize the data.
 **Week 41-42**
 
 - [ ] Create Java interface
-- [ ] Hide header values / use placeholders
 
 ---
 
 **Week 39-40**
 
-- [ ] Replay data pipeline
+- [ ] Hide header values / use placeholders
+- [x] Replay data pipeline
 - [x] Refactor into multiple crates
 
 ---

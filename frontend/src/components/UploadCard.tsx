@@ -7,9 +7,10 @@ import { dataframesOverviewSlice } from "../stores/Store";
 import { JsDataFrame } from "polars-wasm";
 import { JsonFetch } from "./JsonFetch";
 import { FileUpload } from "./FileUpload";
-import { LoadStep } from "./TransformCard";
+import { LoadStep, TransformStep } from "./TransformCard";
 
 export interface DataSourceProps {
+  step: TransformStep;
   onLoadFile: (loadFile: LoadStep) => void;
   setLoading: (loading: boolean) => void;
   updateDataframeStore: (df: JsDataFrame) => void;
@@ -18,11 +19,17 @@ export interface DataSourceProps {
 
 interface UploadCardProps {
   open: boolean;
+  step: TransformStep;
   onClose: () => void;
   onLoadFile: (loadFile: LoadStep) => void;
 }
 
-export function UploadCard({ open, onClose, onLoadFile }: UploadCardProps) {
+export function UploadCard({
+  open,
+  step,
+  onClose,
+  onLoadFile,
+}: UploadCardProps) {
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
@@ -54,6 +61,7 @@ export function UploadCard({ open, onClose, onLoadFile }: UploadCardProps) {
 
           <Stack spacing={3}>
             <FileUpload
+              step={step}
               loading={loading}
               setLoading={setLoading}
               onLoadFile={onLoadFile}
@@ -61,6 +69,7 @@ export function UploadCard({ open, onClose, onLoadFile }: UploadCardProps) {
             />
 
             <JsonFetch
+              step={step}
               onLoadFile={onLoadFile}
               setLoading={setLoading}
               updateDataframeStore={updateDataframeStore}

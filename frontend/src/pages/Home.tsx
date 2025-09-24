@@ -7,12 +7,13 @@ import {
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import { TransformCard, TransformStep } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 
 export function Home() {
   const [steps, setSteps] = useState<TransformStep[]>([]);
+  const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   function addTransformCard() {
@@ -28,6 +29,14 @@ export function Home() {
     setDrawerOpen(true);
   }
 
+  function nextPendingStep() {
+    const pendingStep = pendingSteps.shift();
+    setPendingSteps(pendingSteps);
+    if (pendingStep) {
+      setSteps([...steps, pendingStep]);
+    }
+  }
+
   return (
     <Container maxWidth={false} disableGutters>
       <DataframeOverviewCard />
@@ -36,6 +45,7 @@ export function Home() {
         <TransformCard
           key={step.id}
           step={step}
+          nextPendingStep={nextPendingStep}
           onRemove={(id: number) =>
             setSteps(steps.filter((step) => step.id !== id))
           }
@@ -45,6 +55,7 @@ export function Home() {
       <PipelineDrawer
         steps={steps}
         setSteps={setSteps}
+        setPendingSteps={setPendingSteps}
         drawerOpen={drawerOpen}
         setDrawerOpen={setDrawerOpen}
       />

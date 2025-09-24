@@ -15,13 +15,14 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { TransformStep } from "./TransformCard";
 import { Input } from "./FileUpload";
 
 interface PipelineProps {
   steps: TransformStep[];
   setSteps: (steps: TransformStep[]) => void;
+  setPendingSteps: (steps: TransformStep[]) => void;
   drawerOpen: boolean;
   setDrawerOpen: (isOpen: boolean) => void;
 }
@@ -33,12 +34,16 @@ interface Pipeline {
 export function PipelineDrawer({
   steps,
   setSteps,
+  setPendingSteps,
   drawerOpen,
   setDrawerOpen,
 }: PipelineProps) {
   function exportPipeline() {
     const pipeline: Pipeline = {
-      steps,
+      steps: steps.map((step) => {
+        delete step.metadata;
+        return { ...step };
+      }),
     };
     const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });
     const link = document.createElement("a");
@@ -54,7 +59,16 @@ export function PipelineDrawer({
     if (selectedFiles?.length === 1) {
       const file = selectedFiles[0];
       const pipeline: Pipeline = JSON.parse(await file.text());
-      setSteps(pipeline.steps);
+      const pendingSteps = pipeline.steps.map((step) => ({
+        ...step,
+        metadata: { shouldOpenFileModal: true },
+      }));
+
+      setPendingSteps(pendingSteps);
+      const pendingStep = pendingSteps.shift();
+      if (pendingStep) {
+        setSteps([pendingStep]);
+      }
     }
   }
 
@@ -131,6 +145,7 @@ export function PipelineDrawer({
             <Input
               id="pipeline-upload"
               type="file"
+              accept=".json"
               onChange={handlePipelineImport}
             />
             <Button component="span" startIcon={<FileUploadIcon />}>

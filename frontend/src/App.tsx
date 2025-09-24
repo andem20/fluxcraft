@@ -89,7 +89,7 @@ export default function App() {
                 gap: 6,
               }}
             >
-              <Button
+              {/* <Button
                 sx={{ color: "white", fontWeight: "bold" }}
                 component={Link}
                 to="/"
@@ -109,7 +109,7 @@ export default function App() {
                 to="/contact"
               >
                 Contact
-              </Button>
+              </Button> */}
             </Box>
 
             <Box sx={{ position: "absolute", right: 16 }}>

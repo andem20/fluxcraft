@@ -17,6 +17,7 @@ export const Input = styled("input")({
 });
 
 export function FileUpload({
+  step,
   onLoadFile,
   setLoading,
   updateDataframeStore,
