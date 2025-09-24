@@ -18,7 +18,6 @@ export function Home() {
   function addTransformCard() {
     const step: TransformStep = {
       id: steps.reduce((max, step) => (step.id > max ? step.id : max), 0),
-      title: "",
       load: [],
     };
 

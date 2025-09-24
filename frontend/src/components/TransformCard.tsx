@@ -48,7 +48,7 @@ export interface LoadStep {
 
 export interface TransformStep {
   id: number;
-  title: string;
+  title?: string;
   load: LoadStep[];
   query?: string;
 }
@@ -63,7 +63,7 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
 
   const { rows, columns, renderDataframe } = useDataFrameRenderer();
   const query = useRef<string>("");
-  const title = useRef<string>("Cell " + step.id);
+  const title = useRef<string>(step.title ?? "Cell " + step.id);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -155,6 +155,7 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
             <TextField
               variant="standard"
               placeholder="Cell title"
+              value={step.title}
               onClick={(e) => e.stopPropagation()}
               onFocus={(e) => {
                 setIsEditing(true);
@@ -198,6 +199,7 @@ export function TransformCard({ step, onRemove }: TransformCardProps) {
               <Box sx={{ display: "flex", width: "100%", mb: 3 }}>
                 <QueryEditor
                   key={"editor-" + step.id}
+                  query={step.query ?? ""}
                   onChange={(val) => (query.current = val)}
                   onSubmitShortcut={handleSubmit}
                   beforeMount={beforeMount}

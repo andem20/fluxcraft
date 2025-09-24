@@ -26,12 +26,8 @@ interface PipelineProps {
   setDrawerOpen: (isOpen: boolean) => void;
 }
 
-interface TransformStepMod extends Omit<TransformStep, "title"> {
-  title: string;
-}
-
 interface Pipeline {
-  steps: TransformStepMod[];
+  steps: TransformStep[];
 }
 
 export function PipelineDrawer({
@@ -58,7 +54,7 @@ export function PipelineDrawer({
     if (selectedFiles?.length === 1) {
       const file = selectedFiles[0];
       const pipeline: Pipeline = JSON.parse(await file.text());
-      console.log(pipeline);
+      setSteps(pipeline.steps);
     }
   }
 

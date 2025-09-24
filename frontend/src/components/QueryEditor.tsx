@@ -7,12 +7,14 @@ interface QueryEditorProps {
   onSubmitShortcut: () => void;
   beforeMount: (monaco: typeof import("monaco-editor")) => void;
   key: string;
+  query: string;
 }
 
 export function QueryEditor({
   onChange,
   onSubmitShortcut,
   beforeMount,
+  query,
 }: QueryEditorProps) {
   const darkModeSelector = useSelector(
     (state: RootState) => state.darkMode.enabled
@@ -46,6 +48,7 @@ export function QueryEditor({
     <Editor
       height="10rem"
       defaultLanguage="sql"
+      value={query}
       onChange={(value) => onChange(value ?? "")}
       beforeMount={beforeMount}
       onMount={handleEditorDidMount}
