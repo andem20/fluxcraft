@@ -64,6 +64,8 @@ Visualize the data.
 
 ---
 
+**Week 29-30**
+
 - [x] detect primary columns
 - [x] Handle multiple files
 - [x] Create functions for getting df names
