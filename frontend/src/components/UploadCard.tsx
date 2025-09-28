@@ -56,25 +56,30 @@ export function UploadCard({
       <Card elevation={3} sx={{ p: 3, maxWidth: 800, width: "100%" }}>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            Upload or Fetch Data
+            {step.pending && `Cell #${step.id} Find: `}
+            <b>{step.pending?.step.load[0]?.name ?? "Upload or Fetch Data"}</b>
           </Typography>
 
           <Stack spacing={3}>
-            <FileUpload
-              step={step}
-              loading={loading}
-              setLoading={setLoading}
-              onLoadFile={onLoadFile}
-              updateDataframeStore={updateDataframeStore}
-            />
+            {(!step.pending || step.pending?.step.load[0]?.type === "FILE") && (
+              <FileUpload
+                step={step}
+                loading={loading}
+                setLoading={setLoading}
+                onLoadFile={onLoadFile}
+                updateDataframeStore={updateDataframeStore}
+              />
+            )}
 
-            <JsonFetch
-              step={step}
-              onLoadFile={onLoadFile}
-              setLoading={setLoading}
-              updateDataframeStore={updateDataframeStore}
-              loading={loading}
-            />
+            {(!step.pending || step.pending?.step.load[0]?.type === "HTTP") && (
+              <JsonFetch
+                step={step}
+                onLoadFile={onLoadFile}
+                setLoading={setLoading}
+                updateDataframeStore={updateDataframeStore}
+                loading={loading}
+              />
+            )}
           </Stack>
         </CardContent>
       </Card>

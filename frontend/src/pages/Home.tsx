@@ -7,7 +7,7 @@ import {
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import { TransformCard, TransformStep } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 
@@ -37,6 +37,34 @@ export function Home() {
     }
   }
 
+  function updatePendingLoad() {
+    let isEmpty = false;
+
+    setSteps((prevSteps) => {
+      if (prevSteps.length === 0) return prevSteps;
+
+      const lastIndex = prevSteps.length - 1;
+      const step = prevSteps[lastIndex];
+
+      const load = step.pending?.step.load ?? [];
+      const newLoad = load.slice(1);
+
+      isEmpty = newLoad.length === 0;
+
+      const updatedStep = {
+        ...step,
+        pending: step.pending && {
+          ...step.pending,
+          step: { ...step.pending.step, load: newLoad },
+        },
+      };
+
+      return [...prevSteps.slice(0, -1), updatedStep];
+    });
+
+    return isEmpty;
+  }
+
   return (
     <Container maxWidth={false} disableGutters>
       <DataframeOverviewCard />
@@ -45,6 +73,7 @@ export function Home() {
         <TransformCard
           key={step.id}
           step={step}
+          updatePendingLoad={updatePendingLoad}
           nextPendingStep={nextPendingStep}
           onRemove={(id: number) =>
             setSteps(steps.filter((step) => step.id !== id))

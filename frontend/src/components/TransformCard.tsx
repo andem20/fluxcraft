@@ -36,6 +36,7 @@ import { JsDataFrame } from "polars-wasm";
 interface TransformCardProps {
   step: TransformStep;
   nextPendingStep: () => void;
+  updatePendingLoad: () => boolean;
   onRemove: (id: number) => void;
 }
 
@@ -43,7 +44,11 @@ export interface LoadStep {
   type: "FILE" | "HTTP";
   uri: string;
   name: string;
-  options: Record<string, string | undefined>;
+  options?: {
+    method?: "GET" | "POST";
+    has_headers?: string;
+    payload_name?: string;
+  };
   headers?: Record<string, string>;
 }
 
@@ -52,14 +57,15 @@ export interface TransformStep {
   title?: string;
   load: LoadStep[];
   query?: string;
-  metadata?: {
-    shouldOpenFileModal: boolean;
+  pending?: {
+    step: TransformStep;
   };
 }
 
 export function TransformCard({
   step,
   nextPendingStep,
+  updatePendingLoad,
   onRemove,
 }: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
@@ -112,7 +118,7 @@ export function TransformCard({
   }
 
   const [openModal, setOpenModal] = useState(
-    step.metadata?.shouldOpenFileModal ?? false
+    (step.pending && step.pending.step.load.length > 0) ?? false
   );
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -202,11 +208,16 @@ export function TransformCard({
             open={openModal}
             onClose={() => {
               setOpenModal(false);
-              if (step.metadata) {
-                nextPendingStep();
-                handleSubmit();
-                setIsExpanded(false);
-                delete step.metadata;
+              if (step.pending) {
+                const isEmpty = updatePendingLoad();
+                if (!isEmpty) {
+                  setOpenModal(true);
+                } else {
+                  handleSubmit();
+                  nextPendingStep();
+                  setIsExpanded(false);
+                  delete step.pending;
+                }
               }
             }}
             onLoadFile={(loadFile: LoadStep) => {

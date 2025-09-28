@@ -36,9 +36,15 @@ export function JsonFetch({
     "https://dummyjson.com/products?limit=200"
   );
   const [jsonName, setJsonName] = useState("products");
-  const [method, setMethod] = useState<"GET" | "POST">("GET");
+  const [method, setMethod] = useState<"GET" | "POST">(
+    step.pending?.step.load[0]?.options?.method ?? "GET"
+  );
   const [payloadDataframeName, setPayloadDataframeName] = useState<string>();
-  const [headers, setHeaders] = useState<{ key: string; value: string }[]>([]);
+  const [headers, setHeaders] = useState<{ key: string; value: string }[]>(
+    Object.entries(step.pending?.step.load[0]?.headers ?? {}).map(
+      ([key, value]) => ({ key, value })
+    ) ?? []
+  );
 
   const addHeader = () => setHeaders([...headers, { key: "", value: "" }]);
   const removeHeader = (index: number) =>
@@ -53,7 +59,6 @@ export function JsonFetch({
     setHeaders(updated);
   };
 
-  /** Fetch JSON data from external API */
   async function fetchJson(
     url: string,
     headers: Map<string, string> = new Map(),
@@ -114,7 +119,6 @@ export function JsonFetch({
             onChange={(e) => setJsonName(e.target.value)}
           />
 
-          {/* Header key-value editor */}
           <Stack spacing={1}>
             <Typography variant="subtitle2">Request Headers</Typography>
             {headers.map((header, index) => (
@@ -152,7 +156,6 @@ export function JsonFetch({
             </Button>
           </Stack>
 
-          {/* Method selection */}
           <Stack direction="row" spacing={1} alignItems="center">
             <FormControl fullWidth size="small">
               <InputLabel>Method</InputLabel>

@@ -15,7 +15,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent } from "react";
 import { TransformStep } from "./TransformCard";
 import { Input } from "./FileUpload";
 
@@ -41,7 +41,7 @@ export function PipelineDrawer({
   function exportPipeline() {
     const pipeline: Pipeline = {
       steps: steps.map((step) => {
-        delete step.metadata;
+        delete step.pending;
         return { ...step };
       }),
     };
@@ -59,9 +59,11 @@ export function PipelineDrawer({
     if (selectedFiles?.length === 1) {
       const file = selectedFiles[0];
       const pipeline: Pipeline = JSON.parse(await file.text());
-      const pendingSteps = pipeline.steps.map((step) => ({
+      const pendingSteps: TransformStep[] = pipeline.steps.map((step) => ({
         ...step,
-        metadata: { shouldOpenFileModal: true },
+        pending: {
+          step: { ...step },
+        },
       }));
 
       setPendingSteps(pendingSteps);
