@@ -61,6 +61,7 @@ export function PipelineDrawer({
       const pipeline: Pipeline = JSON.parse(await file.text());
       const pendingSteps: TransformStep[] = pipeline.steps.map((step) => ({
         ...step,
+        load: [],
         pending: {
           step: { ...step },
         },
@@ -99,7 +100,12 @@ export function PipelineDrawer({
                     Load
                     <br />
                   </Typography>
-                  <Stack direction="row" spacing={0.5}>
+                  <Stack
+                    direction="row"
+                    spacing={0.5}
+                    width="100%"
+                    flexWrap="wrap"
+                  >
                     {load.map((x) => {
                       return (
                         <Tooltip title={x.uri} key={x.name}>

@@ -214,9 +214,8 @@ export function TransformCard({
                   setOpenModal(true);
                 } else {
                   handleSubmit();
-                  nextPendingStep();
                   setIsExpanded(false);
-                  delete step.pending;
+                  nextPendingStep();
                 }
               }
             }}

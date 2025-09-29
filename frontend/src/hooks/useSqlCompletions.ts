@@ -1,7 +1,7 @@
 import * as wasm from "polars-wasm";
 
 export function useSqlCompletions(
-  dfSelector?: wasm.DataFrameJS,
+  dfSelector?: wasm.JsDataFrame,
   fluxcraftSelector?: any
 ) {
   return (monaco: typeof import("monaco-editor")) => {

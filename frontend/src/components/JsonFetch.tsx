@@ -33,7 +33,8 @@ export function JsonFetch({
   );
 
   const [jsonUrl, setJsonUrl] = useState(
-    "https://dummyjson.com/products?limit=200"
+    step.pending?.step.load[0]?.uri ??
+      "https://dummyjson.com/products?limit=200"
   );
   const [jsonName, setJsonName] = useState("products");
   const [method, setMethod] = useState<"GET" | "POST">(

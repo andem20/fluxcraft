@@ -32,9 +32,14 @@ export function Home() {
   function nextPendingStep() {
     const pendingStep = pendingSteps.shift();
     setPendingSteps(pendingSteps);
+
+    const tempSteps = [...steps].map(({ pending, ...cleaned }) => cleaned);
+
     if (pendingStep) {
-      setSteps([...steps, pendingStep]);
+      tempSteps.push(pendingStep);
     }
+
+    setSteps(tempSteps);
   }
 
   function updatePendingLoad() {
