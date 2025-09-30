@@ -28,7 +28,7 @@ Visualize the data.
 
 **Week 39-40**
 
-- [ ] Hide header values / use placeholders
+- [-] Hide header values / use placeholders
 - [x] Replay data pipeline
 - [x] Refactor into multiple crates
 
