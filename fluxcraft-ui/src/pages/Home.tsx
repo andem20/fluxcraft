@@ -131,7 +131,7 @@ export function Home() {
             },
           }}
         />
-        <SpeedDialAction
+        {/* <SpeedDialAction
           key="environment_variables"
           icon={<FormatListBulletedIcon />}
           onClick={() => setEnvironmentOpen(true)}
@@ -141,7 +141,7 @@ export function Home() {
               open: true,
             },
           }}
-        />
+        /> */}
       </SpeedDial>
     </Container>
   );
