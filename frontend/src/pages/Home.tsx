@@ -10,11 +10,14 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
 import { PipelineDrawer } from "../components/PipelineDrawer";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import { EnvironmentCard } from "../components/EnvironmentCard";
 
 export function Home() {
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [environmentOpen, setEnvironmentOpen] = useState(false);
 
   function addTransformCard() {
     const step: TransformStep = {
@@ -94,6 +97,13 @@ export function Home() {
         setDrawerOpen={setDrawerOpen}
       />
 
+      <EnvironmentCard
+        open={environmentOpen}
+        onClose={() => {
+          setEnvironmentOpen(false);
+        }}
+      />
+
       <SpeedDial
         ariaLabel="actions"
         sx={{ position: "fixed", bottom: 16, right: 16 }}
@@ -117,6 +127,17 @@ export function Home() {
           slotProps={{
             tooltip: {
               title: "Pipeline",
+              open: true,
+            },
+          }}
+        />
+        <SpeedDialAction
+          key="environment_variables"
+          icon={<FormatListBulletedIcon />}
+          onClick={() => setEnvironmentOpen(true)}
+          slotProps={{
+            tooltip: {
+              title: "Environment",
               open: true,
             },
           }}

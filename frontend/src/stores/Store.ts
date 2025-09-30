@@ -1,5 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fileSlice } from "./slices/FileSlice";
+import { envSlice } from "./slices/EnvSlice";
 
 const initialDarkModeState = {
   enabled: JSON.parse(localStorage.getItem("darkMode") || "false"),
@@ -41,6 +42,7 @@ export const store = configureStore({
     file: fileSlice.reducer,
     darkMode: darkModeSlice.reducer,
     dataframeOverviewSlice: dataframesOverviewSlice.reducer,
+    env: envSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
