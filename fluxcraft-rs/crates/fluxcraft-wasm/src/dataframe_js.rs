@@ -1,149 +1,8 @@
-use std::{collections::HashMap, sync::Arc};
+use fluxcraft_core::wrapper::DataFrameWrapper;
+use polars_core::{prelude::DataType, utils::Container};
+use wasm_bindgen::prelude::wasm_bindgen;
 
-use fluxcraft_core::{FluxCraft, wrapper::DataFrameWrapper};
-use polars_core::{prelude::DataType, schema::SchemaNamesAndDtypes};
-use polars_schema::Schema;
-use wasm_bindgen::{JsError, prelude::wasm_bindgen};
-use wasm_bindgen_futures::js_sys;
-
-use crate::{log, log_error};
-
-#[wasm_bindgen]
-pub struct JsFluxCraft {
-    fluxcraft: FluxCraft,
-}
-
-#[wasm_bindgen]
-impl JsFluxCraft {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> JsFluxCraft {
-        return JsFluxCraft {
-            fluxcraft: FluxCraft::new(),
-        };
-    }
-
-    pub fn get(&self, name: &str) -> Result<JsDataFrame, JsError> {
-        if let Some(wrapper) = self.fluxcraft.get(name) {
-            return Ok(JsDataFrame { wrapper });
-        } else {
-            log("Could not find dataframe");
-            Err(JsError::new("Could not find dataframe"))
-        }
-    }
-
-    pub fn add(
-        &mut self,
-        buffer: &[u8],
-        has_headers: bool,
-        filename: String,
-    ) -> Result<JsDataFrame, JsError> {
-        let result = FluxCraft::read_buffer(buffer, has_headers, &filename)
-            .map(|df| self.fluxcraft.add(filename, df))
-            .map(|wrapper| JsDataFrame { wrapper })
-            .map_err(|e| JsError::new(&e.to_string()));
-
-        return result;
-    }
-
-    pub async fn add_from_http_json(
-        &mut self,
-        url: String,
-        headers: js_sys::Map,
-        name: String,
-    ) -> Result<JsDataFrame, JsError> {
-        let headers_map = get_headers(headers);
-
-        let result = fluxcraft_io::read_http_json(&url, headers_map)
-            .await
-            .map(|df| self.fluxcraft.add(name, df))
-            .map(|wrapper| JsDataFrame { wrapper })
-            .map_err(|e| JsError::new(&e.to_string()));
-
-        return result;
-    }
-
-    pub async fn add_from_http_json_post(
-        &mut self,
-        url: String,
-        headers: js_sys::Map,
-        name: String,
-        mut payload: JsDataFrame,
-    ) -> Result<JsDataFrame, JsError> {
-        let headers_map = get_headers(headers);
-
-        let payload_df = payload.wrapper.get_df_mut();
-
-        let result = fluxcraft_io::read_http_json_post(&url, payload_df, headers_map)
-            .await
-            .map(|df| self.fluxcraft.add(name, df))
-            .map(|wrapper| JsDataFrame { wrapper })
-            .map_err(|e| JsError::new(&e.to_string()));
-
-        return result;
-    }
-
-    pub fn query(&mut self, query: String) -> Result<JsDataFrame, JsError> {
-        let filtered_df = self
-            .fluxcraft
-            .query(query)
-            .map_err(|e| JsError::new(&e.to_string()))?;
-
-        let collected = filtered_df
-            .collect()
-            .map_err(|e| JsError::new(&e.to_string()))?;
-
-        let filtered_wrapper = DataFrameWrapper::new(collected, "query_dataframe");
-
-        Ok(JsDataFrame {
-            wrapper: filtered_wrapper,
-        })
-    }
-    pub fn get_dataframe_names(&self) -> Vec<String> {
-        self.fluxcraft.get_dataframe_names()
-    }
-
-    pub fn get_schema(&mut self, name: String) -> Result<Vec<ColumnHeaderJS>, JsError> {
-        return self
-            .fluxcraft
-            .get_schema(&name)
-            .map(to_column_header)
-            .map_err(|e| JsError::new(&e.to_string()));
-    }
-
-    pub fn export_csv(&self, mut input_df: JsDataFrame) -> Result<String, JsError> {
-        let mut df = input_df.get_df_mut();
-        let result = FluxCraft::export_csv(&mut df).map_err(|e| JsError::new(&e.to_string()))?;
-        let result_string = String::from_utf8(result).map_err(|e| JsError::new(&e.to_string()))?;
-        return Ok(result_string);
-    }
-}
-
-fn to_column_header(schema: Arc<Schema<polars_core::datatypes::DataType>>) -> Vec<ColumnHeaderJS> {
-    schema
-        .iter_names_and_dtypes()
-        .map(|(name, dtype)| ColumnHeaderJS {
-            name: name.to_owned().to_string(),
-            dtype: dtype.to_owned(),
-            is_primary_key: false,
-        })
-        .collect()
-}
-
-fn get_headers(headers: js_sys::Map) -> HashMap<String, String> {
-    let mut headers_map = HashMap::<String, String>::new();
-
-    for entry in headers.entries() {
-        let pair: js_sys::Array = entry.unwrap().into();
-        let key = pair.get(0).as_string();
-        let value = pair.get(0).as_string();
-
-        if let (Some(k), Some(v)) = (key, value) {
-            headers_map.insert(k, v);
-        }
-    }
-
-    return headers_map;
-}
+use crate::log_error;
 
 #[wasm_bindgen]
 pub struct JsDataFrame {
@@ -151,11 +10,15 @@ pub struct JsDataFrame {
 }
 
 impl JsDataFrame {
+    pub fn new(wrapper: DataFrameWrapper) -> Self {
+        Self { wrapper }
+    }
+
     fn get_df(&self) -> &polars_core::prelude::DataFrame {
         return &self.wrapper.get_df();
     }
 
-    fn get_df_mut(&mut self) -> &mut polars_core::prelude::DataFrame {
+    pub fn get_df_mut(&mut self) -> &mut polars_core::prelude::DataFrame {
         return self.wrapper.get_df_mut();
     }
 }
@@ -168,12 +31,20 @@ pub struct ColumnJS {
 #[wasm_bindgen]
 pub struct ColumnHeaderJS {
     name: String,
-    dtype: polars_core::prelude::DataType,
+    dtype: String,
     is_primary_key: bool,
 }
 
 #[wasm_bindgen]
 impl ColumnHeaderJS {
+    pub fn new(name: String, dtype: String, is_primary_key: bool) -> Self {
+        Self {
+            name,
+            dtype,
+            is_primary_key,
+        }
+    }
+
     pub fn get_name(&self) -> String {
         return self.name.clone();
     }
@@ -189,8 +60,12 @@ impl ColumnHeaderJS {
 
 #[wasm_bindgen]
 impl ColumnJS {
-    pub fn get_values(&self) -> Vec<String> {
-        return self.values.clone();
+    pub fn get_values(self) -> Vec<String> {
+        return self.values;
+    }
+
+    pub fn get_values_as_blob(&self, sep: &str) -> String {
+        self.values.join(sep)
     }
 }
 
@@ -201,16 +76,19 @@ impl JsDataFrame {
     }
 
     pub fn get_headers(&self) -> Vec<ColumnHeaderJS> {
-        let primary_keys = self.wrapper.get_primary_keys();
+        // let primary_keys = self.wrapper.get_primary_keys();
+        let primary_keys = vec![];
         return self
             .get_df()
             .get_column_names()
             .iter()
             .zip(self.get_df().dtypes())
-            .map(|(name, dtype)| ColumnHeaderJS {
-                name: name.to_string(),
-                dtype,
-                is_primary_key: primary_keys.contains(&name.to_string()),
+            .map(|(name, dtype)| {
+                ColumnHeaderJS::new(
+                    name.to_string(),
+                    dtype.to_string(),
+                    primary_keys.contains(&name.to_string()),
+                )
             })
             .collect();
     }
@@ -268,5 +146,9 @@ impl JsDataFrame {
             .wrapper
             .rename_columns(old_column_names, new_column_names)
             .inspect_err(|e| log_error(e));
+    }
+
+    pub fn size(&self) -> usize {
+        self.get_df().len()
     }
 }

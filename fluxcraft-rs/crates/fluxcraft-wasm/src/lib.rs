@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
 pub mod dataframe_js;
+pub mod js_fluxcraft;
 
 #[wasm_bindgen]
 extern "C" {

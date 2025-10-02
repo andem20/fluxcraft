@@ -13,11 +13,13 @@ export function useDataFrameRenderer() {
     const columnObjects = df.get_columns();
     console.timeEnd("wasm_load");
 
-    const numRows = columnObjects[0].get_values().length;
+    console.time("get_values");
+    const numRows = df.size();
     const headers = df.get_headers();
-    const cols: string[][] = columnObjects.map((col) => {
-      return col.get_values();
-    });
+    const cols: string[][] = columnObjects
+      .map((col) => col.get_values_as_blob("¤"))
+      .map((v) => v.split("¤"));
+    console.timeEnd("get_values");
 
     console.time("creating_rows");
     const rowData = Array.from({ length: numRows }, (_, rowIndex) => {

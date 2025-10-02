@@ -42,7 +42,7 @@ export function PipelineDrawer({
     const pipeline: Pipeline = {
       steps: steps.map((step) => {
         delete step.pending;
-        return { ...step };
+        return { ...step, title: step.title ?? `Cell ${step.id}` };
       }),
     };
     const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });

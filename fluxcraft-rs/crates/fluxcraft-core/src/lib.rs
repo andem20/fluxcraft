@@ -93,6 +93,7 @@ impl FluxCraft {
 
         return polars_io::prelude::CsvReadOptions::default()
             .with_has_header(has_headers)
+            .with_ignore_errors(true)
             .into_reader_with_file_handle(handle)
             .finish();
     }
