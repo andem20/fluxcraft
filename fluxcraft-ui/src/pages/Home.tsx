@@ -21,11 +21,12 @@ export function Home() {
 
   function addTransformCard() {
     const step: TransformStep = {
-      id: steps.reduce((max, step) => (step.id > max ? step.id : max), 0),
+      id: steps.reduce((max, step) => (step.id > max ? step.id : max), 0) + 1,
       load: [],
     };
 
     setSteps([...steps, step]);
+    console.log(steps);
   }
 
   function openStepsDrawer(): void {
