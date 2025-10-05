@@ -1,6 +1,6 @@
 use fluxcraft_core::wrapper::DataFrameWrapper;
 use polars_core::{prelude::DataType, utils::Container};
-use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 
 use crate::log_error;
 
@@ -64,8 +64,15 @@ impl ColumnJS {
         return self.values;
     }
 
-    pub fn get_values_as_blob(&self, sep: &str) -> String {
-        self.values.join(sep)
+    pub fn get_values_as_string(&self) -> String {
+        self.values.join("")
+    }
+
+    pub fn get_string_lengths(&self) -> Vec<u16> {
+        self.values
+            .iter()
+            .map(|v| v.chars().count() as u16)
+            .collect()
     }
 }
 
@@ -117,20 +124,34 @@ impl JsDataFrame {
         return slice;
     }
 
-    pub fn get_columns(&self) -> Vec<ColumnJS> {
+    pub fn get_columns(&self) -> Result<Vec<ColumnJS>, JsError> {
         let slice = self
             .get_df()
             .iter()
             .map(|s| {
-                let values = s
-                    .rechunk()
-                    .iter()
-                    .map(|x| match x.dtype() {
-                        DataType::String => x.get_str().unwrap_or("null").to_owned(),
-                        _ => x.to_string(),
-                    })
-                    .collect::<Vec<String>>();
-                ColumnJS { values }
+                let values = if s.dtype().is_struct() || s.dtype().is_list() {
+                    s.rechunk()
+                        .iter()
+                        .map(|x| match x.dtype() {
+                            DataType::String => x
+                                .get_str()
+                                .unwrap_or(&DataType::Null.to_string())
+                                .to_owned(),
+                            _ => x.to_string(),
+                        })
+                        .collect::<Vec<String>>()
+                } else {
+                    s.cast(&DataType::String)
+                        .map_err(|e| JsError::new(&e.to_string()))?
+                        .str()
+                        .map_err(|e| JsError::new(&e.to_string()))?
+                        .rechunk()
+                        .into_iter()
+                        .map(|x| x.unwrap_or(&DataType::Null.to_string()).to_string())
+                        .collect::<Vec<String>>()
+                };
+
+                Ok(ColumnJS { values })
             })
             .collect();
 

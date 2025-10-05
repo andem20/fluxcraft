@@ -16,9 +16,22 @@ export function useDataFrameRenderer() {
     console.time("get_values");
     const numRows = df.size();
     const headers = df.get_headers();
-    const cols: string[][] = columnObjects
-      .map((col) => col.get_values_as_blob("¤"))
-      .map((v) => v.split("¤"));
+
+    const cols: string[][] = columnObjects.map((col) => {
+      const stringLengths = col.get_string_lengths();
+
+      let offset = 0;
+      let result = [];
+
+      let textContent = col.get_values_as_string();
+
+      for (let l of stringLengths) {
+        result.push(textContent.substring(offset, offset + l));
+        offset += l;
+      }
+
+      return result;
+    });
     console.timeEnd("get_values");
 
     console.time("creating_rows");

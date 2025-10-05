@@ -4,7 +4,7 @@ import datetime
 
 with open("demofile.csv", "a") as f:
     f.write("id,station,product,volume,uuid,timestamp\n")
-    for i in range(10_000_000):
+    for i in range(6_000_000):
         station = random.randint(1,1000)
         product = random.randint(1,3)
         volume = random.random() * random.randint(1, 20)
