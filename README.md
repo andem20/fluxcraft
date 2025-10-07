@@ -10,12 +10,16 @@ Visualize the data.
 
 ## Next
 
+**Week 45-46**
+
+- [ ] Visualize dataframes
+- [ ] Validation guards
+
 ---
 
 **Week 43-44**
 
 - [ ] Improve excel datatype inference
-- [ ] Visualize dataframes
 - [ ] Create tests
 
 ---
