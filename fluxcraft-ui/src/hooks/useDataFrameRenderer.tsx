@@ -4,17 +4,31 @@ import * as wasm from "polars-wasm";
 import { Box, Typography } from "@mui/material";
 import { VpnKey } from "@mui/icons-material";
 
+export interface Pagination {
+  pageSize: number;
+  page: number;
+}
+
 export function useDataFrameRenderer() {
   const [rows, setRows] = useState<any[]>([]);
   const [columns, setColumns] = useState<GridColDef[]>([]);
 
-  const renderDataframe = (df: wasm.JsDataFrame) => {
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 100,
+    page: 0,
+  });
+
+  const renderDataframe = (df: wasm.JsDataFrame, pagination?: Pagination) => {
     console.time("wasm_load");
-    const columnObjects = df.get_columns();
+    const columnObjects = df.get_columns_paged(
+      pagination?.pageSize ?? 100,
+      pagination?.page ?? 0
+    );
     console.timeEnd("wasm_load");
 
     console.time("get_values");
-    const numRows = df.size();
+    let numRows = pagination?.pageSize ?? 100;
+    numRows = df.size() < numRows ? df.size() : numRows;
     const headers = df.get_headers();
 
     const cols: string[][] = columnObjects.map((col) => {
@@ -44,7 +58,6 @@ export function useDataFrameRenderer() {
     });
     console.timeEnd("creating_rows");
 
-    console.time("creating_cols");
     const colDefs: GridColDef[] = columnObjects.map((_, index) => {
       const header = headers[index];
 
@@ -64,11 +77,16 @@ export function useDataFrameRenderer() {
         ),
       };
     });
-    console.timeEnd("creating_cols");
 
     setRows(rowData);
     setColumns(colDefs);
   };
 
-  return { rows, columns, renderDataframe };
+  return {
+    rows,
+    columns,
+    paginationModel,
+    setPaginationModel,
+    renderDataframe,
+  };
 }

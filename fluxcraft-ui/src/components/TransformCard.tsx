@@ -75,7 +75,13 @@ export function TransformCard({
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const { rows, columns, renderDataframe } = useDataFrameRenderer();
+  const {
+    rows,
+    columns,
+    paginationModel,
+    setPaginationModel,
+    renderDataframe,
+  } = useDataFrameRenderer();
   const query = useRef<string>(step.query ?? "");
   const title = useRef<string>(step.title ?? "Cell " + step.id);
 
@@ -84,11 +90,6 @@ export function TransformCard({
   const [output, setOutput] = useState<JsDataFrame | null>(null);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 100,
-    page: 0,
-  });
 
   const beforeMount = useSqlCompletions(dfSelector!, fluxcraftSelector);
 
@@ -278,7 +279,13 @@ export function TransformCard({
                   rows={rows}
                   columns={columns}
                   paginationModel={paginationModel}
-                  onPaginationModelChange={setPaginationModel}
+                  onPaginationModelChange={(pageModel) => {
+                    setPaginationModel(pageModel);
+                    if (output) {
+                      renderDataframe(output, pageModel);
+                    }
+                  }}
+                  rowCount={output?.size() ?? 0}
                 />
               </Box>
             )}

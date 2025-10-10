@@ -26,7 +26,6 @@ export function Home() {
     };
 
     setSteps([...steps, step]);
-    console.log(steps);
   }
 
   function openStepsDrawer(): void {

@@ -1,5 +1,5 @@
 use fluxcraft_core::wrapper::DataFrameWrapper;
-use polars_core::{prelude::DataType, utils::Container};
+use polars_core::{prelude::DataType, series::Series, utils::Container};
 use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 
 use crate::log_error;
@@ -100,62 +100,23 @@ impl JsDataFrame {
             .collect();
     }
 
-    pub fn get_columns_paged(&self, amount: usize, page: usize) -> Vec<ColumnJS> {
-        let slice = self
+    pub fn get_columns_paged(&self, size: usize, page: usize) -> Result<Vec<ColumnJS>, JsError> {
+        return self
             .get_df()
-            .slice(amount as i64 * page as i64, amount * page + amount)
+            .slice((size * page) as i64, size)
             .iter()
-            .map(|s| {
-                s.cast(&polars_core::datatypes::DataType::String)
-                    .unwrap()
-                    .str()
-                    .unwrap()
-                    .clone()
-            })
-            .map(|s| {
-                s.into_iter()
-                    .map(|e| e.unwrap_or("unknown"))
-                    .map(|s| s.to_string())
-                    .collect::<Vec<String>>()
-            })
-            .map(|e| ColumnJS { values: e })
-            .collect::<Vec<ColumnJS>>();
-
-        return slice;
+            .map(Self::to_column_js)
+            .map(|res| res.map_err(|e| JsError::new(&e.to_string())))
+            .collect();
     }
 
     pub fn get_columns(&self) -> Result<Vec<ColumnJS>, JsError> {
-        let slice = self
+        return self
             .get_df()
             .iter()
-            .map(|s| {
-                let values = if s.dtype().is_struct() || s.dtype().is_list() {
-                    s.rechunk()
-                        .iter()
-                        .map(|x| match x.dtype() {
-                            DataType::String => x
-                                .get_str()
-                                .unwrap_or(&DataType::Null.to_string())
-                                .to_owned(),
-                            _ => x.to_string(),
-                        })
-                        .collect::<Vec<String>>()
-                } else {
-                    s.cast(&DataType::String)
-                        .map_err(|e| JsError::new(&e.to_string()))?
-                        .str()
-                        .map_err(|e| JsError::new(&e.to_string()))?
-                        .rechunk()
-                        .into_iter()
-                        .map(|x| x.unwrap_or(&DataType::Null.to_string()).to_string())
-                        .collect::<Vec<String>>()
-                };
-
-                Ok(ColumnJS { values })
-            })
+            .map(Self::to_column_js)
+            .map(|res| res.map_err(|e| JsError::new(&e.to_string())))
             .collect();
-
-        return slice;
     }
 
     pub fn get_name(&self) -> String {
@@ -171,5 +132,29 @@ impl JsDataFrame {
 
     pub fn size(&self) -> usize {
         self.get_df().len()
+    }
+
+    fn to_column_js(s: &Series) -> Result<ColumnJS, Box<dyn std::error::Error>> {
+        let values = if s.dtype().is_struct() || s.dtype().is_list() {
+            s.rechunk()
+                .iter()
+                .map(|x| match x.dtype() {
+                    DataType::String => x
+                        .get_str()
+                        .unwrap_or(&DataType::Null.to_string())
+                        .to_owned(),
+                    _ => x.to_string(),
+                })
+                .collect::<Vec<String>>()
+        } else {
+            s.cast(&DataType::String)?
+                .str()?
+                .rechunk()
+                .into_iter()
+                .map(|x| x.unwrap_or(&DataType::Null.to_string()).to_string())
+                .collect::<Vec<String>>()
+        };
+
+        Ok(ColumnJS { values })
     }
 }
