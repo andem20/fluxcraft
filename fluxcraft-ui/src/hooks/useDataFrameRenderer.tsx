@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GridColDef } from "@mui/x-data-grid";
 import * as wasm from "polars-wasm";
-import { Box, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import { VpnKey } from "@mui/icons-material";
 
 export interface Pagination {
@@ -72,7 +72,9 @@ export function useDataFrameRenderer() {
         renderHeader: () => (
           <Box display="flex" alignItems="center" gap={1}>
             {header.is_primary_key() && <VpnKey fontSize="small" />}
-            <Typography variant="body2">{header.get_name()}</Typography>
+            <Tooltip title={header.get_dtype()}>
+              <Typography variant="body2">{header.get_name()}</Typography>
+            </Tooltip>
           </Box>
         ),
       };
