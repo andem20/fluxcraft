@@ -106,7 +106,7 @@ export function Home() {
 
       <SpeedDial
         ariaLabel="actions"
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
+        sx={{ position: "fixed", bottom: 16, right: "50%" }}
         icon={<SpeedDialIcon />}
       >
         <SpeedDialAction
