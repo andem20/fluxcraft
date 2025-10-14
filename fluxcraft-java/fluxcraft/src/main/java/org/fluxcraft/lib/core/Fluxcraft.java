@@ -11,7 +11,6 @@ public class Fluxcraft {
      * execute
      * ...
      */
-    public native String hello(String input);
 
     static {
         // FIXME
