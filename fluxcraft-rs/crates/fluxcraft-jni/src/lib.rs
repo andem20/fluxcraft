@@ -1,41 +1,63 @@
-// This is the interface to the JVM that we'll call the majority of our
-// methods on.
+use fluxcraft_pipeline::pipeline::Pipeline;
 use jni::JNIEnv;
 
-// These objects are what you should use as arguments to your native
-// function. They carry extra lifetime information to prevent them escaping
-// this context and getting used after being GC'd.
-use jni::objects::{JClass, JObject, JString};
+use jni::objects::{JObject, JString};
 
-// This is just a pointer. We'll be returning it from our function. We
-// can't return one of the objects with lifetime information because the
-// lifetime checker won't let us.
-use jni::sys::jstring;
+use jni::sys::{jbyteArray, jclass, jlong, jobject};
+use tokio::runtime::Runtime;
 
-// This keeps Rust from "mangling" the name and making it unique for this
-// crate.
 #[unsafe(no_mangle)]
-pub extern "system" fn Java_org_fluxcraft_lib_core_Fluxcraft_hello<'local>(
+pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_load(
+    mut env: JNIEnv,
+    _class: jclass,
+    path: JString,
+) -> jobject {
+    let file_path: String = env.get_string(&path).unwrap().into();
+
+    match Pipeline::load(&file_path) {
+        Ok(pipeline) => {
+            let boxed = Box::new(pipeline);
+            // FIXME this is never freed
+            let ptr = Box::into_raw(boxed) as jlong;
+
+            let cls = env.find_class("org/fluxcraft/lib/core/Pipeline").unwrap();
+            let obj = env.new_object(cls, "(J)V", &[ptr.into()]).unwrap();
+
+            obj.into_raw()
+        }
+        Err(_) => std::ptr::null_mut(),
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_execute<'local>(
     mut env: JNIEnv<'local>,
-    // This is the class that owns our static method. It's not going to be used,
-    // but still must be present to match the expected signature of a static
-    // native method.
     jthis: JObject<'local>,
-    input: JString<'local>,
-) -> jstring {
-    // First, we have to get the string out of Java. Check out the `strings`
-    // module for more info on how this works.
-    let input: String = env
-        .get_string(&input)
-        .expect("Couldn't get java string!")
-        .into();
+) -> jbyteArray {
+    // FIXME error handling
+    let native_handle = env
+        .get_field(&jthis, "nativeHandle", "J")
+        .unwrap()
+        .j()
+        .unwrap();
 
-    // Then we have to create a new Java string to return. Again, more info
-    // in the `strings` module.
-    let output = env
-        .new_string(format!("Hello, {}!", input))
-        .expect("Couldn't create java string!");
+    let pipeline = unsafe { &mut *(native_handle as *mut Pipeline) };
 
-    // Finally, extract the raw pointer to return.
-    output.into_raw()
+    // FIXME error handling
+    let rt = Runtime::new().unwrap();
+
+    return match rt.block_on(pipeline.execute()) {
+        Ok(data) => {
+            if let Ok(arr) = env.byte_array_from_slice(&data) {
+                arr.into_raw()
+            } else {
+                let _ = env.throw_new("java/lang/RuntimeException", format!("{}", "failed"));
+                std::ptr::null_mut()
+            }
+        }
+        Err(e) => {
+            let _ = env.throw_new("java/lang/RuntimeException", format!("{}", e));
+            std::ptr::null_mut()
+        }
+    };
 }

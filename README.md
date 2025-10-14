@@ -26,7 +26,7 @@ Visualize the data.
 
 **Week 41-42**
 
-- [ ] Create Java interface
+- [x] Create Java interface
 
 ---
 

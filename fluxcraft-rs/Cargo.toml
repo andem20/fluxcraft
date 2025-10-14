@@ -6,6 +6,7 @@ edition = "2024"
 [workspace.dependencies]
 fluxcraft-core = { version = "0.1.0", path = "crates/fluxcraft-core" }
 fluxcraft-io = { version = "0.1.0", path = "crates/fluxcraft-io" }
+fluxcraft-pipeline = { version = "0.1.0", path = "crates/fluxcraft-pipeline" }
 polars-core = {git = "https://github.com/andem20/polars-fork", features = ["fmt_no_tty", "dtype-datetime", "dtype-date", "serde"]}
 polars-io = {git = "https://github.com/andem20/polars-fork", features = ["dtype-datetime", "dtype-date", "json"]}
 polars-lazy = {git = "https://github.com/andem20/polars-fork"}
