@@ -9,5 +9,5 @@ public class Pipeline {
 
     public native byte[] execute();
 
-    public static native Pipeline load(String path);
+    protected static native Pipeline load(String path);
 }

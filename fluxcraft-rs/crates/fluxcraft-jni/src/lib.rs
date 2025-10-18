@@ -25,7 +25,8 @@ pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_load(
 
             obj.into_raw()
         }
-        Err(_) => std::ptr::null_mut(),
+
+        Err(e) => throw_err(e.into(), &mut env),
     }
 }
 
@@ -34,30 +35,27 @@ pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_execute<'local>(
     mut env: JNIEnv<'local>,
     jthis: JObject<'local>,
 ) -> jbyteArray {
-    // FIXME error handling
-    let native_handle = env
-        .get_field(&jthis, "nativeHandle", "J")
-        .unwrap()
-        .j()
-        .unwrap();
+    return match native_execute(&mut env, jthis) {
+        Ok(r) => r,
+        Err(e) => throw_err(e, &mut env),
+    };
+}
+
+fn native_execute<'local>(
+    env: &mut JNIEnv<'local>,
+    jthis: JObject<'local>,
+) -> Result<*mut jni::sys::_jobject, Box<dyn std::error::Error>> {
+    let native_handle = env.get_field(&jthis, "nativeHandle", "J")?.j()?;
 
     let pipeline = unsafe { &mut *(native_handle as *mut Pipeline) };
 
-    // FIXME error handling
-    let rt = Runtime::new().unwrap();
+    let rt = Runtime::new()?;
 
-    return match rt.block_on(pipeline.execute()) {
-        Ok(data) => {
-            if let Ok(arr) = env.byte_array_from_slice(&data) {
-                arr.into_raw()
-            } else {
-                let _ = env.throw_new("java/lang/RuntimeException", format!("{}", "failed"));
-                std::ptr::null_mut()
-            }
-        }
-        Err(e) => {
-            let _ = env.throw_new("java/lang/RuntimeException", format!("{}", e));
-            std::ptr::null_mut()
-        }
-    };
+    let data = rt.block_on(pipeline.execute())?;
+    return Ok(env.byte_array_from_slice(&data)?.into_raw());
+}
+
+fn throw_err(e: Box<dyn std::error::Error>, env: &mut JNIEnv) -> jobject {
+    let _ = env.throw_new("java/lang/RuntimeException", format!("{}", e));
+    std::ptr::null_mut()
 }
