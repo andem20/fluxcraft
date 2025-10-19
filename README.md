@@ -1,134 +1,99 @@
 # FluxCraft
 
-Upload data or connect a datasource.
-
-Transform data into another dataframe.
-
-Create small models and train them.
-
-Visualize the data.
-
-## Next
-
-**Week 45-46**
-
-- [ ] Visualize dataframes
-- [ ] Validation guards
+**FluxCraft** is a flexible data pipeline builder that lets you define transformations using **cells** and **SQL-like expressions**. <br/>
+It allows you to **design pipelines interactively**, then **export and run them repeatedly on new data, in multiple languages**.
 
 ---
 
-**Week 43-44**
+## 🚀 What You Can Do
 
-- [ ] Improve excel datatype inference
-- [ ] Create tests
-
----
-
-**Week 41-42**
-
-- [x] Create Java interface
-
----
-
-**Week 39-40**
-
-- [-] Hide header values / use placeholders
-- [x] Replay data pipeline
-- [x] Refactor into multiple crates
+✅ Build pipelines interactively in real time<br/>
+✅ Write transformations using SQL or visual cell steps<br/>
+✅ Load sample data from files or HTTP<br/>
+✅ See instant results as you design<br/>
+✅ Export pipeline definitions (e.g. to Java)<br/>
+✅ Run pipelines repeatedly on multiple datasets<br/>
+✅ Powered by Rust + Polars for high performance<br/>
 
 ---
 
-**Week 37-38**
+## 🔄 How FluxCraft Works
 
-- [x] Export data as file
-- [x] Save and load pipelines
+1. **Design your pipeline in real time**
 
----
+   - Load data from a file or HTTP endpoint
+   - Add cells and write SQL-like transformations
+   - Preview results instantly
 
-**Week 35-36**
+2. **Refine and validate the pipeline**
 
-- [x] Improve error handling
-- [x] Use dataframe in http requests
-- [x] Setup simple data pipeline
-- [x] Show errors in ui
+   - Tweak steps interactively
+   - Ensure correctness before exporting
 
----
+3. **Export the pipeline**
 
-**Week 33-34**
+   - Generate a language-agnostic definition
+   - Load it into other runtimes (e.g. Java)
 
-- [x] Add http client
-- [x] Handle timestamps
+4. **Run it repeatedly on new data**
 
----
-
-**Week 31-32**
-
-- [x] Read excel
-- [x] Change / add column names
+   - Apply the same logic to multiple files or sources
+   - Automate recurring processing at scale
 
 ---
 
-**Week 29-30**
+## 🧠 Why FluxCraft?
 
-- [x] detect primary columns
-- [x] Handle multiple files
-- [x] Create functions for getting df names
+- Combines SQL expressiveness with modular pipeline building
+- Supports both code and UI-based transformations
+- High performance through Rust and Polars
+- Easy to integrate into existing systems and languages
+- Built for data engineers, developers, and automation workflows
 
 ---
 
-## Data I/O
+## 🧩 Roadmap Highlights
 
-- [x] Upload data (csv, excel ...)
-  - [x] Store in memory
-    - [x] CSV
-    - [x] Excel
-    - [x] JSON
-  - [ ] Persist as File
-  - [x] Handle multiple dataframes
-- [ ] Connect datasource
-  - [ ] Postgres
-  - [x] HTTP/JSON
-  - [ ] Kafka
-- [ ] Export dataset (HTTP, Kafka, File)
-  - [ ] HTTP
-  - [ ] Kafka
-  - [x] File
-    - [x] CSV
-    - [ ] Excel
-    - [ ] JSON
+- **Data visualization** in UI (graphs, plots, bounding boxes)
+- **Condition/validation** checks for pipeline outputs
+- **Datasource connectors** (Postgres, Kafka, etc.)
 
-## Data Transformation
+---
 
-- [x] Rename columns of dataframe
-- [x] Aggregate columns (handled as sql)
-- [x] Reshape dataframe (columns to rows -> new set of columns)
-- [ ] Clean data
-  - [ ] Remove outliers
-  - [ ] Fill missing data points
-- [ ] Data augmentation
-- [x] Normalization (handled as sql)
+## 💡 Long-Term Vision
 
-## ML Modelling
+FluxCraft aims to become a **unified workspace for data workflows**, bringing together:
 
-- [ ] Create models by connecting modules
-  - [ ] Neural networks
-  - [ ] Clustering
-- [ ] Train/fit models
+- ETL / data pipelines
+- SQL transformations
+- Interactive visualization
+- Cross-language portability and automation
 
-## Data Visualizing
+---
 
-- [ ] Graph data (Bar, line, plot ...)
-- [x] Tabular
-- [ ] Bouding boxes
+## 🛠 Tech Stack
 
-## Tech stack
+| Layer    | Technology          |
+| -------- | ------------------- |
+| Core     | **Rust + Polars**   |
+| Frontend | React + Rust (WASM) |
 
-### Frontend
+---
 
-React<br>
-Rust wasm
+## 📦 Getting Started _(coming soon)_
 
-### Backend
+A CLI and UI-based workflow will be available.
+Documentation and examples are in progress.
 
-Rust - actix, polars<br>
-Python - Pytorch/Tensorflow
+---
+
+## 🤝 Contributing
+
+FluxCraft is evolving.
+Feedback, feature suggestions, and contributions are welcome!
+
+---
+
+## 📄 License
+
+_TBD_
