@@ -111,9 +111,11 @@ impl JsFluxCraft {
             .map_err(|e| JsError::new(&e.to_string()));
     }
 
-    pub fn export_csv(&self, mut input_df: JsDataFrame) -> Result<String, JsError> {
-        let mut df = input_df.get_df_mut();
-        let result = FluxCraft::export_csv(&mut df).map_err(|e| JsError::new(&e.to_string()))?;
+    pub fn export_csv(&self, input_df: JsDataFrame) -> Result<String, JsError> {
+        let df = input_df.get_wrapper();
+        let result = df
+            .to_csv_bytes(',')
+            .map_err(|e| JsError::new(&e.to_string()))?;
         let result_string = String::from_utf8(result).map_err(|e| JsError::new(&e.to_string()))?;
         return Ok(result_string);
     }

@@ -21,6 +21,10 @@ impl JsDataFrame {
     pub fn get_df_mut(&mut self) -> &mut polars_core::prelude::DataFrame {
         return self.wrapper.get_df_mut();
     }
+
+    pub fn get_wrapper(&self) -> &DataFrameWrapper {
+        return &self.wrapper;
+    }
 }
 
 #[wasm_bindgen]

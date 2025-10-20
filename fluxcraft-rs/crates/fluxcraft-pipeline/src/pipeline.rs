@@ -6,6 +6,7 @@ use polars_core::frame::DataFrame;
 //FIMXE
 const BASE_PATH: &str = "/home/anders/Documents/projects/fluxcraft/resources/datasets";
 
+#[allow(dead_code)]
 pub struct Pipeline {
     pipeline: StepDefinition,
     fluxcraft: FluxCraft,
