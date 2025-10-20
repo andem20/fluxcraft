@@ -7,7 +7,6 @@ public class Pipeline {
         this.nativeHandle = nativeHandle;
     }
 
-    public native byte[] execute();
-
+    public native DataFrame execute();
     protected static native Pipeline load(String path);
 }

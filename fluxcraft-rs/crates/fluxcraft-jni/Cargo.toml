@@ -7,6 +7,7 @@ edition = { workspace = true }
 crate-type = ["cdylib"]
 
 [dependencies]
-jni = "0.21.1"
 fluxcraft-pipeline = { workspace = true }
+fluxcraft-core = { workspace = true }
+jni = "0.21.1"
 tokio = { version = "1.47.1", features = ["full"] }

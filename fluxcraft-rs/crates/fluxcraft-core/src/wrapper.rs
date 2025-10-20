@@ -1,4 +1,11 @@
-use polars_core::{frame::DataFrame, prelude::PlSmallStr};
+use std::io::Cursor;
+
+use polars_core::{
+    frame::DataFrame,
+    prelude::{Column, DataType, PlSmallStr},
+    series::Series,
+};
+use polars_io::SerWriter;
 
 #[derive(Clone, Debug)]
 pub struct DataFrameWrapper {
@@ -49,5 +56,36 @@ impl DataFrameWrapper {
             .into_iter()
             .map(PlSmallStr::to_string)
             .collect();
+    }
+
+    pub fn to_csv_bytes(&self, separator: char) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+        let cols: Vec<Column> = self
+            .df
+            .iter()
+            .map(|s| {
+                let series = s
+                    .rechunk()
+                    .iter()
+                    .map(|x| match x.dtype() {
+                        DataType::String => x.get_str().unwrap_or("null").to_owned(),
+                        _ => x.to_string(),
+                    })
+                    .collect::<Series>();
+
+                Column::new(s.name().to_owned(), series)
+            })
+            .collect();
+
+        let mut df = DataFrame::new(cols)?;
+
+        let mut buffer = vec![];
+
+        let writer = Cursor::new(&mut buffer);
+        let _ = polars_io::csv::write::CsvWriter::new(writer)
+            .include_header(true)
+            .with_separator(separator as u8)
+            .finish(&mut df);
+
+        Ok(buffer)
     }
 }

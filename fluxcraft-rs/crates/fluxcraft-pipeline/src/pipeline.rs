@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Display};
 
-use fluxcraft_core::{FluxCraft, error::FluxCraftError};
+use fluxcraft_core::{FluxCraft, error::FluxCraftError, wrapper::DataFrameWrapper};
 use polars_core::frame::DataFrame;
 
 //FIMXE
@@ -35,8 +35,9 @@ impl Pipeline {
         })
     }
 
-    pub async fn execute(&mut self) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    pub async fn execute(&mut self) -> Result<DataFrameWrapper, Box<dyn std::error::Error>> {
         let mut result = None;
+        let mut final_df_name = "output";
 
         for step in self.pipeline.steps.iter() {
             println!("Running step #{}, {}", step.id, step.title);
@@ -53,11 +54,12 @@ impl Pipeline {
             println!("");
 
             result = Some(df);
+            final_df_name = &step.title;
         }
 
-        if let Some(mut df) = result {
-            // FIXME allow more formats
-            return Ok(FluxCraft::export_csv(&mut df)?);
+        if let Some(df) = result {
+            let wrapper = DataFrameWrapper::new(df, final_df_name);
+            return Ok(wrapper);
         }
 
         Err(FluxCraftError::new("No final df defined").into())

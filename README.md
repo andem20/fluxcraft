@@ -1,6 +1,6 @@
 # FluxCraft
 
-**FluxCraft** is a flexible data pipeline builder that lets you define transformations using **cells** and **SQL-like expressions**. <br/>
+**FluxCraft** is a flexible data pipeline builder that lets you define transformations using **cells** and **SQL expressions**. <br/>
 It allows you to **design pipelines interactively**, then **export and run them repeatedly on new data, in multiple languages**.
 
 ---

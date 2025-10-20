@@ -682,6 +682,7 @@ dependencies = [
 name = "fluxcraft-jni"
 version = "0.1.0"
 dependencies = [
+ "fluxcraft-core",
  "fluxcraft-pipeline",
  "jni",
  "tokio",

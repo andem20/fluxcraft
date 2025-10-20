@@ -3,7 +3,7 @@ pub mod error;
 mod function_registry;
 pub mod wrapper;
 
-use std::{io::Cursor, sync::Arc};
+use std::sync::Arc;
 
 use calamine::{Data, Reader, Xlsx};
 use polars_core::{
@@ -11,9 +11,8 @@ use polars_core::{
     frame::DataFrame,
     functions::concat_df_horizontal,
     prelude::{AnyValue, Column, DataType, TimeUnit},
-    series::Series,
 };
-use polars_io::{SerReader, SerWriter};
+use polars_io::SerReader;
 use polars_lazy::{
     dsl::{Expr, StrptimeOptions, coalesce, col, lit},
     frame::{IntoLazy, LazyFrame},
@@ -233,36 +232,6 @@ impl FluxCraft {
             .collect::<Vec<Column>>();
 
         return Ok(DataFrame::new(columns)?);
-    }
-
-    pub fn export_csv(df: &mut DataFrame) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-        let cols: Vec<Column> = df
-            .iter()
-            .map(|s| {
-                let series = s
-                    .rechunk()
-                    .iter()
-                    .map(|x| match x.dtype() {
-                        DataType::String => x.get_str().unwrap_or("null").to_owned(),
-                        _ => x.to_string(),
-                    })
-                    .collect::<Series>();
-
-                Column::new(s.name().to_owned(), series)
-            })
-            .collect();
-
-        let mut df = DataFrame::new(cols)?;
-
-        let mut buffer = vec![];
-
-        let writer = Cursor::new(&mut buffer);
-        let _ = polars_io::csv::write::CsvWriter::new(writer)
-            .include_header(true)
-            .with_separator(b',')
-            .finish(&mut df);
-
-        Ok(buffer)
     }
 }
 
