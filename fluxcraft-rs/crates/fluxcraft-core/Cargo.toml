@@ -9,5 +9,6 @@ polars-io = { workspace = true }
 polars-lazy = { workspace = true }
 polars-schema = { workspace = true }
 polars-sql = { workspace = true }
+polars-arrow = { workspace = true }
 
 calamine = {version = "0.30.0", features = ["dates"]}

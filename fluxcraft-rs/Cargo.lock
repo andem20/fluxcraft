@@ -661,6 +661,7 @@ name = "fluxcraft-core"
 version = "0.1.0"
 dependencies = [
  "calamine",
+ "polars-arrow",
  "polars-core",
  "polars-io",
  "polars-lazy",

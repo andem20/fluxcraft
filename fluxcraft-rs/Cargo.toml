@@ -12,6 +12,7 @@ polars-io = {git = "https://github.com/andem20/polars-fork", features = ["dtype-
 polars-lazy = {git = "https://github.com/andem20/polars-fork"}
 polars-schema = {git = "https://github.com/andem20/polars-fork"}
 polars-sql = {git = "https://github.com/andem20/polars-fork", features = ["json", "semi_anti_join"]}
+polars-arrow = {git = "https://github.com/andem20/polars-fork", features = ["io_ipc"]}
 
 [workspace]
 members = [

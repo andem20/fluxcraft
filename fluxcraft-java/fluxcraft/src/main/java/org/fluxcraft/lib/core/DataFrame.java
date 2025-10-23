@@ -8,4 +8,6 @@ public class DataFrame {
     }
 
     public native byte[] toCsvBytes(char separator);
+
+    public native byte[] toArrow();
 }

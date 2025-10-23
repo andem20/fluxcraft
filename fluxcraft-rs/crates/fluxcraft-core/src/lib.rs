@@ -225,8 +225,6 @@ impl FluxCraft {
                         .unwrap_or(header_name)
                 }
 
-                // TODO cast to most occuring type
-
                 return Column::new(header_name.into(), col);
             })
             .collect::<Vec<Column>>();

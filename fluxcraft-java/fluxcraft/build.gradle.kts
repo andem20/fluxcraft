@@ -23,6 +23,10 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    
+    implementation("org.apache.arrow:arrow-vector:18.0.0")
+    implementation("org.apache.arrow:arrow-memory-netty:18.0.0")
+    implementation("org.apache.arrow:arrow-format:18.0.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -40,4 +44,13 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+listOf(
+    tasks.withType<Test>(),
+    tasks.withType<JavaExec>() // for 'gradle run' if using application plugin
+).forEach { taskProvider ->
+    taskProvider.configureEach {
+        jvmArgs("--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED")
+    }
 }

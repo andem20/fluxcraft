@@ -88,6 +88,28 @@ fn native_to_csv_bytes<'local>(
     return Ok(env.byte_array_from_slice(&bytes)?.into_raw());
 }
 
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_org_fluxcraft_lib_core_DataFrame_toArrow<'local>(
+    mut env: JNIEnv<'local>,
+    jthis: JObject<'local>,
+) -> jbyteArray {
+    return match native_to_to_arrow(&mut env, jthis) {
+        Ok(result) => result,
+        Err(e) => throw_err(e, &mut env),
+    };
+}
+
+fn native_to_to_arrow<'local>(
+    env: &mut JNIEnv<'local>,
+    jthis: JObject<'local>,
+) -> Result<jbyteArray, Box<dyn std::error::Error>> {
+    let native_handle = env.get_field(&jthis, "nativeHandle", "J")?.j()?;
+    let wrapper = unsafe { &mut *(native_handle as *mut DataFrameWrapper) };
+    let bytes = wrapper.to_arrow_buffer();
+
+    return Ok(env.byte_array_from_slice(&bytes)?.into_raw());
+}
+
 fn throw_err(e: Box<dyn std::error::Error>, env: &mut JNIEnv) -> jobject {
     let _ = env.throw_new("java/lang/RuntimeException", format!("{}", e));
     std::ptr::null_mut()

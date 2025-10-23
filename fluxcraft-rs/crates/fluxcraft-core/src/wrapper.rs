@@ -1,8 +1,9 @@
 use std::io::Cursor;
 
+use polars_arrow::io::ipc::write::WriteOptions;
 use polars_core::{
     frame::DataFrame,
-    prelude::{Column, DataType, PlSmallStr},
+    prelude::{Column, CompatLevel, DataType, PlSmallStr},
     series::Series,
 };
 use polars_io::SerWriter;
@@ -87,5 +88,26 @@ impl DataFrameWrapper {
             .finish(&mut df);
 
         Ok(buffer)
+    }
+
+    pub fn to_arrow_buffer(&self) -> Vec<u8> {
+        let rechunk_to_record_batch = self
+            .get_df()
+            .clone()
+            .rechunk_to_record_batch(CompatLevel::newest());
+
+        let schema = rechunk_to_record_batch.schema();
+
+        let mut buffer = Vec::with_capacity(self.get_df().estimated_size());
+        let mut stream_writer = polars_arrow::io::ipc::write::StreamWriter::new(
+            &mut buffer,
+            WriteOptions { compression: None },
+        );
+
+        let _ = stream_writer.start(schema, None);
+        let _ = stream_writer.write(&rechunk_to_record_batch, None);
+        let _ = stream_writer.finish();
+
+        return buffer;
     }
 }
