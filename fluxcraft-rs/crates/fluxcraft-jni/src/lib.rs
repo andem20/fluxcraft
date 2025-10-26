@@ -105,9 +105,10 @@ fn native_to_to_arrow<'local>(
 ) -> Result<jbyteArray, Box<dyn std::error::Error>> {
     let native_handle = env.get_field(&jthis, "nativeHandle", "J")?.j()?;
     let wrapper = unsafe { &mut *(native_handle as *mut DataFrameWrapper) };
-    let bytes = wrapper.to_arrow_buffer();
+    let mut buffer = vec![];
+    wrapper.to_arrow_buffer(&mut buffer);
 
-    return Ok(env.byte_array_from_slice(&bytes)?.into_raw());
+    return Ok(env.byte_array_from_slice(&buffer)?.into_raw());
 }
 
 fn throw_err(e: Box<dyn std::error::Error>, env: &mut JNIEnv) -> jobject {

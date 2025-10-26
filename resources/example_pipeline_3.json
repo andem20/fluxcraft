@@ -1,0 +1,1 @@
+{"steps":[{"id":1,"load":[{"type":"FILE","uri":"demofile.csv","name":"demofile.csv","options":{"has_headers":"true"}}],"query":"SELECT * from demofile_csv","title":"Cell 1"}]}
