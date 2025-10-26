@@ -24,9 +24,9 @@ dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
     
-    implementation("org.apache.arrow:arrow-vector:18.0.0")
-    implementation("org.apache.arrow:arrow-memory-netty:18.0.0")
-    implementation("org.apache.arrow:arrow-format:18.0.0")
+    implementation("org.apache.arrow:arrow-vector:18.3.0")
+    implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
+    implementation("org.apache.arrow:arrow-format:18.3.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
