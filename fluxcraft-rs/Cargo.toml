@@ -18,3 +18,4 @@ polars-arrow = {git = "https://github.com/andem20/polars-fork", features = ["io_
 members = [
     "crates/*",
 ]
+resolver = "3"

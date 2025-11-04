@@ -2,7 +2,7 @@ use fluxcraft_core::wrapper::DataFrameWrapper;
 use fluxcraft_pipeline::pipeline::Pipeline;
 use jni::JNIEnv;
 
-use jni::objects::{JObject, JString};
+use jni::objects::{JObject, JString, JValueGen};
 
 use jni::sys::{jbyteArray, jchar, jclass, jlong, jobject};
 use tokio::runtime::Runtime;
@@ -17,12 +17,22 @@ pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_load(
 
     match Pipeline::load(&file_path) {
         Ok(pipeline) => {
+            let output_type_name = env.new_string(&pipeline.get_output_type()).unwrap(); // FIXME
             let boxed = Box::new(pipeline);
             // FIXME this is never freed
             let ptr = Box::into_raw(boxed) as jlong;
 
-            let cls = env.find_class("org/fluxcraft/lib/core/Pipeline").unwrap();
-            let obj = env.new_object(cls, "(J)V", &[ptr.into()]).unwrap();
+            let cls = env.find_class("org/fluxcraft/lib/core/Pipeline").unwrap(); // FIXME
+            let obj = env
+                .new_object(
+                    cls,
+                    "(JLjava/lang/String;)V",
+                    &[
+                        ptr.into(),
+                        JValueGen::Object(&JObject::from(output_type_name)),
+                    ],
+                )
+                .unwrap(); // FIXME
 
             obj.into_raw()
         }
@@ -105,8 +115,7 @@ fn native_to_to_arrow<'local>(
 ) -> Result<jbyteArray, Box<dyn std::error::Error>> {
     let native_handle = env.get_field(&jthis, "nativeHandle", "J")?.j()?;
     let wrapper = unsafe { &mut *(native_handle as *mut DataFrameWrapper) };
-    let mut buffer = vec![];
-    wrapper.to_arrow_buffer(&mut buffer);
+    let buffer = wrapper.to_arrow_buffer();
 
     return Ok(env.byte_array_from_slice(&buffer)?.into_raw());
 }

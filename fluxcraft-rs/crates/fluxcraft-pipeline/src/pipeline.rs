@@ -10,6 +10,7 @@ const BASE_PATH: &str = "/home/anders/Documents/projects/fluxcraft/resources/dat
 pub struct Pipeline {
     pipeline: StepDefinition,
     fluxcraft: FluxCraft,
+    output_type_name: String,
     options: Option<PipelineOptions>,
 }
 
@@ -32,6 +33,7 @@ impl Pipeline {
         Ok(Pipeline {
             pipeline,
             fluxcraft,
+            output_type_name: "TestType".to_owned(), // FIXME SHOULD COME FROM FILE
             options: None,
         })
     }
@@ -117,6 +119,10 @@ impl Pipeline {
         };
 
         Ok(df)
+    }
+
+    pub fn get_output_type(&self) -> String {
+        "test".to_owned()
     }
 }
 

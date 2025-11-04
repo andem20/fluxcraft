@@ -90,7 +90,7 @@ impl DataFrameWrapper {
         Ok(buffer)
     }
 
-    pub fn to_arrow_buffer(&self, mut buffer: &mut [u8]) {
+    pub fn to_arrow_buffer(&self) -> Vec<u8> {
         let rechunk_to_record_batch = self
             .get_df()
             .clone()
@@ -98,14 +98,18 @@ impl DataFrameWrapper {
 
         let schema = rechunk_to_record_batch.schema();
 
+        let mut buffer = Vec::new();
+        let mut cursor = Cursor::new(&mut buffer);
         let mut stream_writer = polars_arrow::io::ipc::write::StreamWriter::new(
-            &mut buffer,
+            &mut cursor,
             WriteOptions { compression: None },
         );
 
         let _ = stream_writer.start(schema, None);
         let _ = stream_writer.write(&rechunk_to_record_batch, None);
         let _ = stream_writer.finish();
+
+        return buffer;
     }
 
     pub fn get_estimated_allocated_size(&self) -> usize {

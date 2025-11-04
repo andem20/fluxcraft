@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+    id("java")
 }
 
 repositories {
@@ -20,13 +21,13 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    // This dependency is used by the application.
-    implementation(libs.guava)
     
     implementation("org.apache.arrow:arrow-vector:18.3.0")
     implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
     implementation("org.apache.arrow:arrow-format:18.3.0")
+
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
