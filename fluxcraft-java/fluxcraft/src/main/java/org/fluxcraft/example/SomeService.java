@@ -1,6 +1,5 @@
 package org.fluxcraft.example;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 public class SomeService {
@@ -17,8 +16,5 @@ public class SomeService {
 
     private boolean isValid(CreateStuffCommand command) {
         return command.id > 0 && command.productId > 0 && command.stationId > 0 && command.volume > 0;
-    }
-
-    public record CreateStuffCommand(long id, long stationId, long productId, double volume, ZonedDateTime timestamp) {
     }
 }

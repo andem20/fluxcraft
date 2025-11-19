@@ -2,14 +2,13 @@ package org.fluxcraft;
 
 import java.io.IOException;
 
-import org.apache.arrow.vector.VectorSchemaRoot;
+import org.fluxcraft.example.CreateStuffCommand;
 import org.fluxcraft.lib.core.DataFrame;
 import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.Pipeline;
-import org.fluxcraft.lib.core.ReadArrow;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         FluxCraft fluxcraft = new FluxCraft();
 
         Pipeline pipeline = fluxcraft
@@ -29,7 +28,7 @@ public class Main {
         System.out.println("toArrow: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");
 
         try {
-            VectorSchemaRoot schema = ReadArrow.readArrowStreamFromBytes(arrowBytes);
+            pipeline.readArrowStreamFromBytes(arrowBytes, CreateStuffCommand.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

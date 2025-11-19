@@ -33,7 +33,7 @@ impl Pipeline {
         Ok(Pipeline {
             pipeline,
             fluxcraft,
-            output_type_name: "TestType".to_owned(), // FIXME SHOULD COME FROM FILE
+            output_type_name: "CreateStuffCommand".to_owned(), // FIXME SHOULD COME FROM FILE
             options: None,
         })
     }
@@ -122,7 +122,7 @@ impl Pipeline {
     }
 
     pub fn get_output_type(&self) -> String {
-        "test".to_owned()
+        self.output_type_name.to_string()
     }
 }
 
