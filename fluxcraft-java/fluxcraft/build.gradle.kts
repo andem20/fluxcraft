@@ -26,15 +26,6 @@ dependencies {
     implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
     implementation("org.apache.arrow:arrow-format:18.3.0")
 
-    // Spring Core (basic framework utilities)
-    implementation("org.springframework:spring-core:6.1.3")
-
-    // Spring Context (for classpath scanning, annotations, etc.)
-    implementation("org.springframework:spring-context:6.1.3")
-
-    // Optional: if you use annotations like @Component, @Configuration, etc.
-    implementation("org.springframework:spring-beans:6.1.3")
-
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
