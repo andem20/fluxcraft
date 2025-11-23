@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { useSelector } from "react-redux";
 import { RootState } from "../stores/Store";
+import { Card, CardContent } from "@mui/material";
 // import * as theme from "../assets/chalk.project.json" with { type: "json" };
 
 export function Charts() {
@@ -51,10 +52,14 @@ export function Charts() {
   }, [darkModeSelector]);
 
   return (
-    <div
-      ref={chartRef}
-      id="main"
-      style={{ width: "100%", height: "400px" }}
-    ></div>
+    <Card elevation={3} sx={{ m: 3, width: "100%" }}>
+      <CardContent sx={{ p: 0, m: 0, "&:last-child": { pb: 0 } }}>
+        <div
+          ref={chartRef}
+          id="main"
+          style={{ width: "100%", height: 400 }}
+        ></div>
+      </CardContent>
+    </Card>
   );
 }
