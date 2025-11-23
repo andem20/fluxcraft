@@ -19,6 +19,7 @@ import { useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, toggleDarkMode } from "./stores/Store";
 import darkScrollbar from "@mui/material/darkScrollbar";
+import { Charts } from "./components/Chart";
 
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
@@ -89,7 +90,8 @@ export default function App() {
                 gap: 6,
               }}
             >
-              {/* <Button
+              {/* 
+              <Button
                 sx={{ color: "white", fontWeight: "bold" }}
                 component={Link}
                 to="/"
@@ -106,10 +108,11 @@ export default function App() {
               <Button
                 sx={{ color: "white", fontWeight: "bold" }}
                 component={Link}
-                to="/contact"
+                to="/charts"
               >
-                Contact
-              </Button> */}
+                Charts
+              </Button>
+              */}
             </Box>
 
             <Box sx={{ position: "absolute", right: 16 }}>
@@ -131,6 +134,7 @@ export default function App() {
         <Container sx={{ pt: 12 }} maxWidth={false}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/charts" element={<Charts />} />
           </Routes>
         </Container>
       </Router>

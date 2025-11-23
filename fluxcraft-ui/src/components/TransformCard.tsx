@@ -12,6 +12,7 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  Modal,
 } from "@mui/material";
 import { QueryEditor } from "./QueryEditor";
 import { DataframeViewer } from "./DataFrameViewer";
@@ -30,8 +31,10 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import { FileDownload } from "@mui/icons-material";
 import { JsDataFrame } from "polars-wasm";
+import { Charts } from "./Chart";
 
 interface TransformCardProps {
   step: TransformStep;
@@ -88,6 +91,7 @@ export function TransformCard({
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
   const [output, setOutput] = useState<JsDataFrame | null>(null);
+  const [isOpenCharts, setIsOpenCharts] = useState<boolean>(false);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -255,8 +259,18 @@ export function TransformCard({
                     color="secondary"
                     onClick={exportDataframe}
                     startIcon={<FileDownload />}
+                    sx={{ mr: 2 }}
                   >
                     Export
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="secondary"
+                    onClick={() => setIsOpenCharts(true)}
+                    startIcon={<BarChartIcon />}
+                  >
+                    Graph
                   </Button>
                 </Box>
 
@@ -308,6 +322,13 @@ export function TransformCard({
           {errorMsg}
         </Alert>
       </Snackbar>
+      <Modal
+        open={isOpenCharts}
+        onClose={() => setIsOpenCharts(false)}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <Charts />
+      </Modal>
     </>
   );
 }

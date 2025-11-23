@@ -10,7 +10,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import LineAxisIcon from "@mui/icons-material/LineAxis";
 import { PipelineDrawer } from "../components/PipelineDrawer";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import { EnvironmentCard } from "../components/EnvironmentCard";
 
 export function Home() {
