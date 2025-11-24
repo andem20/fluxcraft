@@ -327,7 +327,7 @@ export function TransformCard({
         onClose={() => setIsOpenCharts(false)}
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
-        <Charts />
+        <Charts df={output} />
       </Modal>
     </>
   );
