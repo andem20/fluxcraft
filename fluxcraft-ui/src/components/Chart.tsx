@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { JsDataFrame } from "polars-wasm";
+import moment from "moment";
 // import * as theme from "../assets/chalk.project.json" with { type: "json" };
 
 interface ChartProps {
@@ -35,31 +36,41 @@ export function Charts(chartProps: ChartProps) {
   );
 
   //   echarts.registerTheme("dark", theme.theme);
-  const dates: String[] = [];
-  for (let i = 1; i < 7; i++) {
-    const date = new Date();
-    date.setMonth(i);
-    dates.push(date.toISOString());
-  }
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartRef.current || !x || !y) return;
     chart = echarts.init(chartRef.current);
 
-    // TODO fetch chart data
+    const xData = chartProps.df?.get_column(x);
+    const yData = chartProps.df?.get_column(y);
 
     chart.setOption({
-      title: { text: "Dummy title" },
+      title: { text: chartProps.df?.get_name() },
       tooltip: {},
       xAxis: {
-        data: dates,
+        name: x,
+        data: xData?.get_values(),
+        axisLabel: {
+          formatter: (value) => moment(new Date(value)).format("DD-MM-YYYY"),
+        },
       },
       yAxis: {},
       series: [
         {
-          name: "sales",
+          name: y,
           type: chartType.toLowerCase(),
-          data: [5, 20, 36, 10, 10, 20],
+          data: yData?.get_values(),
+        },
+      ],
+      dataZoom: [
+        {
+          type: "inside",
+          start: 0,
+          end: 100,
+        },
+        {
+          start: 0,
+          end: 100,
         },
       ],
     });

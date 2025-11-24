@@ -123,6 +123,16 @@ impl JsDataFrame {
             .collect();
     }
 
+    pub fn get_column(&self, name: String) -> Result<ColumnJS, JsError> {
+        return self
+            .get_df()
+            .column(&name)?
+            .as_series()
+            .map(Self::to_column_js)
+            .map(|res| res.map_err(|e| JsError::new(&e.to_string())))
+            .unwrap_or_else(|| Err(JsError::new("Failed getting column as series")));
+    }
+
     pub fn get_name(&self) -> String {
         self.wrapper.name.clone()
     }
