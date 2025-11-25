@@ -44,6 +44,7 @@ export function Charts(chartProps: ChartProps) {
     chart = echarts.init(chartRef.current);
 
     const xData = chartProps.df?.get_column(x);
+    const xDType = chartProps.df?.get_dtype(x);
     const yData = chartProps.df?.get_column(y);
     let groupArray: string[];
     if (grouping && chartProps.df) {
@@ -70,13 +71,21 @@ export function Charts(chartProps: ChartProps) {
       data: value,
     }));
 
+    let type = "value";
+
+    if (xDType?.includes("datetime")) {
+      type = "time";
+    } else if (xDType?.includes("string")) {
+      type = "category";
+    }
+
     chart.setOption({
       title: { text: chartProps.df?.get_name() },
       tooltip: {
         trigger: "axis",
       },
       xAxis: {
-        type: "time", // FIXME should be inferred from the datatype
+        type, // FIXME should be inferred from the datatype
       },
       yAxis: {},
       series,

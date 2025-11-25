@@ -1,5 +1,9 @@
 use fluxcraft_core::wrapper::DataFrameWrapper;
-use polars_core::{prelude::DataType, series::Series, utils::Container};
+use polars_core::{
+    prelude::{Column, DataType},
+    series::Series,
+    utils::Container,
+};
 use wasm_bindgen::{JsError, prelude::wasm_bindgen};
 
 use crate::log_error;
@@ -146,6 +150,14 @@ impl JsDataFrame {
 
     pub fn size(&self) -> usize {
         self.get_df().len()
+    }
+
+    pub fn get_dtype(&self, name: String) -> Result<String, JsError> {
+        self.get_df()
+            .column(&name)
+            .map_err(|err| JsError::new(&err.to_string()))
+            .map(Column::dtype)
+            .map(DataType::to_string)
     }
 
     fn to_column_js(s: &Series) -> Result<ColumnJS, Box<dyn std::error::Error>> {
