@@ -11,6 +11,7 @@ polars-core = {git = "https://github.com/andem20/polars-fork", features = ["fmt_
 polars-io = {git = "https://github.com/andem20/polars-fork", features = ["dtype-datetime", "dtype-date", "json"]}
 polars-lazy = {git = "https://github.com/andem20/polars-fork"}
 polars-schema = {git = "https://github.com/andem20/polars-fork"}
+polars-time = {git = "https://github.com/andem20/polars-fork"}
 polars-sql = {git = "https://github.com/andem20/polars-fork", features = ["json", "semi_anti_join"]}
 polars-arrow = {git = "https://github.com/andem20/polars-fork", features = ["io_ipc"]}
 

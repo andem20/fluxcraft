@@ -18,6 +18,7 @@ use polars_lazy::{
     frame::{IntoLazy, LazyFrame},
 };
 use polars_schema::Schema;
+use polars_sql::function_registry::FunctionRegistry;
 
 use crate::{function_registry::CustomFunctionRegistry, wrapper::DataFrameWrapper};
 
@@ -29,7 +30,11 @@ impl FluxCraft {
     pub fn new() -> Self {
         let sql_ctx = polars_sql::SQLContext::new();
 
-        let function_registry = CustomFunctionRegistry::new();
+        let mut function_registry = CustomFunctionRegistry::new();
+        let _ = function_registry.register(
+            "date_trunc",
+            function_registry::date_trunc_definition("date_trunc"),
+        );
 
         let sql_ctx = sql_ctx.with_function_registry(Arc::new(function_registry));
 

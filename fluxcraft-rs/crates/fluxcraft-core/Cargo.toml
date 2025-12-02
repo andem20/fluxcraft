@@ -4,11 +4,12 @@ version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]
-polars-core = {workspace = true}
+polars-core = {workspace = true, features = ["dtype-datetime", "dtype-date", "dtype-time"]}
 polars-io = { workspace = true }
-polars-lazy = { workspace = true }
+polars-lazy = { workspace = true, features = ["dtype-datetime", "dtype-date", "dtype-time"] }
 polars-schema = { workspace = true }
 polars-sql = { workspace = true }
 polars-arrow = { workspace = true }
+polars-time = { workspace = true }
 
 calamine = {version = "0.30.0", features = ["dates"]}

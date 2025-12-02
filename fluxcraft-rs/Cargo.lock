@@ -667,6 +667,7 @@ dependencies = [
  "polars-lazy",
  "polars-schema",
  "polars-sql",
+ "polars-time",
 ]
 
 [[package]]
