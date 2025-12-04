@@ -54,7 +54,6 @@ It allows you to **design pipelines interactively**, then **export and run them 
 
 ## 🧩 Roadmap Highlights
 
-- **Data visualization** in UI (graphs, plots, bounding boxes)
 - **Condition/validation** checks for pipeline outputs
 - **Datasource connectors** (Postgres, Kafka, etc.)
 
@@ -64,19 +63,10 @@ It allows you to **design pipelines interactively**, then **export and run them 
 
 FluxCraft aims to become a **unified workspace for data workflows**, bringing together:
 
-- ETL / data pipelines
+- ETL (Extract, Transform, Load) / data pipelines
 - SQL transformations
 - Interactive visualization
 - Cross-language portability and automation
-
----
-
-## 🛠 Tech Stack
-
-| Layer    | Technology          |
-| -------- | ------------------- |
-| Core     | **Rust + Polars**   |
-| Frontend | React + Rust (WASM) |
 
 ---
 
