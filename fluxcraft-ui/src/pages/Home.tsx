@@ -1,21 +1,20 @@
-import {
-  Container,
-  SpeedDial,
-  SpeedDialAction,
-  SpeedDialIcon,
-} from "@mui/material";
+import { Container, Fab, Tooltip } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import { TransformCard, TransformStep } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
-import LineAxisIcon from "@mui/icons-material/LineAxis";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 import { EnvironmentCard } from "../components/EnvironmentCard";
+import { LineAxis } from "@mui/icons-material";
 
-export function Home() {
+interface HomeProps {
+  isDrawerOpen: boolean;
+  setDrawerOpen: (isOpen: boolean) => void;
+}
+
+export function Home({ isDrawerOpen, setDrawerOpen }: HomeProps) {
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [environmentOpen, setEnvironmentOpen] = useState(false);
 
   function addTransformCard() {
@@ -25,10 +24,6 @@ export function Home() {
     };
 
     setSteps([...steps, step]);
-  }
-
-  function openStepsDrawer(): void {
-    setDrawerOpen(true);
   }
 
   function nextPendingStep() {
@@ -92,7 +87,7 @@ export function Home() {
         steps={steps}
         setSteps={setSteps}
         setPendingSteps={setPendingSteps}
-        drawerOpen={drawerOpen}
+        drawerOpen={isDrawerOpen}
         setDrawerOpen={setDrawerOpen}
       />
 
@@ -103,45 +98,27 @@ export function Home() {
         }}
       />
 
-      <SpeedDial
-        ariaLabel="actions"
-        sx={{ position: "fixed", bottom: 16, right: "50%" }}
-        icon={<SpeedDialIcon />}
-      >
-        <SpeedDialAction
-          key="add-cell"
-          icon={<AddIcon />}
+      <Tooltip title="Add Step" placement="top">
+        <Fab
           onClick={addTransformCard}
-          slotProps={{
-            tooltip: {
-              title: "Add",
-              open: true,
-            },
-          }}
-        />
-        <SpeedDialAction
-          key="pipline"
-          icon={<LineAxisIcon />}
-          onClick={openStepsDrawer}
-          slotProps={{
-            tooltip: {
-              title: "Pipeline",
-              open: true,
-            },
-          }}
-        />
-        {/* <SpeedDialAction
-          key="environment_variables"
-          icon={<FormatListBulletedIcon />}
-          onClick={() => setEnvironmentOpen(true)}
-          slotProps={{
-            tooltip: {
-              title: "Environment",
-              open: true,
-            },
-          }}
-        /> */}
-      </SpeedDial>
+          sx={{ position: "fixed", bottom: 16, right: "50%" }}
+          color="primary"
+          aria-label="add"
+        >
+          <AddIcon />
+        </Fab>
+      </Tooltip>
+
+      <Tooltip title="Show Pipeline" placement="top">
+        <Fab
+          onClick={() => setDrawerOpen(true)}
+          sx={{ position: "fixed", bottom: 16, right: "45%" }}
+          color="secondary"
+          aria-label="pipeline"
+        >
+          <LineAxis />
+        </Fab>
+      </Tooltip>
     </Container>
   );
 }

@@ -1,7 +1,6 @@
 import {
   AppBar,
   Box,
-  Button,
   Container,
   createTheme,
   CssBaseline,
@@ -12,17 +11,17 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
 import WebStoriesIcon from "@mui/icons-material/WebStories";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, toggleDarkMode } from "./stores/Store";
 import darkScrollbar from "@mui/material/darkScrollbar";
-import { Charts } from "./components/Chart";
 
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
   const dispatch = useDispatch();
 
   const theme = useMemo(
@@ -133,8 +132,15 @@ export default function App() {
 
         <Container sx={{ pt: 12 }} maxWidth={false}>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/charts" element={<Charts />} />
+            <Route
+              path="/"
+              element={
+                <Home
+                  isDrawerOpen={isDrawerOpen}
+                  setDrawerOpen={setDrawerOpen}
+                />
+              }
+            />
           </Routes>
         </Container>
       </Router>
