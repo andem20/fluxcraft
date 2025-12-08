@@ -13,201 +13,198 @@ import {
   Typography,
 } from "@mui/material";
 import { JsDataFrame } from "polars-wasm";
-// import * as theme from "../assets/chalk.project.json" with { type: "json" };
+import moment from "moment";
 
 interface ChartProps {
   df: JsDataFrame | null;
 }
 
-enum ChartType {
-  LINE = "line",
-  BAR = "bar",
-}
+const ChartType = {
+  line: { type: "line" },
+  bar: { type: "bar" },
+  stackedArea: { type: "line" },
+} as const;
 
-export function Charts(chartProps: ChartProps) {
-  const chartRef = useRef(null);
+type ChartTypeKey = keyof typeof ChartType;
+
+export function Charts({ df }: ChartProps) {
+  const chartRef = useRef<HTMLDivElement | null>(null);
+
   const [x, setX] = useState<string | null>(null);
   const [y, setY] = useState<string | null>(null);
   const [grouping, setGrouping] = useState<string | null>(null);
-  const [chartType, setChartType] = useState<ChartType>(ChartType.LINE);
-  const [render, setRender] = useState<boolean>(false);
+  const [chartType, setChartType] = useState<ChartTypeKey>("line");
+  const [render, setRender] = useState(false);
 
-  let chart: echarts.ECharts;
   const darkModeSelector = useSelector(
     (state: RootState) => state.darkMode.enabled
   );
 
-  //   echarts.registerTheme("dark", theme.theme);
-
   useEffect(() => {
-    if (!chartRef.current || !x || !y) return;
-    chart = echarts.init(chartRef.current);
+    if (!chartRef.current || !x || !y || !df) return;
 
-    const xData = chartProps.df?.get_column(x);
-    const xDType = chartProps.df?.get_dtype(x);
-    const yData = chartProps.df?.get_column(y);
-    let groupArray: string[];
-    if (grouping && chartProps.df) {
-      groupArray = chartProps.df!.get_column(grouping).get_values();
-    }
+    const chart = echarts.init(
+      chartRef.current,
+      darkModeSelector ? "dark" : "light"
+    );
 
-    const yDataValues = yData?.get_values();
-    const dataMap: {
-      [key: string]: string[][];
-    } = {};
-    xData?.get_values().forEach((v, i) => {
-      const key = groupArray?.[i] ?? y;
-      if (!dataMap[key]) {
-        dataMap[key] = [];
-      }
+    const xCol = df.get_column(x);
+    const xDType = df.get_dtype(x);
+    const yCol = df.get_column(y);
 
-      const dataPoint = [v, yDataValues?.[i] ?? ""];
-      dataMap[key].push(dataPoint);
+    const groupArray = grouping ? df.get_column(grouping).get_values() : [];
+
+    const yValues = yCol.get_values();
+    const xValues = xCol.get_values();
+
+    const dataMap: Record<string, any[]> = {};
+    const stackedX: Record<string, boolean> = {};
+
+    xValues.forEach((v: any, i: number) => {
+      const key = grouping ? groupArray[i] : y;
+      if (!dataMap[key]) dataMap[key] = [];
+
+      const point = chartType === "stackedArea" ? yValues[i] : [v, yValues[i]];
+
+      stackedX[v] = true;
+      dataMap[key].push(point);
     });
 
-    const series = Object.entries(dataMap).map(([key, value]) => ({
-      name: key,
-      type: chartType.toLowerCase(),
-      data: value,
-    }));
+    const series = Object.entries(dataMap).map(([key, arr]) => {
+      const s: any = {
+        name: key,
+        type: ChartType[chartType].type,
+        data: arr,
+      };
 
-    let type = "value";
+      if (chartType === "stackedArea") {
+        s.stack = "total";
+        s.areaStyle = {};
+        s.emphasis = { focus: "series" };
+      }
 
-    if (xDType?.includes("datetime")) {
-      type = "time";
-    } else if (xDType?.includes("string")) {
-      type = "category";
-    }
+      return s;
+    });
 
-    chart.setOption({
-      title: { text: chartProps.df?.get_name() },
-      tooltip: {
-        trigger: "axis",
-      },
+    const xType =
+      xDType?.includes("datetime") && chartType !== "stackedArea"
+        ? "time"
+        : "category";
+
+    const options = {
+      title: { text: df.get_name() },
+      tooltip: { trigger: "axis" },
       xAxis: {
-        type, // FIXME should be inferred from the datatype
+        type: xType,
       },
       yAxis: {},
       series,
       dataZoom: [
-        {
-          type: "inside",
-          start: 0,
-          end: 100,
-        },
-        {
-          start: 0,
-          end: 100,
-        },
+        { type: "inside", start: 0, end: 100 },
+        { start: 0, end: 100 },
       ],
-    });
+    };
+    if (chartType === "stackedArea") {
+      options["xAxis"] = {
+        type: xType,
+        //@ts-ignore,
+        data: Object.keys(stackedX),
+        axisLabel: {
+          formatter: (val: string) =>
+            moment(new Date(val)).format("YYYY-MM-DD HH:mm:ss"),
+        },
+      };
+    }
 
-    chart.setTheme(darkModeSelector ? "dark" : "light");
+    chart.setOption(options);
+
     const handleResize = () => chart.resize();
-    window.addEventListener("resize", () => handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
       chart.dispose();
     };
-  }, [darkModeSelector, render]);
+  }, [df, x, y, grouping, chartType, render, darkModeSelector]);
 
   return (
     <>
       {render ? (
         <Card elevation={3} sx={{ m: 3, width: "100%" }}>
-          <CardContent sx={{ p: 0, m: 0, "&:last-child": { pb: 0 } }}>
-            <div
-              ref={chartRef}
-              id="main"
-              style={{ width: "100%", height: 400 }}
-            ></div>
+          <CardContent sx={{ p: 0 }}>
+            <div ref={chartRef} style={{ width: "100%", height: 400 }} />
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Assign column to axis
-            </Typography>
+            <Typography variant="h5">Assign column to axis</Typography>
           </CardContent>
+
           <CardContent
             sx={{ gap: "1rem", display: "flex", justifyContent: "center" }}
           >
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel id="x-axis-select-label">X axis</InputLabel>
+              <InputLabel>X axis</InputLabel>
               <Select
-                labelId="x-axis-select-label"
-                id="x-axis-select"
                 value={x}
                 label="X axis"
                 onChange={(e) => setX(e.target.value)}
               >
-                {chartProps.df?.get_headers().map((header) => (
-                  <MenuItem value={header.get_name()}>
-                    {header.get_name()}
+                {df?.get_headers().map((h) => (
+                  <MenuItem key={h.get_name()} value={h.get_name()}>
+                    {h.get_name()}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel id="y-axis-select-label">Y axis</InputLabel>
+              <InputLabel>Y axis</InputLabel>
               <Select
-                labelId="y-axis-select-label"
-                id="y-axis-select"
                 value={y}
                 label="Y axis"
                 onChange={(e) => setY(e.target.value)}
               >
-                {chartProps.df?.get_headers().map((header) => (
-                  <MenuItem value={header.get_name()}>
-                    {header.get_name()}
+                {df?.get_headers().map((h) => (
+                  <MenuItem key={h.get_name()} value={h.get_name()}>
+                    {h.get_name()}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel id="group-select-label">Grouping</InputLabel>
+              <InputLabel>Grouping</InputLabel>
               <Select
-                labelId="group-select-label"
-                id="group-select"
                 value={grouping}
                 label="Grouping"
                 onChange={(e) => setGrouping(e.target.value)}
               >
-                {chartProps.df?.get_headers().map((header) => (
-                  <MenuItem value={header.get_name()}>
-                    {header.get_name()}
+                {df?.get_headers().map((h) => (
+                  <MenuItem key={h.get_name()} value={h.get_name()}>
+                    {h.get_name()}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel id="chartType-axis-select-label">
-                Cart ChartType
-              </InputLabel>
+              <InputLabel>Chart Type</InputLabel>
               <Select
-                labelId="chartType-axis-select-label"
-                id="chartType-axis-select"
                 value={chartType}
-                label="Chart type"
-                onChange={(e) => setChartType(e.target.value as ChartType)}
+                label="Chart Type"
+                onChange={(e) => setChartType(e.target.value as ChartTypeKey)}
               >
-                {Object.keys(ChartType).map((c) => (
-                  //@ts-ignore
-                  <MenuItem value={ChartType[c]}>{c}</MenuItem>
+                {Object.keys(ChartType).map((k) => (
+                  <MenuItem key={k} value={k}>
+                    {k}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            <Button
-              onClick={() => setRender(true)}
-              type="submit"
-              variant="contained"
-              color="primary"
-            >
+
+            <Button variant="contained" onClick={() => setRender(true)}>
               Render
             </Button>
           </CardContent>
