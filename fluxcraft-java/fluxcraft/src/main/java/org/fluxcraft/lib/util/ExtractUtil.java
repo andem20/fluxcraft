@@ -1,23 +1,16 @@
 package org.fluxcraft.lib.util;
 
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.apache.arrow.vector.table.Row;
-import org.fluxcraft.lib.core.Column;
 
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class ExtractUtil {
-
-    public static String getColumnName(Field field) {
-        Column column = field.getAnnotation(Column.class);
-        return (column != null) ? column.value() : field.getName();
-    }
 
     public static Object extractValue(Row row, String column, Class<?> type) {
         return switch (type) {

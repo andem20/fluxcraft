@@ -19,6 +19,7 @@ pub struct PipelineOptions();
 #[derive(serde::Deserialize, Debug)]
 struct StepDefinition {
     steps: Vec<Step>,
+    output_type: String,
 }
 
 impl Pipeline {
@@ -27,13 +28,14 @@ impl Pipeline {
     pub fn load(file_path: &str) -> Result<Self, std::io::Error> {
         let file_string = std::fs::read_to_string(file_path)?;
         let pipeline = serde_json::from_str::<StepDefinition>(&file_string)?;
+        let output_type_name = pipeline.output_type.clone();
 
         let fluxcraft = FluxCraft::new();
 
         Ok(Pipeline {
             pipeline,
             fluxcraft,
-            output_type_name: "CreateStuffCommand".to_owned(), // FIXME SHOULD COME FROM FILE
+            output_type_name,
             options: None,
         })
     }

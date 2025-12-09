@@ -15,6 +15,6 @@ public class SomeService {
     }
 
     private boolean isValid(CreateStuffCommand command) {
-        return command.id > 0 && command.productId > 0 && command.stationId > 0 && command.volume > 0;
+        return command.id > 0 && command.product > 0 && command.station > 0 && command.volume > 0;
     }
 }

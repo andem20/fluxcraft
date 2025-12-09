@@ -15,7 +15,7 @@ public interface FluxCraftEntity {
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true);
 
-                String columnName = ExtractUtil.getColumnName(field);
+                String columnName = field.getName();
                 Object value = ExtractUtil.extractValue(row, columnName, field.getType());
 
                 if (value != null) {

@@ -23,17 +23,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // println!("{:?}", result);
 
     let mut pipeline = Pipeline::load(
-        "/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_2.json",
+        "/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_4_new.json",
     )?;
 
     let wrapper = pipeline.execute().await?;
 
-    let result = wrapper.to_csv_bytes(',')?;
+    // let result = wrapper.to_csv_bytes(',')?;
+    println!("{}", pipeline.get_output_type());
 
-    let mut file =
-        std::fs::File::create("/home/anders/Documents/projects/fluxcraft/resources/output.csv")?;
+    // let mut file =
+    //     std::fs::File::create("/home/anders/Documents/projects/fluxcraft/resources/output.csv")?;
 
-    let _ = file.write_all(&result)?;
+    // let _ = file.write_all(&result)?;
 
     return Ok(());
 }

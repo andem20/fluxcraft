@@ -3,11 +3,13 @@ import {
   Button,
   Chip,
   Drawer,
+  InputAdornment,
   Stack,
   Step,
   StepContent,
   StepLabel,
   Stepper,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -15,9 +17,10 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { TransformStep } from "./TransformCard";
 import { Input } from "./FileUpload";
+import DataObjectIcon from "@mui/icons-material/DataObject";
 
 interface PipelineProps {
   steps: TransformStep[];
@@ -29,6 +32,7 @@ interface PipelineProps {
 
 interface Pipeline {
   steps: TransformStep[];
+  output_type: string;
 }
 
 export function PipelineDrawer({
@@ -38,12 +42,15 @@ export function PipelineDrawer({
   drawerOpen,
   setDrawerOpen,
 }: PipelineProps) {
+  const [outputType, setOutputType] = useState<string>("");
+
   function exportPipeline() {
     const pipeline: Pipeline = {
       steps: steps.map((step) => {
         delete step.pending;
         return { ...step, title: step.title ?? `Cell ${step.id}` };
       }),
+      output_type: outputType,
     };
     const blob = new Blob([JSON.stringify(pipeline)], { type: "text/plain" });
     const link = document.createElement("a");
@@ -66,6 +73,7 @@ export function PipelineDrawer({
           step: { ...step },
         },
       }));
+      setOutputType(pipeline.output_type);
 
       setPendingSteps(pendingSteps);
       const pendingStep = pendingSteps.shift();
@@ -142,6 +150,24 @@ export function PipelineDrawer({
             </Step>
           ))}
         </Stepper>
+        <TextField
+          sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
+          id="outputType"
+          label="Output Type"
+          variant="filled"
+          size="small"
+          value={outputType}
+          onChange={(e) => setOutputType(e.target.value)}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="start">
+                  <DataObjectIcon />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
         <Box>
           <Button
             startIcon={<FileDownloadIcon />}

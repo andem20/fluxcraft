@@ -2,7 +2,6 @@ package org.fluxcraft.example;
 
 import java.time.ZonedDateTime;
 
-import org.fluxcraft.lib.core.Column;
 import org.fluxcraft.lib.core.FluxCraftEntity;
 
 import lombok.AllArgsConstructor;
@@ -16,11 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateStuffCommand implements FluxCraftEntity {
     long id;
-    @Column("station")
-    long stationId;
-    @Column("product")
-    long productId;
+    long station;
+    long product;
     double volume;
-    @Column("parsed_time")
-    ZonedDateTime timestamp;
+    ZonedDateTime parsed_time;
 }

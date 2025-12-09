@@ -8,7 +8,7 @@ import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.Pipeline;
 
 public class Main {
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) {
         FluxCraft fluxcraft = new FluxCraft();
 
         Pipeline pipeline = fluxcraft
@@ -16,13 +16,6 @@ public class Main {
         DataFrame dataFrame = pipeline.execute();
         System.out.println("Output type: " + pipeline.getOutputType());
         var start = System.nanoTime();
-
-        // byte[] csvBytes = dataFrame.toCsvBytes(',');
-        // String[] stringArr = new String(csvBytes, StandardCharsets.UTF_8).split(",");
-
-        // for (String s : stringArr) {
-        // System.out.println(s);
-        // }
 
         byte[] arrowBytes = dataFrame.toArrow();
         System.out.println("toArrow: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");

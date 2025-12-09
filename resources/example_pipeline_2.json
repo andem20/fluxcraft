@@ -33,5 +33,6 @@
       ],
       "query": "SELECT df.* from (SELECT UNNEST(products) as df from products) _a"
     }
-  ]
+  ],
+  "output_type": "CreateStuffCommand"
 }
