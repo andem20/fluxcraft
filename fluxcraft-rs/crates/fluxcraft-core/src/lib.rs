@@ -3,7 +3,7 @@ pub mod error;
 mod function_registry;
 pub mod wrapper;
 
-use std::sync::Arc;
+use std::{io::BufRead, sync::Arc};
 
 use calamine::{Data, Reader, Xlsx};
 use polars_core::{
@@ -93,9 +93,22 @@ impl FluxCraft {
     }
 
     fn read_csv(buffer: &[u8], has_headers: bool) -> Result<DataFrame, PolarsError> {
-        let handle = std::io::Cursor::new(&buffer);
+        let mut handle = std::io::Cursor::new(&buffer);
+        // check first line for semicolon
+        let semicolon_count = handle
+            .fill_buf()?
+            .iter()
+            .take_while(|x| !x.eq_ignore_ascii_case(&b'\n'))
+            .filter(|x| x.eq_ignore_ascii_case(&b';'))
+            .count();
+
+        let separator = if semicolon_count > 0 { b';' } else { b',' };
+
+        let csv_parse_options =
+            polars_io::csv::read::CsvParseOptions::default().with_separator(separator);
 
         return polars_io::prelude::CsvReadOptions::default()
+            .with_parse_options(csv_parse_options)
             .with_has_header(has_headers)
             .with_ignore_errors(true)
             .into_reader_with_file_handle(handle)
