@@ -7,6 +7,9 @@ import org.fluxcraft.lib.core.DataFrame;
 import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.Pipeline;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class Main {
     public static void main(String[] args) {
         FluxCraft fluxcraft = new FluxCraft();
@@ -14,18 +17,15 @@ public class Main {
         Pipeline pipeline = fluxcraft
                 .load("/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_3.json");
         DataFrame dataFrame = pipeline.execute();
-        System.out.println("Output type: " + pipeline.getOutputType());
+        log.debug("Output type: " + pipeline.getOutputType());
         var start = System.nanoTime();
 
-        byte[] arrowBytes = dataFrame.toArrow();
-        System.out.println("toArrow: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");
-
         try {
-            pipeline.readArrowStreamFromBytes(arrowBytes, CreateStuffCommand.class);
+            dataFrame.parse(CreateStuffCommand.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("total: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");
+        log.debug("total: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");
     }
 }

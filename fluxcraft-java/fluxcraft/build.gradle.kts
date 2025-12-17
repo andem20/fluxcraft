@@ -28,6 +28,12 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
+
+    implementation(platform("org.apache.logging.log4j:log4j-bom:2.22.1"))
+    implementation("org.apache.logging.log4j:log4j-api")
+    implementation("org.apache.logging.log4j:log4j-core")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl")
+    
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
