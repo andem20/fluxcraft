@@ -37,9 +37,9 @@ jobs:
       - name: Build FluxCraft WASM package
         working-directory: fluxcraft-rs/crates/fluxcraft-wasm
         env:
-          RUSTFLAGS: --cfg getrandom_backend=\"wasm_js\"
+          RUSTFLAGS: --cfg getrandom_backend="wasm_js"
         run: |
-          wasm-pack build --target web --release
+          wasm-pack build --release
 
       # -------------------------
       # Node / React build
