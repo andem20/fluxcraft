@@ -14,9 +14,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-env:
-  RUSTFLAGS: --cfg getrandom_backend="wasm_js"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -39,8 +36,10 @@ jobs:
 
       - name: Build FluxCraft WASM package
         working-directory: fluxcraft-rs/crates/fluxcraft-wasm
+        env:
+          RUSTFLAGS: --cfg getrandom_backend=\"wasm_js\"
         run: |
-          wasm-pack build --release
+          wasm-pack build --target web --release
 
       # -------------------------
       # Node / React build
