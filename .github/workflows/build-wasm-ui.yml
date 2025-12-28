@@ -14,6 +14,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  RUSTFLAGS: --cfg getrandom_backend="wasm_js"
+
 jobs:
   build:
     runs-on: ubuntu-latest
