@@ -4,14 +4,20 @@
 package org.fluxcraft;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.fluxcraft.example.CreateStuffCommand;
 import org.fluxcraft.lib.core.DataFrame;
 import org.fluxcraft.lib.core.FluxCraft;
+import org.fluxcraft.lib.core.FluxCraftEntity;
 import org.fluxcraft.lib.core.Pipeline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 class FlowTest {
 
@@ -26,5 +32,17 @@ class FlowTest {
         List<CreateStuffCommand> commands = dataFrame.parse(CreateStuffCommand.class);
 
         Assertions.assertEquals(1_000_000, commands.size());
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateStuffCommand implements FluxCraftEntity {
+        long id;
+        long station;
+        long product;
+        double volume;
+        ZonedDateTime parsed_time;
     }
 }
