@@ -58,6 +58,6 @@ listOf(
     tasks.withType<JavaExec>() // for 'gradle run' if using application plugin
 ).forEach { taskProvider ->
     taskProvider.configureEach {
-        jvmArgs("--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED")
+        jvmArgs("--add-opens=java.base/java.nio=ALL-UNNAMED")
     }
 }

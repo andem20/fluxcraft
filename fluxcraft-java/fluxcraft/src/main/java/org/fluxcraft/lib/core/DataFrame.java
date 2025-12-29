@@ -26,7 +26,7 @@ public class DataFrame {
 
     public native byte[] toArrow();
 
-    public <T> List<T> parse(Class<? extends FluxCraftEntity> clazz) throws IOException {
+    public <T extends FluxCraftEntity> List<T> parse(Class<? extends FluxCraftEntity> clazz) throws IOException {
         byte[] arrowBytes = this.toArrow();
 
         var start = System.nanoTime();
@@ -39,19 +39,19 @@ public class DataFrame {
 
             start = System.nanoTime();
             VectorSchemaRoot root;
-            List<FluxCraftEntity> result = new ArrayList<>();
+            List<T> result = new ArrayList<>();
             while ((root = reader.getVectorSchemaRoot()) != null && reader.loadNextBatch()) {
                 log.debug("Read batch with " + root.getRowCount() + " rows");
                 try (Table table = new Table(root)) {
                     for (Row row : table) {
-                        FluxCraftEntity entity = FluxCraftEntity.parse(row, clazz);
+                        T entity = FluxCraftEntity.parse(row, clazz);
                         result.add(entity);
                     }
                 }
             }
             log.debug("read: " + (System.nanoTime() - start) / 1_000_000.0 + "ms");
 
-            return null;
+            return result;
         }
     }
 }
