@@ -64,7 +64,7 @@ listOf(
 }
 
 group = "org.fluxcraft"
-version = "1.0.0"
+version = findProperty("version")?.toString() ?: "0.0.0-SNAPSHOT"
 
 publishing {
     publications {

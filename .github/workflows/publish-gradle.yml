@@ -5,6 +5,10 @@ on:
     tags:
       - "v*.*.*" # triggers on version tags like v1.0.0
   workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: Version (ex. 1.0.0)
 
 jobs:
   publish:
@@ -42,6 +46,6 @@ jobs:
 
       - name: Publish package
         working-directory: fluxcraft-java
-        run: ./gradlew publish
+        run: ./gradlew publish -Pversion=${{ github.event.inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
