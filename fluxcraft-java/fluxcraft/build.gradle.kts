@@ -9,6 +9,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
     id("java")
+    `maven-publish`
 }
 
 repositories {
@@ -59,5 +60,27 @@ listOf(
 ).forEach { taskProvider ->
     taskProvider.configureEach {
         jvmArgs("--add-opens=java.base/java.nio=ALL-UNNAMED")
+    }
+}
+
+group = "org.fluxcraft"
+version = "1.0.0"
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/andem20/fluxcraft")
+            credentials {
+                username = findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+                password = findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }

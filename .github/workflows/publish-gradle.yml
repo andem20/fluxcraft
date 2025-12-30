@@ -1,0 +1,33 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # triggers on version tags like v1.0.0
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Publish package
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
