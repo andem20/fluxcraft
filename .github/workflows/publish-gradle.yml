@@ -18,6 +18,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Build rust binary
+        working-directory: fluxcraft-rs
+        run: |
+          cargo build --release
+          cp target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
