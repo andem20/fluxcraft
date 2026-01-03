@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use fluxcraft_pipeline::pipeline::Pipeline;
 
 #[tokio::main]
@@ -22,9 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // println!("{:?}", result);
 
-    let mut pipeline = Pipeline::load(
-        "/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_4_new.json",
-    )?;
+    let mut pipeline = Pipeline::load("/home/anders/Downloads/pipeline.json")?;
 
     let wrapper = pipeline.execute().await?;
 

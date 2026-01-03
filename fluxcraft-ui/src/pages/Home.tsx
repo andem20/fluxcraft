@@ -1,4 +1,4 @@
-import { Container, Fab, Tooltip } from "@mui/material";
+import { Box, Container, Fab, Tooltip } from "@mui/material";
 import { DataframeOverviewCard } from "../components/DataframeOverviewCard";
 import { TransformCard, TransformStep } from "../components/TransformCard";
 import AddIcon from "@mui/icons-material/Add";
@@ -98,27 +98,32 @@ export function Home({ isDrawerOpen, setDrawerOpen }: HomeProps) {
         }}
       />
 
-      <Tooltip title="Add Step" placement="top">
-        <Fab
-          onClick={addTransformCard}
-          sx={{ position: "fixed", bottom: 16, right: "50%" }}
-          color="primary"
-          aria-label="add"
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
+      <Box
+        sx={{
+          position: "absolute",
+          left: "50%",
+          bottom: 16,
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: 3,
+        }}
+      >
+        <Tooltip title="Add Step" placement="top">
+          <Fab onClick={addTransformCard} color="primary" aria-label="add">
+            <AddIcon />
+          </Fab>
+        </Tooltip>
 
-      <Tooltip title="Show Pipeline" placement="top">
-        <Fab
-          onClick={() => setDrawerOpen(true)}
-          sx={{ position: "fixed", bottom: 16, right: "45%" }}
-          color="secondary"
-          aria-label="pipeline"
-        >
-          <LineAxis />
-        </Fab>
-      </Tooltip>
+        <Tooltip title="Show Pipeline" placement="top">
+          <Fab
+            onClick={() => setDrawerOpen(true)}
+            color="secondary"
+            aria-label="pipeline"
+          >
+            <LineAxis />
+          </Fab>
+        </Tooltip>
+      </Box>
     </Container>
   );
 }

@@ -3,9 +3,6 @@ use std::{collections::HashMap, fmt::Display};
 use fluxcraft_core::{FluxCraft, error::FluxCraftError, wrapper::DataFrameWrapper};
 use polars_core::frame::DataFrame;
 
-//FIMXE
-const BASE_PATH: &str = "/home/anders/Documents/projects/fluxcraft/resources/datasets";
-
 #[allow(dead_code)]
 pub struct Pipeline {
     pipeline: StepDefinition,
@@ -78,7 +75,7 @@ impl Pipeline {
 
         let df = match load.kind {
             LoadKind::FILE => {
-                let buffer = std::fs::read(format!("{}/{}", BASE_PATH, load.uri))?;
+                let buffer = std::fs::read(load.uri.clone())?;
                 let has_headers = load
                     .options
                     .get("has_headers")
