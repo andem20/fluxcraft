@@ -5,14 +5,18 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 import { EnvironmentCard } from "../components/EnvironmentCard";
-import { LineAxis } from "@mui/icons-material";
 
 interface HomeProps {
   isDrawerOpen: boolean;
   setDrawerOpen: (isOpen: boolean) => void;
+  showDfOverview: boolean;
 }
 
-export function Home({ isDrawerOpen, setDrawerOpen }: HomeProps) {
+export function Home({
+  isDrawerOpen,
+  setDrawerOpen,
+  showDfOverview,
+}: HomeProps) {
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
   const [environmentOpen, setEnvironmentOpen] = useState(false);
@@ -69,7 +73,7 @@ export function Home({ isDrawerOpen, setDrawerOpen }: HomeProps) {
 
   return (
     <Container maxWidth={false} disableGutters>
-      <DataframeOverviewCard />
+      {showDfOverview && <DataframeOverviewCard />}
 
       {steps.map((step) => (
         <TransformCard
@@ -111,16 +115,6 @@ export function Home({ isDrawerOpen, setDrawerOpen }: HomeProps) {
         <Tooltip title="Add Step" placement="top">
           <Fab onClick={addTransformCard} color="primary" aria-label="add">
             <AddIcon />
-          </Fab>
-        </Tooltip>
-
-        <Tooltip title="Show Pipeline" placement="top">
-          <Fab
-            onClick={() => setDrawerOpen(true)}
-            color="secondary"
-            aria-label="pipeline"
-          >
-            <LineAxis />
           </Fab>
         </Tooltip>
       </Box>

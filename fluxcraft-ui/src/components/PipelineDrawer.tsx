@@ -12,6 +12,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -43,6 +44,7 @@ export function PipelineDrawer({
   setDrawerOpen,
 }: PipelineProps) {
   const [outputType, setOutputType] = useState<string>("");
+  const theme = useTheme();
 
   function exportPipeline() {
     const pipeline: Pipeline = {
@@ -88,6 +90,7 @@ export function PipelineDrawer({
       anchor="right"
       open={drawerOpen}
       onClose={() => setDrawerOpen(false)}
+      sx={{ zIndex: theme.zIndex.drawer + 2 }}
     >
       <Box sx={{ width: 400, p: 2 }}>
         <Typography variant="h6" gutterBottom>
