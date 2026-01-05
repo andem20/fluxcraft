@@ -141,10 +141,7 @@ export default function App() {
 
           <MenuDrawer items={menuItems} />
 
-          <Box
-            component="main"
-            sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
-          >
+          <Box component="main" sx={{ flexGrow: 1, p: 3, minWidth: 0 }}>
             <Toolbar />
             <Routes>
               <Route
