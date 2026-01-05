@@ -104,7 +104,7 @@ export function Home({
 
       <Box
         sx={{
-          position: "absolute",
+          position: "fixed",
           left: "50%",
           bottom: 16,
           transform: "translateX(-50%)",
