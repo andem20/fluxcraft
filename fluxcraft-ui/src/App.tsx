@@ -24,6 +24,7 @@ export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [showDfOverview, setDfOverview] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const dispatch = useDispatch();
 
   const menuItems: MenuDrawerItem[] = [
@@ -44,9 +45,7 @@ export default function App() {
     {
       text: "Settings",
       icon: Settings,
-      onClick: function (): void {
-        throw new Error("Function not implemented.");
-      },
+      onClick: () => setShowSettingsModal(true),
       isSelected: () => false,
     },
   ];
@@ -151,6 +150,8 @@ export default function App() {
                     isDrawerOpen={isDrawerOpen}
                     setDrawerOpen={setDrawerOpen}
                     showDfOverview={showDfOverview}
+                    showSettingsModal={showSettingsModal}
+                    setShowSettingsModal={setShowSettingsModal}
                   />
                 }
               />

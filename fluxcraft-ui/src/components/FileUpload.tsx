@@ -11,7 +11,7 @@ import {
 import { DataSourceProps } from "./UploadCard";
 import { RootState } from "../stores/Store";
 import { useSelector } from "react-redux";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -30,13 +30,13 @@ export function FileUpload({
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
+  const settingsSelector = useSelector((state: RootState) => state.settings);
 
   const [hasHeaders, setHasHeaders] = useState(true);
-  const rootPath = useRef(
-    step.pending?.step.load[0]?.uri.replace(/[^\/]+$/, "") ?? ""
+  const [path, setPath] = useState(
+    step.pending?.step.load[0]?.uri.replace(/[^\/]+$/, "") ??
+      settingsSelector.rootPath
   );
-
-  const initRootPath = rootPath.current;
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -54,7 +54,7 @@ export function FileUpload({
       updateDataframeStore(df);
       onLoadFile({
         type: "FILE",
-        uri: step.pending?.step.load[0]?.uri ?? rootPath.current + file.name,
+        uri: step.pending?.step.load[0]?.uri ?? path + file.name,
         name: file.name,
         options: {
           has_headers:
@@ -96,12 +96,12 @@ export function FileUpload({
         size="small"
         fullWidth
         placeholder="/data/uploads/"
-        value={initRootPath}
-        onChange={(e) => {
-          rootPath.current = e.target.value.replace(/\\/g, "/");
-          rootPath.current = rootPath.current.endsWith("/")
-            ? rootPath.current
-            : rootPath.current + "/";
+        value={path}
+        onChange={(e) => setPath(e.target.value)}
+        onBlur={() => {
+          let value = path.replace(/\\/g, "/");
+          if (!value.endsWith("/")) value += "/";
+          setPath(value);
         }}
         slotProps={{
           input: {

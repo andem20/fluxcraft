@@ -5,17 +5,22 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 import { EnvironmentCard } from "../components/EnvironmentCard";
+import { SettingsCard } from "../components/SettingsCard";
 
 interface HomeProps {
   isDrawerOpen: boolean;
   setDrawerOpen: (isOpen: boolean) => void;
   showDfOverview: boolean;
+  showSettingsModal: boolean;
+  setShowSettingsModal: (isOpen: boolean) => void;
 }
 
 export function Home({
   isDrawerOpen,
   setDrawerOpen,
   showDfOverview,
+  showSettingsModal,
+  setShowSettingsModal,
 }: HomeProps) {
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
@@ -99,6 +104,13 @@ export function Home({
         open={environmentOpen}
         onClose={() => {
           setEnvironmentOpen(false);
+        }}
+      />
+
+      <SettingsCard
+        open={showSettingsModal}
+        onClose={() => {
+          setShowSettingsModal(false);
         }}
       />
 
