@@ -29,18 +29,18 @@ export default function App() {
 
   const menuItems: MenuDrawerItem[] = [
     {
-      text: "Pipeline",
-      icon: LineAxis,
-      onClick: () => setDrawerOpen(true),
-      isSelected: () => false,
-    },
-    {
       text: "Dataframes",
       icon: Description,
       onClick: () => {
         setDfOverview(!showDfOverview);
       },
       isSelected: () => showDfOverview,
+    },
+    {
+      text: "Pipeline",
+      icon: LineAxis,
+      onClick: () => setDrawerOpen(true),
+      isSelected: () => false,
     },
     {
       text: "Settings",

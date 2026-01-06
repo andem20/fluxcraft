@@ -11,7 +11,7 @@ import {
 import { DataSourceProps } from "./UploadCard";
 import { RootState } from "../stores/Store";
 import { useSelector } from "react-redux";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -33,10 +33,25 @@ export function FileUpload({
   const settingsSelector = useSelector((state: RootState) => state.settings);
 
   const [hasHeaders, setHasHeaders] = useState(true);
-  const [path, setPath] = useState(
-    step.pending?.step.load[0]?.uri.replace(/[^\/]+$/, "") ??
-      settingsSelector.rootPath
+  const [path, setPath] = useState("");
+  const isUserEdited = useRef(false);
+
+  const derivedPathFromStep = step.pending?.step.load[0]?.uri?.replace(
+    /[^\/]+$/,
+    ""
   );
+
+  useEffect(() => {
+    if (derivedPathFromStep) {
+      console.log("derived", derivedPathFromStep);
+      setPath(derivedPathFromStep);
+    }
+  }, [derivedPathFromStep]);
+
+  useEffect(() => {
+    if (!settingsSelector.rootPath || isUserEdited.current) return;
+    setPath(settingsSelector.rootPath);
+  }, [isUserEdited, settingsSelector.rootPath]);
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -102,6 +117,8 @@ export function FileUpload({
           let value = path.replace(/\\/g, "/");
           if (!value.endsWith("/")) value += "/";
           setPath(value);
+          isUserEdited.current = true;
+          console.log(isUserEdited.current);
         }}
         slotProps={{
           input: {

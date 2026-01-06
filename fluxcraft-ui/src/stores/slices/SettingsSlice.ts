@@ -13,7 +13,7 @@ export const settingsSlice = createSlice({
   initialState,
   reducers: {
     update: (state, action: PayloadAction<Settings>) => {
-      state = action.payload;
+      state.rootPath = action.payload.rootPath;
       localStorage.setItem("settings", JSON.stringify(state));
     },
   },

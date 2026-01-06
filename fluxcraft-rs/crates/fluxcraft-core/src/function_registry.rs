@@ -51,7 +51,7 @@ pub fn date_trunc_definition(name: &str) -> UserDefinedFunction {
                     .map(|x| x.into_column())
             },
             |_: &Schema, fs: &[Field]| {
-                polars_ensure!(fs.len() == 2, SchemaMismatch: "expected datetrunc(date part, timestamp)");
+                polars_ensure!(fs.len() == 2, SchemaMismatch: "expected date_trunc(date part, timestamp)");
                 let duration = &fs[0];
                 let timestamp = &fs[1];
                 polars_ensure!(duration.dtype().is_string(), SchemaMismatch: format!("expected first arg to be a string, got: {}", duration.dtype()));

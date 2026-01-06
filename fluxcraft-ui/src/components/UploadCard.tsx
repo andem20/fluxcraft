@@ -52,6 +52,7 @@ export function UploadCard({
       open={open}
       onClose={onClose}
       sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      keepMounted
     >
       <Card elevation={3} sx={{ p: 3, maxWidth: 800, width: "100%" }}>
         <CardContent>
