@@ -23,7 +23,7 @@ import { LineAxis, Description, Settings } from "@mui/icons-material";
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [showDfOverview, setDfOverview] = useState(false);
+  const [showDfOverview, setDfOverview] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const dispatch = useDispatch();
 
