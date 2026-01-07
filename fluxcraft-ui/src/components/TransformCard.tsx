@@ -162,12 +162,6 @@ export function TransformCard({
     }
   }
 
-  const commitTitle = () => {
-    if (step.title !== title.current) {
-      step.title = title.current;
-    }
-  };
-
   return (
     <>
       <Accordion
