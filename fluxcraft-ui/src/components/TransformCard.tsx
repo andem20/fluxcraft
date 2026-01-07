@@ -35,6 +35,7 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import { FileDownload } from "@mui/icons-material";
 import { JsDataFrame } from "polars-wasm";
 import { Charts } from "./Chart";
+import { TitleEditor } from "./TitleEditor";
 
 interface TransformCardProps {
   step: TransformStep;
@@ -87,12 +88,12 @@ export function TransformCard({
     renderDataframe,
   } = useDataFrameRenderer();
   const query = useRef<string>(step.query ?? "");
-  const title = useRef<string>(step.title ?? "Cell " + step.id);
 
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
   const [isEditing, setIsEditing] = useState(false);
   const [output, setOutput] = useState<JsDataFrame | null>(null);
   const [isOpenCharts, setIsOpenCharts] = useState<boolean>(false);
+  const title = useRef<string>(step.title ?? "Cell " + step.id);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -161,6 +162,12 @@ export function TransformCard({
     }
   }
 
+  const commitTitle = () => {
+    if (step.title !== title.current) {
+      step.title = title.current;
+    }
+  };
+
   return (
     <>
       <Accordion
@@ -178,29 +185,11 @@ export function TransformCard({
             <Typography sx={{ mr: 1, fontSize: "1.2rem" }}>
               #{step.id}:
             </Typography>
-            <TextField
-              variant="standard"
-              placeholder="Cell title"
-              value={step.title}
-              onClick={(e) => e.stopPropagation()}
-              onFocus={(e) => {
-                setIsEditing(true);
-                e.stopPropagation();
-              }}
-              onBlur={(_e) => {
-                setIsEditing(false);
-                step.title = title.current;
-              }}
-              onChange={(e) => {
-                title.current = e.target.value;
-              }}
-              slotProps={{
-                input: {
-                  disableUnderline: true,
-                  sx: { fontSize: "1.2rem" },
-                },
-              }}
-              fullWidth
+            <TitleEditor
+              id={0}
+              initialTitle={step.title ?? ""}
+              onCommit={(value) => (title.current = value)}
+              setIsEditing={(value) => setIsEditing(value)}
             />
             <Box onClick={handleClick}>
               <MoreVertIcon />
