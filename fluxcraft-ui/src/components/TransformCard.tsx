@@ -72,6 +72,7 @@ export function TransformCard({
   onRemove,
 }: TransformCardProps) {
   const dfSelector = useSelector((state: RootState) => state.file.df);
+  const settingsSelector = useSelector((state: RootState) => state.settings);
   const fluxcraftSelector = useSelector(
     (state: RootState) => state.file.fluxcraft
   );
@@ -144,13 +145,17 @@ export function TransformCard({
   }
 
   function exportDataframe(): void {
-    const inputDf = output;
+    const inputDf = structuredClone(output);
     if (inputDf) {
-      const df = fluxcraftSelector.export_csv(inputDf);
+      const df = fluxcraftSelector.export_csv(
+        inputDf,
+        settingsSelector.export.csv.separator
+      );
       const blob = new Blob([df], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "test.csv";
+      link.download =
+        (title.current ?? "export").replace(" ", "_").toLowerCase() + ".csv";
       link.click();
       URL.revokeObjectURL(link.href);
     }

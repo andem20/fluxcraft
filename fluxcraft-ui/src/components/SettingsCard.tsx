@@ -8,6 +8,10 @@ import {
   TextField,
   Typography,
   Divider,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../stores/Store";
@@ -26,15 +30,23 @@ export function SettingsCard({ open, onClose }: SettingsCardProps) {
   const settingsSelector = useSelector((state: RootState) => state.settings);
   const dispatch = useDispatch<AppDispatch>();
   const [path, setPath] = useState(settingsSelector.rootPath);
+  const [separator, setSeparator] = useState(
+    settingsSelector.export.csv.separator
+  );
 
   const handleSave = () => {
-    let value = path.replace(/\\/g, "/");
-    if (!value.endsWith("/")) value += "/";
+    let rootPath = path.replace(/\\/g, "/");
+    if (!rootPath.endsWith("/")) rootPath += "/";
 
-    setPath(value);
+    setPath(rootPath);
     dispatch(
       settingsSlice.actions.update({
-        rootPath: value,
+        rootPath,
+        export: {
+          csv: {
+            separator,
+          },
+        },
       })
     );
 
@@ -82,6 +94,18 @@ export function SettingsCard({ open, onClose }: SettingsCardProps) {
                   },
                 }}
               />
+              <FormControl size="small" sx={{ maxWidth: 180 }}>
+                <InputLabel id="csv-separator-label">CSV separator</InputLabel>
+                <Select
+                  labelId="csv-separator-label"
+                  value={separator}
+                  label="CSV separator"
+                  onChange={(e) => setSeparator(e.target.value)}
+                >
+                  <MenuItem value=",">Comma</MenuItem>
+                  <MenuItem value=";">Semicolon</MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </CardContent>
 
