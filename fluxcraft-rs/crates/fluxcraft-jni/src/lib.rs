@@ -8,37 +8,41 @@ use jni::sys::{jbyteArray, jchar, jclass, jlong, jobject};
 use tokio::runtime::Runtime;
 
 #[unsafe(no_mangle)]
-pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_load(
-    mut env: JNIEnv,
+pub extern "system" fn Java_org_fluxcraft_lib_core_Pipeline_load<'a>(
+    mut env: JNIEnv<'a>,
     _class: jclass,
-    path: JString,
+    path: JString<'a>,
 ) -> jobject {
-    let file_path: String = env.get_string(&path).unwrap().into();
-
-    match Pipeline::load(&file_path) {
-        Ok(pipeline) => {
-            let output_type_name = env.new_string(&pipeline.get_output_type()).unwrap(); // FIXME
-            let boxed = Box::new(pipeline);
-            // FIXME this is never freed
-            let ptr = Box::into_raw(boxed) as jlong;
-
-            let cls = env.find_class("org/fluxcraft/lib/core/Pipeline").unwrap(); // FIXME
-            let obj = env
-                .new_object(
-                    cls,
-                    "(JLjava/lang/String;)V",
-                    &[
-                        ptr.into(),
-                        JValueGen::Object(&JObject::from(output_type_name)),
-                    ],
-                )
-                .unwrap(); // FIXME
-
-            obj.into_raw()
-        }
-
+    return match load_pipeline(&mut env, path) {
+        Ok(pipeline_jobject) => pipeline_jobject.into_raw(),
         Err(e) => throw_err(e.into(), &mut env),
-    }
+    };
+}
+
+fn load_pipeline<'a>(
+    env: &mut JNIEnv<'a>,
+    path: JString<'a>,
+) -> Result<JObject<'a>, Box<dyn std::error::Error>> {
+    let file_path: String = env.get_string(&path)?.into();
+
+    let pipeline = Pipeline::load(&file_path)?;
+
+    let output_type_name = env.new_string(&pipeline.get_output_type())?;
+    let boxed = Box::new(pipeline);
+    // FIXME this is never freed
+    let ptr = Box::into_raw(boxed) as jlong;
+
+    let cls = env.find_class("org/fluxcraft/lib/core/Pipeline")?;
+    let obj = env.new_object(
+        cls,
+        "(JLjava/lang/String;)V",
+        &[
+            ptr.into(),
+            JValueGen::Object(&JObject::from(output_type_name)),
+        ],
+    )?;
+
+    return Ok(obj);
 }
 
 #[unsafe(no_mangle)]
