@@ -145,7 +145,7 @@ export function TransformCard({
   }
 
   function exportDataframe(): void {
-    const inputDf = structuredClone(output);
+    const inputDf = output;
     if (inputDf) {
       const df = fluxcraftSelector.export_csv(
         inputDf,
