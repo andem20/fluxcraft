@@ -145,10 +145,9 @@ export function TransformCard({
   }
 
   function exportDataframe(): void {
-    const inputDf = output;
-    if (inputDf) {
+    if (output) {
       const df = fluxcraftSelector.export_csv(
-        inputDf,
+        output,
         settingsSelector.export.csv.separator
       );
       const blob = new Blob([df], { type: "text/plain" });

@@ -111,7 +111,7 @@ impl JsFluxCraft {
             .map_err(|e| JsError::new(&e.to_string()));
     }
 
-    pub fn export_csv(&self, input_df: JsDataFrame, separator: &str) -> Result<String, JsError> {
+    pub fn export_csv(&self, input_df: &JsDataFrame, separator: &str) -> Result<String, JsError> {
         let df = input_df.get_wrapper();
         let result = df
             .to_csv_bytes(separator.chars().next().unwrap_or(','))
