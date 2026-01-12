@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, toggleDarkMode } from "./stores/Store";
 import darkScrollbar from "@mui/material/darkScrollbar";
 import { MenuDrawer, MenuDrawerItem } from "./components/MenuDrawer";
-import { LineAxis, Description, Settings } from "@mui/icons-material";
+import { LineAxis, Description, Settings, History } from "@mui/icons-material";
 
 export default function App() {
   const darkMode = useSelector((state: RootState) => state.darkMode.enabled);
@@ -40,6 +40,12 @@ export default function App() {
       text: "Pipeline",
       icon: LineAxis,
       onClick: () => setDrawerOpen(true),
+      isSelected: () => false,
+    },
+    {
+      text: "History",
+      icon: History,
+      onClick: () => () => {},
       isSelected: () => false,
     },
     {
