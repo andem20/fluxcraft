@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PipelineDrawer } from "../components/PipelineDrawer";
 import { EnvironmentCard } from "../components/EnvironmentCard";
 import { SettingsCard } from "../components/SettingsCard";
+import { SqlHistoryCard } from "../components/SqlHistoryCard";
 
 interface HomeProps {
   isDrawerOpen: boolean;
@@ -13,6 +14,8 @@ interface HomeProps {
   showDfOverview: boolean;
   showSettingsModal: boolean;
   setShowSettingsModal: (isOpen: boolean) => void;
+  showHistory: boolean;
+  setShowHistory: (isOpen: boolean) => void;
 }
 
 export function Home({
@@ -21,6 +24,8 @@ export function Home({
   showDfOverview,
   showSettingsModal,
   setShowSettingsModal,
+  showHistory,
+  setShowHistory,
 }: HomeProps) {
   const [steps, setSteps] = useState<TransformStep[]>([]);
   const [pendingSteps, setPendingSteps] = useState<TransformStep[]>([]);
@@ -112,6 +117,11 @@ export function Home({
         onClose={() => {
           setShowSettingsModal(false);
         }}
+      />
+
+      <SqlHistoryCard
+        open={showHistory}
+        onClose={() => setShowHistory(false)}
       />
 
       <Box

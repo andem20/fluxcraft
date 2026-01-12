@@ -35,6 +35,7 @@ import { FileDownload } from "@mui/icons-material";
 import { JsDataFrame } from "polars-wasm";
 import { Charts } from "./Chart";
 import { TitleEditor } from "./TitleEditor";
+import { historySlice } from "../stores/slices/HistorySlice";
 
 interface TransformCardProps {
   step: TransformStep;
@@ -109,6 +110,14 @@ export function TransformCard({
         console.error(error);
         setErrorMsg(error.message ?? "Failed to run query");
       }
+
+      dispatch(
+        historySlice.actions.add({
+          query: query.current,
+          timestamp: new Date(),
+          cell: title.current,
+        })
+      );
     }
 
     dispatch(

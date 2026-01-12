@@ -25,6 +25,7 @@ export default function App() {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [showDfOverview, setDfOverview] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const dispatch = useDispatch();
 
   const menuItems: MenuDrawerItem[] = [
@@ -45,7 +46,7 @@ export default function App() {
     {
       text: "History",
       icon: History,
-      onClick: () => () => {},
+      onClick: () => setShowHistory(true),
       isSelected: () => false,
     },
     {
@@ -97,7 +98,7 @@ export default function App() {
               zIndex: theme.zIndex.drawer + 1,
               background: darkMode
                 ? "linear-gradient(90deg, #0a2d2d 0%, #0f4040 40%, #196464 100%)"
-                : "linear-gradient(90deg, #1b9393ff 0%,  #59bd95ff 70%, #6fdeb2ff 100%)",
+                : "linear-gradient(90deg, #13917cff 0%,  #59bd95ff 70%, #6fdeb2ff 100%)",
               boxShadow: "none",
             }}
           >
@@ -158,6 +159,8 @@ export default function App() {
                     showDfOverview={showDfOverview}
                     showSettingsModal={showSettingsModal}
                     setShowSettingsModal={setShowSettingsModal}
+                    showHistory={showHistory}
+                    setShowHistory={setShowHistory}
                   />
                 }
               />
