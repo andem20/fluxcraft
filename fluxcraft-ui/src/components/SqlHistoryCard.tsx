@@ -91,13 +91,16 @@ export function SqlHistoryCard({ open, onClose }: SqlHistoryCardProps) {
                 </Typography>
               )}
 
-              {history.map((entry, index) => (
-                <SqlHistoryItem
-                  key={index}
-                  query={entry.query}
-                  timestamp={entry.timestamp}
-                />
-              ))}
+              {history
+                .slice()
+                .reverse()
+                .map((entry, index) => (
+                  <SqlHistoryItem
+                    key={index}
+                    query={entry.query}
+                    timestamp={entry.timestamp}
+                  />
+                ))}
             </Stack>
           </Box>
         </Card>

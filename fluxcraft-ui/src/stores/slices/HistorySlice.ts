@@ -33,8 +33,10 @@ export const historySlice = createSlice({
   initialState,
   reducers: {
     add: (state, action: PayloadAction<SqlHistory>) => {
-      state.push(action.payload);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(state));
+      if (state[state.length - 1]?.query !== action.payload.query) {
+        state.push(action.payload);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(state));
+      }
     },
     clear: (state) => {
       state.length = 0;
