@@ -5,7 +5,7 @@
       "load": [
         {
           "type": "FILE",
-          "uri": "demofile.csv",
+          "uri": "/home/anders/Documents/projects/fluxcraft/resources/datasets/demofile.csv",
           "name": "demofile.csv",
           "options": { "has_headers": "true" }
         }
