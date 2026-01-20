@@ -1,5 +1,8 @@
 package org.fluxcraft.lib.core;
 
+import java.io.IOException;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -13,5 +16,9 @@ public class Pipeline {
 
     public String getOutputType() {
         return outputType;
+    }
+
+    public <T extends FluxCraftEntity> List<T> execute(Class<T> outputType) throws IOException {
+        return this.execute().parse(outputType);
     }
 }

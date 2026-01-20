@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.fluxcraft.lib.core.DataFrame;
 import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.FluxCraftEntity;
 import org.fluxcraft.lib.core.Pipeline;
@@ -27,9 +26,8 @@ class FlowTest {
 
         Pipeline pipeline = fluxcraft
                 .load("/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_3.json");
-        DataFrame dataFrame = pipeline.execute();
 
-        List<CreateStuffCommand> commands = dataFrame.parse(CreateStuffCommand.class);
+        List<CreateStuffCommand> commands = pipeline.execute(CreateStuffCommand.class);
 
         Assertions.assertEquals(1_000_000, commands.size());
     }

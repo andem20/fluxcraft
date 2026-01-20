@@ -18,10 +18,6 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation(libs.junit.jupiter)
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
     implementation("org.apache.arrow:arrow-vector:18.3.0")
     implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
@@ -34,6 +30,12 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api")
     implementation("org.apache.logging.log4j:log4j-core")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl")
+
+    // --- tests ---
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testCompileOnly("org.projectlombok:lombok:1.18.34")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
     
 }
 
@@ -52,6 +54,7 @@ application {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+    testLogging { exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
 }
 
 listOf(

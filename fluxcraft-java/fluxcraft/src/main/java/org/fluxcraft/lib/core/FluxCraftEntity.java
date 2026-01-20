@@ -7,7 +7,7 @@ import org.fluxcraft.lib.util.ExtractUtil;
 
 public interface FluxCraftEntity {
 
-    static <T> T parse(Row row, Class<?> clazz) {
+    static <T extends FluxCraftEntity> T parse(Row row, Class<?> clazz) {
         try {
             @SuppressWarnings("unchecked")
             T instance = (T) clazz.getDeclaredConstructor().newInstance();

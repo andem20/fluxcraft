@@ -8,3 +8,4 @@ build
 classes
 headers
 **/*.log
+fluxcraft/src/test/resources/libfluxcraft_jni*
