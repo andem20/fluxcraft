@@ -9,3 +9,4 @@ classes
 headers
 **/*.log
 fluxcraft/src/test/resources/libfluxcraft_jni*
+fluxcraft/bin/**/*

@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.FluxCraftEntity;
+import org.fluxcraft.lib.core.FluxCraftRegistry;
 import org.fluxcraft.lib.core.Pipeline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,13 @@ class FlowTest {
         List<CreateStuffCommand> commands = pipeline.execute(CreateStuffCommand.class);
 
         Assertions.assertEquals(1_000_000, commands.size());
+    }
+
+    @Test
+    void registryLoad() {
+        FluxCraftRegistry.register(CreateStuffCommand.class);
+        Class<? extends FluxCraftEntity> clazz = FluxCraftRegistry.get("CreateStuffCommand");
+        Assertions.assertEquals(CreateStuffCommand.class, clazz);
     }
 
     @Data
