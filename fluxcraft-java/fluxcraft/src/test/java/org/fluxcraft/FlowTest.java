@@ -6,10 +6,12 @@ package org.fluxcraft;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.ServiceLoader;
 
+import org.fluxcraft.annotation.api.FluxcraftComponent;
+import org.fluxcraft.generated.FluxcraftComponentRegistry;
 import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.FluxCraftEntity;
-import org.fluxcraft.lib.core.FluxCraftRegistry;
 import org.fluxcraft.lib.core.Pipeline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,16 +36,20 @@ class FlowTest {
     }
 
     @Test
-    void registryLoad() {
-        FluxCraftRegistry.register(CreateStuffCommand.class);
-        Class<? extends FluxCraftEntity> clazz = FluxCraftRegistry.get("CreateStuffCommand");
-        Assertions.assertEquals(CreateStuffCommand.class, clazz);
+    void serviceLoader() {
+        ServiceLoader<FluxCraftEntity> serviceLoader = ServiceLoader.load(FluxCraftEntity.class);
+        System.out.println(serviceLoader.stream().count());
+
+        for (String name : FluxcraftComponentRegistry.CLASS_NAMES) {
+            System.out.println(name);
+        }
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @FluxcraftComponent
     public static class CreateStuffCommand implements FluxCraftEntity {
         long id;
         long station;

@@ -12,3 +12,5 @@ plugins {
 
 rootProject.name = "fluxcraft-jni"
 include("fluxcraft")
+include("fluxcraft-annotation")
+include("fluxcraft-annotation-api")

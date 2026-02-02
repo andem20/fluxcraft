@@ -7,8 +7,9 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
-    application
-    id("java")
+    // application
+    // id("java")
+    id("java-library")
     `maven-publish`
 }
 
@@ -22,6 +23,7 @@ dependencies {
     implementation("org.apache.arrow:arrow-vector:18.3.0")
     implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
     implementation("org.apache.arrow:arrow-format:18.3.0")
+    implementation(project(":fluxcraft-annotation-api"))
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
@@ -31,11 +33,17 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl")
 
+    compileOnly("com.google.auto.service:auto-service-annotations:1.1.1")
+    annotationProcessor(project(":fluxcraft-annotation"))
+
     // --- tests ---
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testCompileOnly("org.projectlombok:lombok:1.18.34")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
+
+    testCompileOnly("com.google.auto.service:auto-service-annotations:1.1.1")
+    testAnnotationProcessor(project(":fluxcraft-annotation"))
     
 }
 
@@ -46,10 +54,10 @@ java {
     }
 }
 
-application {
-    // Define the main class for the application.
-    mainClass = "org.fluxcraft.Main"
-}
+// application {
+//     // Define the main class for the application.
+//     mainClass = "org.fluxcraft.Main"
+// }
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
@@ -58,6 +66,12 @@ tasks.named<Test>("test") {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStandardStreams = true
     }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    // Add generated sources to compilation
+    source("$buildDir/generated/sources/annotationProcessor/java/main")
+    source("$buildDir/generated/sources/annotationProcessor/java/test")
 }
 
 listOf(
