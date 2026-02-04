@@ -19,39 +19,40 @@ repositories {
 }
 
 dependencies {
-    
+
+    api(project(":fluxcraft-annotation-api"))
+
     implementation("org.apache.arrow:arrow-vector:18.3.0")
     implementation("org.apache.arrow:arrow-memory-netty:18.3.0")
     implementation("org.apache.arrow:arrow-format:18.3.0")
-    implementation(project(":fluxcraft-annotation-api"))
-
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
 
     implementation(platform("org.apache.logging.log4j:log4j-bom:2.22.1"))
     implementation("org.apache.logging.log4j:log4j-api")
     implementation("org.apache.logging.log4j:log4j-core")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl")
 
-    compileOnly("com.google.auto.service:auto-service-annotations:1.1.1")
-    annotationProcessor(project(":fluxcraft-annotation"))
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 
-    // --- tests ---
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    // ---- TESTS ONLY use processor ----
+    testImplementation(project(":fluxcraft-annotation-api"))
+    testAnnotationProcessor(project(":fluxcraft-annotation"))
     testCompileOnly("org.projectlombok:lombok:1.18.34")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
-    testCompileOnly("com.google.auto.service:auto-service-annotations:1.1.1")
-    testAnnotationProcessor(project(":fluxcraft-annotation"))
-    
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+
+    withSourcesJar()
+    withJavadocJar()
 }
 
 // application {
@@ -82,9 +83,6 @@ listOf(
         jvmArgs("--add-opens=java.base/java.nio=ALL-UNNAMED")
     }
 }
-
-group = "org.fluxcraft"
-version = findProperty("version")?.toString() ?: "0.0.0-SNAPSHOT"
 
 publishing {
     publications {
