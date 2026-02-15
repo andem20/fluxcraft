@@ -23,6 +23,26 @@ jobs:
         uses: actions/checkout@v4
 
       # -------------------------
+      # Cache Cargo dependencies + build
+      # -------------------------
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            fluxcraft-rs/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-
+
+      # -------------------------
       # Rust / WASM build
       # -------------------------
       - name: Set up Rust
@@ -31,8 +51,17 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Install wasm-pack
-        run: cargo install wasm-pack
+      - name: Cache wasm-pack
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/wasm-pack
+          key: ${{ runner.os }}-wasm-pack
+
+      - name: Install wasm-pack (if not cached)
+        run: |
+          if ! command -v wasm-pack &> /dev/null; then
+            cargo install wasm-pack
+          fi
 
       - name: Build FluxCraft WASM package
         working-directory: fluxcraft-rs/crates/fluxcraft-wasm
