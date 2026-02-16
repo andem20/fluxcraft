@@ -38,11 +38,9 @@ jobs:
             fluxcraft-rs/crates/fluxcraft-wasm/pkg
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
 
-      - name: Build rust binary
+      - name: Copy rust binary
         working-directory: fluxcraft-rs
-        run: |
-          cargo build --release
-          cp target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
+        run: cp target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
 
       - name: Set up JDK
         uses: actions/setup-java@v4

@@ -37,6 +37,7 @@ jobs:
 
       - name: Build rust binary
         working-directory: fluxcraft-rs
+        if: steps.cache-rust-build.outputs.cache-hit != 'true'
         run: cargo build --release
 
       - name: Install wasm-pack
