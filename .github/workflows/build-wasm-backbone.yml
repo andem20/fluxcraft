@@ -2,6 +2,10 @@ name: Build Fluxcraft WASM
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        type: boolean
+        description: Force a new build and overwrite cache
 
 permissions:
   contents: read
@@ -22,9 +26,15 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            fluxcraft-rs/target
             fluxcraft-rs/crates/fluxcraft-wasm/pkg
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
+
+      - name: Early exit if cache hit and not forced
+        if: steps.cache-rust-build.outputs.cache-hit == 'true' && github.event.inputs.force != 'true'
+        run: |
+          echo "Cache hit and force=false. Skipping build."
+          exit 0
 
       # -------------------------
       # Rust / WASM build
@@ -37,16 +47,13 @@ jobs:
 
       - name: Build rust binary
         working-directory: fluxcraft-rs
-        if: steps.cache-rust-build.outputs.cache-hit != 'true'
         run: cargo build --release
 
       - name: Install wasm-pack
-        if: steps.cache-rust-build.outputs.cache-hit != 'true'
         run: cargo install wasm-pack
 
       - name: Build FluxCraft WASM package
         working-directory: fluxcraft-rs/crates/fluxcraft-wasm
         env:
           RUSTFLAGS: --cfg getrandom_backend="wasm_js"
-        if: steps.cache-rust-build.outputs.cache-hit != 'true'
         run: wasm-pack build --release --target bundler

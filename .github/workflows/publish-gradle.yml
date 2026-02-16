@@ -35,12 +35,12 @@ jobs:
           override: true
 
       - uses: actions/cache@v5
-        id: cache
+        id: cache-rust-build
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            target
+            fluxcraft-rs/target
             fluxcraft-rs/crates/fluxcraft-wasm/pkg
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
 
