@@ -1,5 +1,11 @@
 name: Publish to GitHub Packages
 
+run-name: >
+  Publish ${{ 
+    github.event_name == 'workflow_dispatch' && github.event.inputs.version 
+    || github.ref_name 
+  }}
+
 on:
   push:
     tags:
