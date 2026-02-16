@@ -28,6 +28,16 @@ jobs:
           toolchain: stable
           override: true
 
+      - uses: actions/cache@v5
+        id: cache
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+            fluxcraft-rs/crates/fluxcraft-wasm/pkg
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
+
       - name: Build rust binary
         working-directory: fluxcraft-rs
         run: |

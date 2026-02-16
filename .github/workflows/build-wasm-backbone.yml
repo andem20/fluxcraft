@@ -35,6 +35,10 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Build rust binary
+        working-directory: fluxcraft-rs
+        run: cargo build --release
+
       - name: Install wasm-pack
         if: steps.cache-rust-build.outputs.cache-hit != 'true'
         run: cargo install wasm-pack
@@ -44,4 +48,4 @@ jobs:
         env:
           RUSTFLAGS: --cfg getrandom_backend="wasm_js"
         if: steps.cache-rust-build.outputs.cache-hit != 'true'
-        run: wasm-pack build --release
+        run: wasm-pack build --release --target bundler
