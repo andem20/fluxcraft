@@ -1,0 +1,47 @@
+name: Build Fluxcraft WASM
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - uses: actions/cache@v5
+        id: cache-rust-build
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+            fluxcraft-rs/crates/fluxcraft-wasm/pkg
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
+
+      # -------------------------
+      # Rust / WASM build
+      # -------------------------
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install wasm-pack
+        if: steps.cache-rust-build.outputs.cache-hit != 'true'
+        run: cargo install wasm-pack
+
+      - name: Build FluxCraft WASM package
+        working-directory: fluxcraft-rs/crates/fluxcraft-wasm
+        env:
+          RUSTFLAGS: --cfg getrandom_backend="wasm_js"
+        if: steps.cache-rust-build.outputs.cache-hit != 'true'
+        run: wasm-pack build --release
