@@ -45,10 +45,6 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Build rust binary
-        working-directory: fluxcraft-rs
-        run: cargo build --release
-
       - name: Install wasm-pack
         run: cargo install wasm-pack
 
@@ -56,4 +52,4 @@ jobs:
         working-directory: fluxcraft-rs/crates/fluxcraft-wasm
         env:
           RUSTFLAGS: --cfg getrandom_backend="wasm_js"
-        run: wasm-pack build --release --target bundler
+        run: wasm-pack build --release
