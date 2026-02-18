@@ -37,7 +37,7 @@ export function Charts({ df }: ChartProps) {
   const [render, setRender] = useState(false);
 
   const darkModeSelector = useSelector(
-    (state: RootState) => state.darkMode.enabled
+    (state: RootState) => state.darkMode.enabled,
   );
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export function Charts({ df }: ChartProps) {
 
     const chart = echarts.init(
       chartRef.current,
-      darkModeSelector ? "dark" : "light"
+      darkModeSelector ? "dark" : "light",
     );
 
     const xCol = df.get_column(x);

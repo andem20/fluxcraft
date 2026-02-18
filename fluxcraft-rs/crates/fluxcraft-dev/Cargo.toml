@@ -1,0 +1,7 @@
+[package]
+name = "fluxcraft-dev"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+tokio = { version = "1.47.1", features = ["full"] }
