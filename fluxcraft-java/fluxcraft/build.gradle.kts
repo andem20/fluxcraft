@@ -33,6 +33,7 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
+    annotationProcessor(project(":fluxcraft-annotation"))
 
     // ---- TESTS ONLY use processor ----
     testImplementation(project(":fluxcraft-annotation-api"))
@@ -69,15 +70,9 @@ tasks.named<Test>("test") {
     }
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    // Add generated sources to compilation
-    source("$buildDir/generated/sources/annotationProcessor/java/main")
-    source("$buildDir/generated/sources/annotationProcessor/java/test")
-}
-
 listOf(
     tasks.withType<Test>(),
-    tasks.withType<JavaExec>() // for 'gradle run' if using application plugin
+    tasks.withType<JavaExec>(), // for 'gradle run' if using application plugin
 ).forEach { taskProvider ->
     taskProvider.configureEach {
         jvmArgs("--add-opens=java.base/java.nio=ALL-UNNAMED")

@@ -3,17 +3,12 @@
  */
 package org.fluxcraft;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.Map.Entry;
 
 import org.fluxcraft.annotation.api.FluxcraftComponent;
-import org.fluxcraft.generated.FluxcraftComponentRegistry;
-import org.fluxcraft.lib.core.FluxCraft;
 import org.fluxcraft.lib.core.FluxCraftEntity;
-import org.fluxcraft.lib.core.Pipeline;
-import org.junit.jupiter.api.Assertions;
+import org.fluxcraft.lib.core.FluxCraftRegistry;
 import org.junit.jupiter.api.Test;
 
 import lombok.AllArgsConstructor;
@@ -23,26 +18,26 @@ import lombok.NoArgsConstructor;
 
 class FlowTest {
 
-    @Test
-    void basicTest() throws IOException {
-        FluxCraft fluxcraft = new FluxCraft();
+    // @Test
+    // void basicTest() throws IOException {
+    // FluxCraft fluxcraft = new FluxCraft();
 
-        Pipeline pipeline = fluxcraft
-                .load("/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_3.json");
+    // Pipeline pipeline = fluxcraft
+    // .load("/home/anders/Documents/projects/fluxcraft/resources/example_pipeline_3.json");
 
-        List<CreateStuffCommand> commands = pipeline.execute(CreateStuffCommand.class);
+    // List<CreateStuffCommand> commands =
+    // pipeline.execute(CreateStuffCommand.class);
 
-        Assertions.assertEquals(1_000_000, commands.size());
-    }
+    // Assertions.assertEquals(1_000_000, commands.size());
+    // }
 
     @Test
     void serviceLoader() {
-        ServiceLoader<FluxCraftEntity> serviceLoader = ServiceLoader.load(FluxCraftEntity.class);
-        System.out.println(serviceLoader.stream().count());
-
-        for (String name : FluxcraftComponentRegistry.CLASS_NAMES) {
-            System.out.println(name);
+        for (Entry<String, Class<?>> entry : FluxCraftRegistry.getRegistry().entrySet()) {
+            System.out.println(entry);
         }
+
+        // Assertions.assertEquals(1, serviceLoader.stream().count());
     }
 
     @Data

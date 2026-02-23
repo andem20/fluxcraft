@@ -1,19 +1,28 @@
 package org.fluxcraft.lib.core;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.fluxcraft.annotation.api.FluxcraftComponent;
+
+@FluxcraftComponent
 public final class FluxCraftRegistry {
-    private static ConcurrentHashMap<String, Class<? extends FluxCraftEntity>> registry = new ConcurrentHashMap<>();
+    private static Map<String, Class<?>> registry = org.fluxcraft.generated.FluxcraftComponentRegistry.CLASS_NAMES
+            .stream().filter(n -> !FluxCraftRegistry.class.getName().equals(n))
+            .map(FluxCraftRegistry::toClass)
+            .collect(Collectors.toMap(n -> n.getName(), Function.identity()));
 
-    public static synchronized void register(Class<? extends FluxCraftEntity> clazz) {
-        if (registry.contains(clazz)) {
-            throw new IllegalArgumentException("Cannot insert already registered class: " + clazz);
+    private static Class<?> toClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace(); // FIXME
+            return null;
         }
-
-        registry.put(clazz.getSimpleName(), clazz);
     }
 
-    public static Class<? extends FluxCraftEntity> get(String className) {
-        return registry.get(className);
+    public static Map<String, Class<?>> getRegistry() {
+        return registry;
     }
 }

@@ -33,7 +33,11 @@ public class FluxcraftComponentProcessor extends AbstractProcessor {
                 continue;
 
             TypeElement type = (TypeElement) element;
-            components.add(type.getQualifiedName().toString());
+            String binaryName = processingEnv
+                    .getElementUtils()
+                    .getBinaryName(type)
+                    .toString();
+            components.add(binaryName);
         }
 
         if (roundEnv.processingOver() && !components.isEmpty()) {

@@ -10,6 +10,11 @@ public class Pipeline {
     private final long nativeHandle;
     private final String outputType;
 
+    /**
+     * Execute the pipeline
+     * 
+     * @return a dataframe
+     */
     public native DataFrame execute();
 
     protected static native Pipeline load(String path);
