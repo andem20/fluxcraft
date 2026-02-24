@@ -1,4 +1,7 @@
+use std::thread;
+
 use fluxcraft_core::wrapper::DataFrameWrapper;
+use fluxcraft_dev::Server;
 use fluxcraft_pipeline::pipeline::Pipeline;
 use jni::JNIEnv;
 
@@ -127,4 +130,25 @@ fn native_to_to_arrow<'local>(
 fn throw_err(e: Box<dyn std::error::Error>, env: &mut JNIEnv) -> jobject {
     let _ = env.throw_new("java/lang/RuntimeException", format!("{}", e));
     std::ptr::null_mut()
+}
+
+#[unsafe(no_mangle)]
+pub extern "system" fn Java_org_fluxcraft_lib_dev_FluxcraftDevTools_startServer<'local>(
+    mut env: JNIEnv<'local>,
+    _jthis: JObject<'local>,
+    jresponse: JString<'local>,
+) {
+    let response: String = env
+        .get_string(&jresponse)
+        .expect("Failed parsing response")
+        .into();
+
+    let rt = Runtime::new().expect("Failed getting tokio runtime");
+    let server = Server::new(9999, response);
+
+    thread::spawn(move || {
+        println!("Starting server...");
+        rt.block_on(server.start())
+            .expect("Failed starting dev server");
+    });
 }

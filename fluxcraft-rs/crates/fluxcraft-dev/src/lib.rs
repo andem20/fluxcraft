@@ -1,30 +1,56 @@
-use std::{io, net::SocketAddr};
+use std::{
+    io,
+    net::{Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 
 use tokio::{
     io::AsyncWriteExt,
     net::{TcpListener, TcpStream},
 };
 
-pub struct Server();
+pub struct Server {
+    port: u16,
+    response: Arc<String>,
+}
 
 impl Server {
-    pub async fn start(&self) -> io::Result<()> {
-        let listener = TcpListener::bind("127.0.0.1:9999").await?;
-
-        loop {
-            let (stream, socket_addr) = listener.accept().await?;
-            tokio::spawn(async move { Self::handle_connection(stream, socket_addr).await });
+    pub fn new(port: u16, response: String) -> Self {
+        Self {
+            port,
+            response: Arc::new(response),
         }
     }
 
-    async fn handle_connection(mut stream: TcpStream, socket_addr: SocketAddr) -> io::Result<()> {
+    pub async fn start(&self) -> io::Result<()> {
+        let addr = SocketAddr::new(std::net::IpAddr::V4(Ipv4Addr::LOCALHOST), self.port);
+        let listener = TcpListener::bind(addr).await?;
+
+        println!("Started server on: {}", addr);
+
+        loop {
+            let (stream, socket_addr) = listener.accept().await?;
+            let response_body = self.response.clone();
+            tokio::spawn(async move {
+                Self::handle_connection(stream, socket_addr, response_body).await
+            });
+        }
+    }
+
+    async fn handle_connection(
+        mut stream: TcpStream,
+        socket_addr: SocketAddr,
+        response_body: Arc<String>,
+    ) -> io::Result<()> {
         println!("Received request from: {:?}", socket_addr);
 
-        let body = "Hello\n";
-        let headers = format!("HTTP/1.1 200 OK\ncontent-length: {};\n\n", body.len());
+        let headers = format!(
+            "HTTP/1.1 200 OK\ncontent-length: {}\n\n",
+            response_body.len()
+        );
 
         stream.write_all(headers.as_bytes()).await?;
-        stream.write_all(body.as_bytes()).await?;
+        stream.write_all(response_body.as_bytes()).await?;
         stream.flush().await?;
 
         Ok(())
