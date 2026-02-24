@@ -8,6 +8,11 @@ java {
     withJavadocJar()
 }
 
+tasks.withType<Javadoc>().configureEach {
+    (options as StandardJavadocDocletOptions)
+        .addStringOption("Xdoclint:-missing", "-quiet")
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
