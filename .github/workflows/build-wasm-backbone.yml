@@ -37,13 +37,17 @@ jobs:
           exit 0
 
       # -------------------------
-      # Rust / WASM build
+      # Rust / Build
       # -------------------------
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
+
+      - name: Build all release
+        working-directory: fluxcraft-rs
+        run: cargo build --release
 
       - name: Install wasm-pack
         run: cargo install wasm-pack
