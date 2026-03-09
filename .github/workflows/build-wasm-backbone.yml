@@ -37,7 +37,7 @@ jobs:
           exit 0
 
       # -------------------------
-      # Rust / Build
+      # Rust build (ensure JNI exists)
       # -------------------------
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
@@ -45,9 +45,9 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Build all release
+      - name: Build JNI library
         working-directory: fluxcraft-rs
-        run: cargo build --release
+        run: cargo build -p fluxcraft-jni --release --locked
 
       - name: Install wasm-pack
         run: cargo install wasm-pack
