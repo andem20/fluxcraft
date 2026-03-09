@@ -49,6 +49,10 @@ jobs:
         working-directory: fluxcraft-rs
         run: cargo build -p fluxcraft-jni --release --locked
 
+      - name: Verify JNI library
+        working-directory: fluxcraft-rs
+        run: find target -name "libfluxcraft_jni.so"
+
       - name: Install wasm-pack
         run: cargo install wasm-pack
 
