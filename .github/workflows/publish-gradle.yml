@@ -46,7 +46,7 @@ jobs:
 
       - name: Copy rust binary
         working-directory: fluxcraft-rs
-        run: cp target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
+        run: cp fluxcraft-rs/target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
 
       - name: Set up JDK
         uses: actions/setup-java@v4
