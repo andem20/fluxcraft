@@ -64,6 +64,7 @@ jobs:
         run: wasm-pack build --release
 
       - name: Verify JNI library
+        working-directory: fluxcraft-rs
         run: find target -name "libfluxcraft_jni.so"
 
       - name: Verify WASM build
