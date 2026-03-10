@@ -45,9 +45,17 @@ impl Server {
         println!("Received request from: {:?}", socket_addr);
 
         let headers = format!(
-            "HTTP/1.1 200 OK\ncontent-length: {}\n\n",
+            concat!(
+                "HTTP/1.1 200 OK\r\n",
+                "content-length: {}\r\n",
+                "Access-Control-Allow-Origin: *\r\n",
+                "Content-Type: application/json\r\n",
+                "\r\n"
+            ),
             response_body.len()
         );
+
+        println!("{}", headers);
 
         stream.write_all(headers.as_bytes()).await?;
         stream.write_all(response_body.as_bytes()).await?;

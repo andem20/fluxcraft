@@ -18,10 +18,12 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { TransformStep } from "./TransformCard";
 import { Input } from "./FileUpload";
 import DataObjectIcon from "@mui/icons-material/DataObject";
+import { RootState } from "../stores/Store";
+import { useSelector } from "react-redux";
 
 interface PipelineProps {
   steps: TransformStep[];
@@ -44,7 +46,10 @@ export function PipelineDrawer({
   setDrawerOpen,
 }: PipelineProps) {
   const [outputType, setOutputType] = useState<string>("");
+  const [schema, setSchema] = useState<string | undefined>();
   const theme = useTheme();
+
+  const settingsSelector = useSelector((state: RootState) => state.settings);
 
   function exportPipeline() {
     const pipeline: Pipeline = {
@@ -84,6 +89,18 @@ export function PipelineDrawer({
       }
     }
   }
+
+  useEffect(() => {
+    console.log(settingsSelector.serverUrl);
+    if (settingsSelector.serverUrl) {
+      fetch(settingsSelector.serverUrl)
+        .then((res) => res.json())
+        .then((json) => {
+          console.log(json);
+          setSchema(json);
+        });
+    }
+  }, []);
 
   return (
     <Drawer

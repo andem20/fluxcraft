@@ -14,6 +14,7 @@ import {
   InputLabel,
   Box,
 } from "@mui/material";
+import SensorsIcon from "@mui/icons-material/Sensors";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import SaveIcon from "@mui/icons-material/Save";
@@ -33,8 +34,9 @@ export function SettingsCard({ open, onClose }: SettingsCardProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const [path, setPath] = useState(settingsSelector.rootPath);
+  const [serverUrl, setServerUrl] = useState(settingsSelector.serverUrl);
   const [separator, setSeparator] = useState(
-    settingsSelector.export.csv.separator
+    settingsSelector.export.csv.separator,
   );
 
   const handleSave = () => {
@@ -48,7 +50,8 @@ export function SettingsCard({ open, onClose }: SettingsCardProps) {
         export: {
           csv: { separator },
         },
-      })
+        serverUrl,
+      }),
     );
 
     onClose();
@@ -125,6 +128,29 @@ export function SettingsCard({ open, onClose }: SettingsCardProps) {
                       <MenuItem value=";">Semicolon (;)</MenuItem>
                     </Select>
                   </FormControl>
+                }
+              />
+
+              {/* SERVER SETTINGS */}
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <SensorsIcon fontSize="small" />
+                  <Typography variant="h6">Server</Typography>
+                </Stack>
+                <Divider />
+              </Stack>
+
+              <SettingsRow
+                label="Server url"
+                caption="Url of the dev server hosting the schema."
+                control={
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={serverUrl}
+                    onChange={(e) => setServerUrl(e.target.value)}
+                    sx={{ "& input": { fontFamily: "monospace" } }}
+                  />
                 }
               />
             </Stack>

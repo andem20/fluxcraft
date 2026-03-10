@@ -7,6 +7,7 @@ interface Settings {
       separator: string;
     };
   };
+  serverUrl?: string;
 }
 
 const initState: Settings = {
@@ -29,6 +30,7 @@ export const settingsSlice = createSlice({
     update: (state, action: PayloadAction<Settings>) => {
       state.rootPath = action.payload.rootPath;
       state.export = action.payload.export;
+      state.serverUrl = action.payload.serverUrl;
       localStorage.setItem("settings", JSON.stringify(state));
     },
   },
