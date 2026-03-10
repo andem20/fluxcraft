@@ -2,10 +2,6 @@ name: Build Fluxcraft Backbone
 
 on:
   workflow_dispatch:
-    inputs:
-      force:
-        type: boolean
-        description: Force a new build and overwrite cache
 
 permissions:
   contents: read
@@ -20,27 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Generate cache buster
-        id: cache-buster
-        if: github.event.inputs.force == 'true'
-        run: echo "ts=-$(date +%s)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v5
-        id: cache-rust-build
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            fluxcraft-rs/target
-            fluxcraft-rs/crates/fluxcraft-wasm/pkg
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}${{steps.cache-buster.outputs.ts}}
-
-      - name: Early exit if cache hit and not forced
-        if: steps.cache-rust-build.outputs.cache-hit == 'true' && github.event.inputs.force != 'true'
-        run: |
-          echo "Cache hit and force=false. Skipping build."
-          exit 0
-
       # -------------------------
       # Rust build (ensure JNI exists)
       # -------------------------
@@ -54,6 +29,12 @@ jobs:
         working-directory: fluxcraft-rs
         run: cargo build --release
 
+      - name: Upload JNI library
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluxcraft-jni
+          path: fluxcraft-rs/target/release/libfluxcraft_jni.so
+
       - name: Install wasm-pack
         run: cargo install wasm-pack
 
@@ -63,9 +44,8 @@ jobs:
           RUSTFLAGS: --cfg getrandom_backend="wasm_js"
         run: wasm-pack build --release
 
-      - name: Verify JNI library
-        working-directory: fluxcraft-rs
-        run: find target -name "libfluxcraft_jni.so"
-
-      - name: Verify WASM build
-        run: ls fluxcraft-rs/crates/fluxcraft-wasm/pkg
+      - name: Upload WASM
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluxcraft-wasm
+          path: fluxcraft-rs/crates/fluxcraft-wasm/pkg
