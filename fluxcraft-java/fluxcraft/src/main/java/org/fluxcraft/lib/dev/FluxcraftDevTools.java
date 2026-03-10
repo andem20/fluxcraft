@@ -14,11 +14,15 @@ public class FluxcraftDevTools {
         if (instance == null) {
             instance = new FluxcraftDevTools();
             StringBuilder builder = new StringBuilder();
-            builder.append("{");
+            builder.append("[");
             FluxCraftRegistry.getRegistry().entrySet().forEach(entry -> {
-                addQuoted(builder, entry.getKey());
-                builder.append(":");
                 builder.append("{");
+                addQuoted(builder, "type");
+                builder.append(":");
+                addQuoted(builder, entry.getKey());
+                builder.append(",");
+                addQuoted(builder, "fields");
+                builder.append(": {");
                 Field[] fields = entry.getValue().getDeclaredFields();
                 for (int i = 0; i < fields.length; i++) {
                     Field field = fields[i];
@@ -29,9 +33,9 @@ public class FluxcraftDevTools {
                         builder.append(",");
                     }
                 }
-                builder.append("}");
+                builder.append("}}");
             });
-            builder.append("}");
+            builder.append("]");
             instance.startServer(builder.toString());
         }
 
