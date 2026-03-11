@@ -34,9 +34,17 @@ jobs:
           toolchain: stable
           override: true
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/cache@v5
+        id: cache-rust-build
         with:
-          name: fluxcraft-jni
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            fluxcraft-rs/target
+            fluxcraft-rs/crates/fluxcraft-wasm/pkg
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
       - name: Inspect release output
         run: ls -lah fluxcraft-jni

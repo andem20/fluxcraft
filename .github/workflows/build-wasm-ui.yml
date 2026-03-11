@@ -22,12 +22,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/cache@v5
+        id: cache-rust-build
         with:
-          name: fluxcraft-wasm
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            fluxcraft-rs/target
+            fluxcraft-rs/crates/fluxcraft-wasm/pkg
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', '**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
       - name: Copy wasm
-        run: cp fluxcraft-wasm fluxcraft-rs/crates/fluxcraft-wasm/pkg
+        working-directory: fluxcraft-rs
+        run: cp target/release/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
 
       # -------------------------
       # Node / React build
