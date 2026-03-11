@@ -46,9 +46,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Inspect release output
-        run: ls -lah fluxcraft-jni
-
       - name: Copy rust binary
         working-directory: fluxcraft-rs
         run: cp fluxcraft-jni/libfluxcraft_jni.so ../fluxcraft-java/fluxcraft/src/main/resources/libfluxcraft_jni.so
