@@ -3,7 +3,11 @@ import {
   Button,
   Chip,
   Drawer,
+  FormControl,
   InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Step,
   StepContent,
@@ -38,6 +42,11 @@ interface Pipeline {
   output_type: string;
 }
 
+interface FluxcraftSchema {
+  type: string;
+  fields: { [key: string]: string };
+}
+
 export function PipelineDrawer({
   steps,
   setSteps,
@@ -46,7 +55,7 @@ export function PipelineDrawer({
   setDrawerOpen,
 }: PipelineProps) {
   const [outputType, setOutputType] = useState<string>("");
-  const [schema, setSchema] = useState<string | undefined>();
+  const [schema, setSchema] = useState<FluxcraftSchema[] | undefined>();
   const theme = useTheme();
 
   const settingsSelector = useSelector((state: RootState) => state.settings);
@@ -91,12 +100,10 @@ export function PipelineDrawer({
   }
 
   useEffect(() => {
-    console.log(settingsSelector.serverUrl);
     if (settingsSelector.serverUrl) {
       fetch(settingsSelector.serverUrl)
         .then((res) => res.json())
         .then((json) => {
-          console.log(json);
           setSchema(json);
         });
     }
@@ -170,24 +177,45 @@ export function PipelineDrawer({
             </Step>
           ))}
         </Stepper>
-        <TextField
-          sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
-          id="outputType"
-          label="Output Type"
-          variant="filled"
-          size="small"
-          value={outputType}
-          onChange={(e) => setOutputType(e.target.value)}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="start">
-                  <DataObjectIcon />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+
+        {schema ? (
+          <FormControl
+            size="small"
+            fullWidth
+            sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
+          >
+            <InputLabel>Output Type</InputLabel>
+            <Select
+              value={outputType}
+              label="Separator"
+              onChange={(e) => setOutputType(e.target.value)}
+            >
+              {schema?.map((s) => (
+                <MenuItem value={s.type}>{s.type}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : (
+          <TextField
+            sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
+            id="outputType"
+            label="Output Type"
+            variant="filled"
+            size="small"
+            value={outputType}
+            onChange={(e) => setOutputType(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="start">
+                    <DataObjectIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        )}
+
         <Box>
           <Button
             startIcon={<FileDownloadIcon />}
