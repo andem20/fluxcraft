@@ -4,11 +4,6 @@ import {
   Button,
   Chip,
   Drawer,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   Step,
   StepContent,
@@ -26,7 +21,6 @@ import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { ChangeEvent, useEffect, useState } from "react";
 import { TransformStep } from "./TransformCard";
 import { Input } from "./FileUpload";
-import DataObjectIcon from "@mui/icons-material/DataObject";
 import { RootState } from "../stores/Store";
 import { useSelector } from "react-redux";
 
