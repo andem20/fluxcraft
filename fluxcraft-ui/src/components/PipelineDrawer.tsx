@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -178,43 +179,52 @@ export function PipelineDrawer({
           ))}
         </Stepper>
 
-        {schema ? (
-          <FormControl
-            size="small"
-            fullWidth
-            sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
-          >
-            <InputLabel>Output Type</InputLabel>
-            <Select
-              value={outputType}
-              label="Separator"
-              onChange={(e) => setOutputType(e.target.value)}
-            >
-              {schema?.map((s) => (
-                <MenuItem value={s.type}>{s.type}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : (
-          <TextField
-            sx={{ mt: "1rem", mb: "1rem", width: "100%" }}
-            id="outputType"
-            label="Output Type"
-            variant="filled"
-            size="small"
-            value={outputType}
-            onChange={(e) => setOutputType(e.target.value)}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="start">
-                    <DataObjectIcon />
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-        )}
+        <Autocomplete
+          freeSolo
+          size="small"
+          options={schema?.map((s) => s.type) || []}
+          value={outputType || null}
+          onChange={(_event, newValue) => {
+            setOutputType(newValue || "");
+          }}
+          onInputChange={(_event, newInputValue) => {
+            setOutputType(newInputValue);
+          }}
+          renderOption={(props, option) => {
+            const s = schema?.find((x) => x.type === option);
+
+            return (
+              <li {...props} key={option}>
+                <Tooltip
+                  arrow
+                  placement="right"
+                  title={
+                    s?.fields ? (
+                      <div>
+                        {Object.entries(s.fields).map(([name, type]) => (
+                          <div key={name}>
+                            <b>{name}</b>: {type}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      ""
+                    )
+                  }
+                >
+                  <span>{option}</span>
+                </Tooltip>
+              </li>
+            );
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Output Type"
+              sx={{ mt: "1rem", mb: "1rem" }}
+            />
+          )}
+        />
 
         <Box>
           <Button
