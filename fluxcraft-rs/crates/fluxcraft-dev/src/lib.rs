@@ -55,8 +55,6 @@ impl Server {
             response_body.len()
         );
 
-        println!("{}", headers);
-
         stream.write_all(headers.as_bytes()).await?;
         stream.write_all(response_body.as_bytes()).await?;
         stream.flush().await?;
