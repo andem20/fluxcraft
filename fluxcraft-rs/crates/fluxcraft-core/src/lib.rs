@@ -9,14 +9,10 @@ use calamine::{Data, Reader, Xlsx};
 use polars_core::{
     error::{ErrString, PolarsError},
     frame::DataFrame,
-    functions::concat_df_horizontal,
-    prelude::{AnyValue, Column, DataType, TimeUnit},
+    prelude::{AnyValue, Column, TimeUnit},
 };
 use polars_io::SerReader;
-use polars_lazy::{
-    dsl::{Expr, StrptimeOptions, coalesce, col, lit},
-    frame::{IntoLazy, LazyFrame},
-};
+use polars_lazy::frame::{IntoLazy, LazyFrame};
 use polars_schema::Schema;
 use polars_sql::function_registry::FunctionRegistry;
 
@@ -249,59 +245,6 @@ impl FluxCraft {
 
         return Ok(DataFrame::new(columns)?);
     }
-}
 
-#[allow(dead_code)]
-fn try_parse_timestamps(df: &mut DataFrame) -> Result<DataFrame, Box<dyn std::error::Error>> {
-    let formats = vec![
-        "%FT%T%.fZ".to_owned(), // ISO + fractional seconds
-        "%FT%TZ".to_owned(),    // ISO no fractional
-        "%F %T".to_owned(),     // space separated
-        "%F %TZ".to_owned(),    // space separated
-        "%F".to_owned(),        // date only
-    ];
-
-    let string_cols: Vec<Expr> = df
-        .get_columns()
-        .iter()
-        .filter(|col| matches!(col.dtype(), DataType::String))
-        .map(|col| col.name().to_string())
-        .map(|name| coalesce(&generate_time_formats(&formats, &name)))
-        .collect();
-
-    let test = df.clone().lazy().with_columns(string_cols).collect();
-
-    let df2 = test?;
-    let string_cols: Vec<String> = df2
-        .get_columns()
-        .iter()
-        .filter(|col| col.is_not_null().any())
-        .map(|c| c.name().to_string())
-        .collect();
-
-    return Ok(concat_df_horizontal(
-        &[df.drop_many(&string_cols), df2.select(string_cols).unwrap()],
-        false,
-    )?);
-}
-
-fn generate_time_formats(formats: &[String], name: &str) -> Vec<Expr> {
-    let result = formats
-        .iter()
-        .map(|fmt| {
-            col(name).str().to_datetime(
-                Some(TimeUnit::Milliseconds),
-                None,
-                StrptimeOptions {
-                    format: Some(fmt.into()),
-                    strict: false,
-                    exact: true,
-                    cache: true,
-                },
-                lit("raise"),
-            )
-        })
-        .collect::<Vec<Expr>>();
-
-    return result;
+    pub fn get_chart_data(&self) {}
 }

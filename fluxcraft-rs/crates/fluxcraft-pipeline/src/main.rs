@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut pipeline = Pipeline::load("/home/anders/Downloads/pipeline.json")?;
 
-    let wrapper = pipeline.execute().await?;
+    let _wrapper = pipeline.execute().await?;
 
     // let result = wrapper.to_csv_bytes(',')?;
     println!("{}", pipeline.get_output_type());
